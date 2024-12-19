@@ -8,8 +8,10 @@ import (
 )
 
 func NewMySQLStorage(cfg mysql.Config) (*sql.DB, error) {
-	db, err := sql.Open("mysql", cfg.FormatDSN())
+	// db, err := sql.Open("mysql", cfg.FormatDSN()) ATTEMPTING TO CONNECT WITHOUT DSN FORMAT
+	db, err := sql.Open("mysql", "mysql://root:oqtTuMGuqlQSFatEpiicJJcdGfWbANtd@tcp(junction.proxy.rlwy.net:58595)/railway")
 	if err != nil {
+		println("error in db.go NewMySqlStorage method")
 		log.Fatal(err)
 	}
 

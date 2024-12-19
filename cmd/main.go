@@ -21,6 +21,7 @@ func main() {
 		ParseTime:            true,
 	})
 	if err != nil {
+		println("error in main.go NewMySqlStorage method")
 		log.Fatal(err)
 	}
 
