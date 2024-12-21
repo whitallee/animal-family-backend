@@ -27,8 +27,9 @@ func main() {
 
 	initStorage(db)
 
-	server := api.NewAPIServer(":8080", db)
+	server := api.NewAPIServer(":8080", nil)
 	if err := server.Run(); err != nil {
+		println("error in main.go on server creation")
 		log.Fatal(err)
 	}
 }
@@ -36,6 +37,7 @@ func main() {
 func initStorage(db *sql.DB) {
 	err := db.Ping()
 	if err != nil {
+		println("error in main.go initStorage method")
 		log.Fatal(err)
 	}
 
