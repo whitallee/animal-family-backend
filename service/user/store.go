@@ -15,6 +15,7 @@ func NewStore(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
+// GetUserByEmail implements types.UserStore.
 func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 	rows, err := s.db.Query("SELECT * FROM users WHERE email = ?", email)
 	if err != nil {
@@ -34,6 +35,16 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 	}
 
 	return u, nil
+}
+
+// GetUserById implements types.UserStore.
+func (s *Store) GetUserById(id int) (*types.User, error) {
+	panic("unimplemented")
+}
+
+// CreateUser implements types.UserStore.
+func (s *Store) CreateUser(types.User) error {
+	panic("unimplemented")
 }
 
 func scanRowIntoUser(rows *sql.Rows) (*types.User, error) {
