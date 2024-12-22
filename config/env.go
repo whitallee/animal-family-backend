@@ -32,7 +32,7 @@ func initConfig() Config {
 		DBUser:     getEnv("DB_USER", "root"),
 		DBPassword: getEnv("DB_PASSWORD", "passwordNotFound"),
 		DBAddress:  fmt.Sprintf("%s:%s", getEnv("DB_HOST", "hostNotFound"), getEnv("DB_PORT", "portNotFound")),
-		DBName:     getEnv("DBName", "railway"),
+		DBName:     getEnv("DB_NAME", "nameNotFound"),
 	}
 }
 
