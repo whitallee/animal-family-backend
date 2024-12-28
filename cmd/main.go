@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	db, err := db.NewMySQLStorage(mysql.Config{
+	cfg := mysql.Config{
 		User:                 config.Envs.DBUser,
 		Passwd:               config.Envs.DBPassword,
 		Addr:                 config.Envs.DBAddress,
@@ -19,17 +19,16 @@ func main() {
 		Net:                  "tcp",
 		AllowNativePasswords: true,
 		ParseTime:            true,
-	})
+	}
+	db, err := db.NewMySQLStorage(cfg)
 	if err != nil {
-		println("error in main.go NewMySqlStorage method")
 		log.Fatal(err)
 	}
 
 	initStorage(db)
 
-	server := api.NewAPIServer(":8080", nil)
+	server := api.NewAPIServer(":8080", db)
 	if err := server.Run(); err != nil {
-		println("error in main.go on server creation")
 		log.Fatal(err)
 	}
 }
@@ -37,7 +36,6 @@ func main() {
 func initStorage(db *sql.DB) {
 	err := db.Ping()
 	if err != nil {
-		println("error in main.go initStorage method")
 		log.Fatal(err)
 	}
 

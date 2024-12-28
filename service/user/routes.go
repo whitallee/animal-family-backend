@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	"github.com/whitallee/animal-family-backend/config"
 	"github.com/whitallee/animal-family-backend/service/auth"
 	"github.com/whitallee/animal-family-backend/types"
 	"github.com/whitallee/animal-family-backend/utils"
@@ -25,47 +26,82 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	// get JSON payload
-	var payload types.RegisterUserPayload
-	if err := utils.ParseJSON(r, payload); err != nil { // I changed &payload to payload
+	var user types.LoginUserPayload
+	if err := utils.ParseJSON(r, &user); err != nil { // I changed &payload to payload now back to &payload
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	// validate payload done by other package
-	if err := utils.Validate.Struct(payload); err != nil {
+	if err := utils.Validate.Struct(user); err != nil {
 		errors := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors)) // I changed &v to %v
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
 	}
 
-	// check if user exists
-	_, err := h.store.GetUserByEmail(payload.Email)
-	if err == nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email %s already exists", payload.Email))
+	// find user
+	u, err := h.store.GetUserByEmail(user.Email)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
 		return
 	}
 
-	hashedPassword, err := auth.HashPassword(payload.Password)
+	// compare password hash
+	if !auth.ComparePasswords(u.Password, []byte(user.Password)) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
+		return
+	}
+
+	secret := []byte(config.Envs.JWTSecret)
+	token, err := auth.CreateJWT(secret, u.ID)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
 	}
 
-	// if it doesn't exist, create new user
-	err = h.store.CreateUser(types.User{
-		FirstName: payload.FirstName,
-		LastName:  payload.LastName,
-		Email:     payload.Email,
-		Password:  hashedPassword,
-	})
-	if err == nil {
+	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
+}
+
+func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
+	// get JSON payload
+	var user types.RegisterUserPayload
+	if err := utils.ParseJSON(r, &user); err != nil { // I changed &payload to payload now back to &payload
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	utils.WrtiteJSON(w, http.StatusCreated, nil)
+	// validate payload done by other package
+	if err := utils.Validate.Struct(user); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check if user exists ERROR HAPENING IN THIS BLOCK vvv
+	_, err := h.store.GetUserByEmail(user.Email)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email %s already exists", user.Email))
+		return
+	}
+
+	hashedPassword, err := auth.HashPassword(user.Password)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	// if it doesn't exist, create new user
+	err = h.store.CreateUser(types.User{
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+		Password:  hashedPassword,
+	})
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusCreated, nil)
 }

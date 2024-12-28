@@ -8,6 +8,14 @@ type UserStore interface {
 	CreateUser(User) error
 }
 
+type SpeciesStore interface {
+	GetSpecies() ([]Species, error)
+}
+
+type Species struct {
+	//START HERE 1:08:05
+}
+
 type User struct {
 	ID        int       `json:"id"`
 	FirstName string    `json:"firstName"`
@@ -22,4 +30,9 @@ type RegisterUserPayload struct {
 	LastName  string `json:"lastName" validate:"required"`
 	Email     string `json:"email" validate:"required,email"`
 	Password  string `json:"password" validate:"required,min=3,max=130"`
+}
+
+type LoginUserPayload struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
 }

@@ -10,7 +10,6 @@ import (
 func NewMySQLStorage(cfg mysql.Config) (*sql.DB, error) {
 	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		println("error in db.go NewMySqlStorage method")
 		log.Fatal(err)
 	}
 
