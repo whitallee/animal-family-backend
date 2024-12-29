@@ -13,7 +13,15 @@ type SpeciesStore interface {
 }
 
 type Species struct {
-	//START HERE 1:08:05
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	SciName     string `json:"sciName"`
+	Description string `json:"description"`
+	Image       string `json:"image"`
+	Habitat     string `json:"habitat"`
+	Diet        string `json:"diet"`
+	Sociality   string `json:"sociality"`
+	ExtraCare   string `json:"extraCare"`
 }
 
 type User struct {
