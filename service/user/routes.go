@@ -66,7 +66,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	// get JSON payload
 	var user types.RegisterUserPayload
-	if err := utils.ParseJSON(r, &user); err != nil { // I changed &payload to payload now back to &payload
+	if err := utils.ParseJSON(r, &user); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -78,13 +78,14 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check if user exists ERROR HAPENING IN THIS BLOCK vvv
+	// check if user exists
 	_, err := h.store.GetUserByEmail(user.Email)
 	if err == nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email %s already exists", user.Email))
 		return
 	}
 
+	// hash password before user creation
 	hashedPassword, err := auth.HashPassword(user.Password)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
