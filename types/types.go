@@ -63,6 +63,11 @@ type CreateSpeciesPayload struct {
 }
 
 // Habitat-related types
+type HabitatStore interface {
+	GetHabitats() ([]*Habitat, error)
+	CreateHabitat(Habitat) error
+}
+
 type Habitat struct { //HABITAT SERVICE NEEDED
 	HabitatId      int    `json:"habitatId"`
 	HabitatName    string `json:"habitatName"`
@@ -73,7 +78,7 @@ type Habitat struct { //HABITAT SERVICE NEEDED
 	NightTempRange string `json:"nightTempRange"`
 }
 
-type PostHabitatPayload struct { //HABITAT SERVICE NEEDED
+type CreateHabitatPayload struct { //HABITAT SERVICE NEEDED
 	HabitatId      int    `json:"habitatId"`
 	HabitatName    string `json:"habitatName"`
 	HabitatDesc    string `json:"habitatDesc"`

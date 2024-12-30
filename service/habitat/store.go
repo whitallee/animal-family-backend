@@ -1,4 +1,4 @@
-package species
+package habitat
 
 import (
 	"database/sql"
@@ -14,8 +14,8 @@ func NewStore(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
-func (s *Store) CreateSpecies(species types.Species) error {
-	_, err := s.db.Exec("INSERT INTO species (comName, sciName, speciesDesc, image, habitatId, baskTemp, diet, sociality, extraCare) VALUES (?,?,?,?,?,?,?,?,?)", species.ComName, species.SciName, species.SpeciesDesc, species.Image, species.HabitatId, species.BaskTemp, species.Diet, species.Sociality, species.ExtraCare)
+func (s *Store) CreateHabitat(habitat types.Habitat) error {
+	_, err := s.db.Exec("INSERT INTO habitats (habitatId, habitatName, habitatDesc, image, humidity, dayTempRange, nightTempRange) VALUES (?,?,?,?,?,?,?)", habitat.HabitatId, habitat.HabitatName, habitat.HabitatDesc, habitat.Image, habitat.Humidity, habitat.DayTempRange, habitat.NightTempRange)
 	if err != nil {
 		return err
 	}
@@ -23,43 +23,40 @@ func (s *Store) CreateSpecies(species types.Species) error {
 	return nil
 }
 
-func (s *Store) GetSpecies() ([]*types.Species, error) {
-	rows, err := s.db.Query("SELECT * FROM species")
+func (s *Store) GetHabitats() ([]*types.Habitat, error) {
+	rows, err := s.db.Query("SELECT * FROM habitats")
 	if err != nil {
 		return nil, err
 	}
 
-	species := make([]*types.Species, 0)
+	habitats := make([]*types.Habitat, 0)
 	for rows.Next() {
-		s, err := scanRowsIntoSpecies(rows)
+		h, err := scanRowsIntoHabitats(rows)
 		if err != nil {
 			return nil, err
 		}
 
-		species = append(species, s)
+		habitats = append(habitats, h)
 	}
 
-	return species, nil
+	return habitats, nil
 }
 
-func scanRowsIntoSpecies(rows *sql.Rows) (*types.Species, error) {
-	species := new(types.Species)
+func scanRowsIntoHabitats(rows *sql.Rows) (*types.Habitat, error) {
+	habitat := new(types.Habitat)
 
 	err := rows.Scan(
-		&species.SpeciesID,
-		&species.ComName,
-		&species.SciName,
-		&species.SpeciesDesc,
-		&species.Image,
-		&species.HabitatId,
-		&species.BaskTemp,
-		&species.Diet,
-		&species.Sociality,
-		&species.ExtraCare,
+		&habitat.HabitatId,
+		&habitat.HabitatName,
+		&habitat.HabitatDesc,
+		&habitat.Image,
+		&habitat.Humidity,
+		&habitat.DayTempRange,
+		&habitat.NightTempRange,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return species, nil
+	return habitat, nil
 }

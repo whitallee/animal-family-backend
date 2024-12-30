@@ -1,4 +1,4 @@
-package species
+package habitat
 
 import (
 	"fmt"
@@ -11,66 +11,59 @@ import (
 )
 
 type Handler struct {
-	store types.SpeciesStore
+	store types.HabitatStore
 }
 
-func NewHandler(store types.SpeciesStore) *Handler {
+func NewHandler(store types.HabitatStore) *Handler {
 	return &Handler{store: store}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/species", h.handleGetSpecies).Methods(http.MethodGet)
-	router.HandleFunc("/species", h.handleCreateSpecies).Methods(http.MethodPost)
+	router.HandleFunc("/habitats", h.handleGetHabitats).Methods(http.MethodGet)
+	router.HandleFunc("/habitats", h.handleCreateHabitat).Methods(http.MethodPost)
 }
 
-func (h *Handler) handleGetSpecies(w http.ResponseWriter, r *http.Request) {
-	speciesList, err := h.store.GetSpecies()
+func (h *Handler) handleGetHabitats(w http.ResponseWriter, r *http.Request) {
+	habitatsList, err := h.store.GetHabitats()
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, speciesList)
+	utils.WriteJSON(w, http.StatusOK, habitatsList)
 
 }
-func (h *Handler) handleCreateSpecies(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleCreateHabitat(w http.ResponseWriter, r *http.Request) {
 	// get JSON payload
-	var species types.CreateSpeciesPayload
-	if err := utils.ParseJSON(r, &species); err != nil {
+	var habitat types.CreateHabitatPayload
+	if err := utils.ParseJSON(r, &habitat); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	// validate payload done by other package
-	if err := utils.Validate.Struct(species); err != nil {
+	if err := utils.Validate.Struct(habitat); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
 	}
 
-	// check if species exists
-	// _, err := h.store.GetSpeciesByComName(species.comName)
+	// check if habitat exists
+	// _, err := h.store.GetHabitatByName(habitat.habitatName)
 	// if err == nil {
-	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with common name %s already exists", species.comName))
-	// 	return
-	// }
-	// _, err := h.store.GetSpeciesBySciName(species.sciName)
-	// if err == nil {
-	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with scientific name %s already exists", species.sciName))
+	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("habitat with name %s already exists", habitat.habitatName))
 	// 	return
 	// }
 
-	// if it doesn't exist, create new species
-	err := h.store.CreateSpecies(types.Species{
-		ComName:     species.ComName,
-		SciName:     species.SciName,
-		SpeciesDesc: species.SpeciesDesc,
-		Image:       species.Image,
-		HabitatId:   species.HabitatId,
-		BaskTemp:    species.BaskTemp,
-		Diet:        species.Diet,
-		Sociality:   species.Sociality,
-		ExtraCare:   species.ExtraCare,
+	// if it doesn't exist, create new habitat
+	err := h.store.CreateHabitat(types.Habitat{
+		HabitatId:      habitat.HabitatId,
+		HabitatName:    habitat.HabitatName,
+		HabitatDesc:    habitat.HabitatDesc,
+		Image:          habitat.Image,
+		Humidity:       habitat.Humidity,
+		DayTempRange:   habitat.DayTempRange,
+		NightTempRange: habitat.NightTempRange,
 	})
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
