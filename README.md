@@ -1,5 +1,5 @@
 # Animal Family Backend
-    This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha. If you'd like to collab in any way, please reach out! Find my contact info on whitcodes.dev/contact
+This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha. If you'd like to collab in any way, please reach out! Find my contact info on whitcodes.dev/contact
 
 ## To-Do List
 - CreateAnimal
