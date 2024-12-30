@@ -1,5 +1,5 @@
 # Animal Family Backend
-This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha. If you'd like to collab in any way, please reach out! Find my contact info on whitcodes.dev/contact
+This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha. If you'd like to collab in any way, please reach out! Find my contact info on [whitcodes.dev/contact](whitcodes.dev/contact)
 
 ## To-Do List
 - CreateAnimal
@@ -17,4 +17,4 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 - GetEnclosuresByAnimalId
 
 ## Entity Relationship Diagram
-    https://docs.google.com/drawings/d/1Vi1yngr4CeXXt-slRGJsLI35_R-y-oIHlZ466be_wx8/edit?usp=sharing
+[Here's a diagram](https://docs.google.com/drawings/d/1Vi1yngr4CeXXt-slRGJsLI35_R-y-oIHlZ466be_wx8/edit?usp=sharing) that I made of the DB schema. Feel free to leave comments on the Drawing.
