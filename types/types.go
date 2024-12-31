@@ -68,7 +68,7 @@ type HabitatStore interface {
 	CreateHabitat(Habitat) error
 }
 
-type Habitat struct { //HABITAT SERVICE NEEDED
+type Habitat struct {
 	HabitatId      int    `json:"habitatId"`
 	HabitatName    string `json:"habitatName"`
 	HabitatDesc    string `json:"habitatDesc"`
@@ -78,12 +78,55 @@ type Habitat struct { //HABITAT SERVICE NEEDED
 	NightTempRange string `json:"nightTempRange"`
 }
 
-type CreateHabitatPayload struct { //HABITAT SERVICE NEEDED
-	HabitatId      int    `json:"habitatId"`
+type CreateHabitatPayload struct {
 	HabitatName    string `json:"habitatName"`
 	HabitatDesc    string `json:"habitatDesc"`
 	Image          string `json:"image"`
 	Humidity       string `json:"humidity"`
 	DayTempRange   string `json:"dayTempRange"`
 	NightTempRange string `json:"nightTempRange"`
+}
+
+// Enclosure-related Types
+type EnclosureStore interface {
+	GetEnclosures() ([]*Enclosure, error)
+	CreateEnclosure(Enclosure) error
+}
+
+type Enclosure struct {
+	EnclosureId   int    `json:"enclosureId"`
+	EnclosureName string `json:"enclosureName"`
+	HabitatId     string `json:"habitatId"`
+	Image         string `json:"image"`
+	Notes         string `json:"notes"`
+}
+
+type CreateEnclosurePayload struct {
+	EnclosureName string `json:"enclosureName"`
+	HabitatId     string `json:"habitatId"`
+	Image         string `json:"image"`
+	Notes         string `json:"notes"`
+}
+
+// Animal-related Types
+type AnimalStore interface {
+	GetAnimals() ([]*Animal, error)
+	CreateAnimal(Animal) error
+}
+
+type Animal struct {
+	AnimalId    int    `json:"animalId"`
+	AnimalName  string `json:"animalName"`
+	SpeciesId   string `json:"speciesId"`
+	EnclosureId string `json:"enclosureId"`
+	Image       string `json:"image"`
+	Notes       string `json:"notes"`
+}
+
+type CreateAnimalPayload struct {
+	AnimalName  string `json:"animalName"`
+	SpeciesId   string `json:"speciesId"`
+	EnclosureId string `json:"enclosureId"`
+	Image       string `json:"image"`
+	Notes       string `json:"notes"`
 }

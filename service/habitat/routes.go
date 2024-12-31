@@ -19,8 +19,8 @@ func NewHandler(store types.HabitatStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/habitats", h.handleGetHabitats).Methods(http.MethodGet)
-	router.HandleFunc("/habitats", h.handleCreateHabitat).Methods(http.MethodPost)
+	router.HandleFunc("/habitat", h.handleGetHabitats).Methods(http.MethodGet)
+	router.HandleFunc("/habitat", h.handleCreateHabitat).Methods(http.MethodPost)
 }
 
 func (h *Handler) handleGetHabitats(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +57,6 @@ func (h *Handler) handleCreateHabitat(w http.ResponseWriter, r *http.Request) {
 
 	// if it doesn't exist, create new habitat
 	err := h.store.CreateHabitat(types.Habitat{
-		HabitatId:      habitat.HabitatId,
 		HabitatName:    habitat.HabitatName,
 		HabitatDesc:    habitat.HabitatDesc,
 		Image:          habitat.Image,

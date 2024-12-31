@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/whitallee/animal-family-backend/service/animal"
+	"github.com/whitallee/animal-family-backend/service/enclosure"
 	"github.com/whitallee/animal-family-backend/service/habitat"
 	"github.com/whitallee/animal-family-backend/service/species"
 	"github.com/whitallee/animal-family-backend/service/user"
@@ -38,6 +40,14 @@ func (s *APIServer) Run() error {
 	habitatStore := habitat.NewStore(s.db)
 	habitatService := habitat.NewHandler(habitatStore)
 	habitatService.RegisterRoutes(subrouter)
+
+	enclosureStore := enclosure.NewStore(s.db)
+	enclosureService := enclosure.NewHandler(enclosureStore)
+	enclosureService.RegisterRoutes(subrouter)
+
+	animalStore := animal.NewStore(s.db)
+	animalService := animal.NewHandler(animalStore)
+	animalService.RegisterRoutes(subrouter)
 
 	log.Println("Listening on", s.addr)
 
