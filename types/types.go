@@ -112,7 +112,6 @@ type CreateEnclosurePayload struct {
 type AnimalStore interface {
 	GetAnimals() ([]*Animal, error)
 	CreateAnimal(Animal) error
-	// CreateAnimalWithEnclosure(animal Animal, enclosureId int) error
 }
 
 type Animal struct {
@@ -131,11 +130,3 @@ type CreateAnimalPayload struct {
 	Image       string `json:"image"`
 	Notes       string `json:"notes"`
 }
-
-// type CreateAnimalWithEnclosurePayload struct {
-// 	AnimalName  string `json:"animalName"`
-// 	SpeciesId   string `json:"speciesId"`
-// 	EnclosureId string `json:"enclosureId"`
-// 	Image       string `json:"image"`
-// 	Notes       string `json:"notes"`
-// }

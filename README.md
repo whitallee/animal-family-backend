@@ -3,7 +3,6 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 
 ## To-Do List
 - CreateEnclosureWithAnimals
-- CreateAnimalWithEnclosure
 
 - Link Animal/Enclosure/User with joining tables (possibly as part of the previous creation endpoints)
     - This will also work for adding other users to your own animals and enclosures
