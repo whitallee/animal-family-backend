@@ -48,10 +48,10 @@ func scanRowsIntoAnimals(rows *sql.Rows) (*types.Animal, error) {
 	err := rows.Scan(
 		&animal.AnimalId,
 		&animal.AnimalName,
-		&animal.SpeciesId,
-		&animal.EnclosureId,
 		&animal.Image,
 		&animal.Notes,
+		&animal.SpeciesId,
+		&animal.EnclosureId,
 	)
 	if err != nil {
 		return nil, err
