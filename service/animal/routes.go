@@ -6,25 +6,39 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	"github.com/whitallee/animal-family-backend/service/auth"
 	"github.com/whitallee/animal-family-backend/types"
 	"github.com/whitallee/animal-family-backend/utils"
 )
 
+// Handler contains all of the stores needed for the service
 type Handler struct {
-	store types.AnimalStore
+	store     types.AnimalStore
+	userStore types.UserStore
 }
 
-func NewHandler(store types.AnimalStore) *Handler {
+func NewHandler(store types.AnimalStore, userStore types.UserStore) *Handler {
 	return &Handler{store: store}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/animal", h.handleGetAnimals).Methods(http.MethodGet)
+	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleGetUserAnimals, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/animal", h.handleCreateAnimal).Methods(http.MethodPost)
 }
 
 func (h *Handler) handleGetAnimals(w http.ResponseWriter, r *http.Request) {
 	animalList, err := h.store.GetAnimals()
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, animalList)
+
+}
+func (h *Handler) handleGetUserAnimals(w http.ResponseWriter, r *http.Request) {
+	animalList, err := h.store.GetUserAnimals() //need to make this in animal/store.go
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -49,7 +63,7 @@ func (h *Handler) handleCreateAnimal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if animal exists
-	// _, err := h.store.GetSpeciesByComName(species.comName)
+	// _, err := h.store.GetAnimalByName(species.comName)
 	// if err == nil {
 	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with common name %s already exists", species.comName))
 	// 	return
