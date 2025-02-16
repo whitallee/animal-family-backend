@@ -1,6 +1,8 @@
 package types
 
-import "time"
+import (
+	"time"
+)
 
 // User-related types
 type UserStore interface {
@@ -112,6 +114,7 @@ type CreateEnclosurePayload struct {
 type AnimalStore interface {
 	GetAnimals() ([]*Animal, error)
 	CreateAnimal(Animal) error
+	CreateAnimalUnderUser(Animal, int) error
 }
 
 type Animal struct {

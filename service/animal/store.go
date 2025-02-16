@@ -23,6 +23,31 @@ func (s *Store) CreateAnimal(animal types.Animal) error {
 	return nil
 }
 
+func (s *Store) CreateAnimalUnderUser(animal types.Animal, userID int) error { // UNTESTED
+	// start transaction
+	tx, err := s.db.Begin()
+
+	// add animal to animals table
+	tx.Exec("INSERT INTO animals (animalName, speciesId, enclosureId, image, notes) VALUES (?,?,?,?,?)", animal.AnimalName, animal.SpeciesId, animal.EnclosureId, animal.Image, animal.Notes)
+	if err != nil {
+		return err
+	}
+
+	// get animal id of the newly added animal
+	var addedAnimalId int
+	if err := tx.QueryRow("SELECT LAST_INSERT_ID()").Scan(&addedAnimalId); err != nil {
+		return err
+	}
+
+	// add user-animal joiner to animalUser table
+	tx.Exec("INSERT INTO animalUser (animalId, userID) VALUES (?,?)", addedAnimalId, userID)
+
+	// commit transation
+	tx.Commit()
+
+	return nil
+}
+
 func (s *Store) GetAnimals() ([]*types.Animal, error) {
 	rows, err := s.db.Query("SELECT * FROM animals")
 	if err != nil {

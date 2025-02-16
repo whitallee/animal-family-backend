@@ -30,24 +30,24 @@ func (s *APIServer) Run() error {
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
 
 	userStore := user.NewStore(s.db)
-	userService := user.NewHandler(userStore)
-	userService.RegisterRoutes(subrouter)
+	userHandler := user.NewHandler(userStore)
+	userHandler.RegisterRoutes(subrouter)
 
 	speciesStore := species.NewStore(s.db)
-	speciesService := species.NewHandler(speciesStore)
-	speciesService.RegisterRoutes(subrouter)
+	speciesHandler := species.NewHandler(speciesStore)
+	speciesHandler.RegisterRoutes(subrouter)
 
 	habitatStore := habitat.NewStore(s.db)
-	habitatService := habitat.NewHandler(habitatStore)
-	habitatService.RegisterRoutes(subrouter)
+	habitatHandler := habitat.NewHandler(habitatStore)
+	habitatHandler.RegisterRoutes(subrouter)
 
 	enclosureStore := enclosure.NewStore(s.db)
-	enclosureService := enclosure.NewHandler(enclosureStore)
-	enclosureService.RegisterRoutes(subrouter)
+	enclosureHandler := enclosure.NewHandler(enclosureStore)
+	enclosureHandler.RegisterRoutes(subrouter)
 
 	animalStore := animal.NewStore(s.db)
-	animalService := animal.NewHandler(animalStore)
-	animalService.RegisterRoutes(subrouter)
+	animalHandler := animal.NewHandler(animalStore, userStore)
+	animalHandler.RegisterRoutes(subrouter)
 
 	log.Println("Listening on", s.addr)
 
