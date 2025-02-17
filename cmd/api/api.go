@@ -42,7 +42,7 @@ func (s *APIServer) Run() error {
 	habitatHandler.RegisterRoutes(subrouter)
 
 	enclosureStore := enclosure.NewStore(s.db)
-	enclosureHandler := enclosure.NewHandler(enclosureStore)
+	enclosureHandler := enclosure.NewHandler(enclosureStore, userStore)
 	enclosureHandler.RegisterRoutes(subrouter)
 
 	animalStore := animal.NewStore(s.db)

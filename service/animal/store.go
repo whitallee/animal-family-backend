@@ -24,7 +24,7 @@ func (s *Store) CreateAnimal(animal types.Animal) error {
 	return nil
 }
 
-func (s *Store) CreateAnimalUnderUser(animal types.Animal, userID int) error {
+func (s *Store) CreateAnimalWithUserId(animal types.Animal, userID int) error {
 	// start transaction
 	tx, err := s.db.Begin()
 
@@ -68,7 +68,7 @@ func (s *Store) GetAnimals() ([]*types.Animal, error) {
 	return animals, nil
 }
 
-func (s *Store) GetAnimalsUnderUser(userID int) ([]*types.Animal, error) {
+func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {
 	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
 							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
 							WHERE userID = ?`, userID)

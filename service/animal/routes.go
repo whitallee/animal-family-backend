@@ -43,7 +43,7 @@ func (h *Handler) handleGetUserAnimals(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
-	animalList, err := h.store.GetAnimalsUnderUser(userID)
+	animalList, err := h.store.GetAnimalsByUserId(userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -133,7 +133,7 @@ func (h *Handler) handleCreateUserAnimal(w http.ResponseWriter, r *http.Request)
 	// }
 
 	// if it doesn't exist, create new animal
-	err := h.store.CreateAnimalUnderUser(types.Animal{
+	err := h.store.CreateAnimalWithUserId(types.Animal{
 		AnimalName:  animal.AnimalName,
 		SpeciesId:   animal.SpeciesId,
 		EnclosureId: animal.EnclosureId,
