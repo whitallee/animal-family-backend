@@ -23,6 +23,10 @@ func (s *Store) CreateEnclosure(enclosure types.Enclosure) error {
 	return nil
 }
 
+func CreateEnclosureWithUserId(types.Enclosure, int) error { // TODO
+
+}
+
 func (s *Store) GetEnclosures() ([]*types.Enclosure, error) {
 	rows, err := s.db.Query("SELECT * FROM enclosures")
 	if err != nil {
@@ -40,6 +44,10 @@ func (s *Store) GetEnclosures() ([]*types.Enclosure, error) {
 	}
 
 	return enclosures, nil
+}
+
+func GetEnclosuresByUserId(int) ([]*types.Enclosure, error) { // TODO
+
 }
 
 func scanRowsIntoEnclosures(rows *sql.Rows) (*types.Enclosure, error) {
