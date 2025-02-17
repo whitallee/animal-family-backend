@@ -93,7 +93,7 @@ type CreateHabitatPayload struct {
 // Enclosure-related Types
 type EnclosureStore interface {
 	GetEnclosures() ([]*Enclosure, error)
-	GetEnclosuresByUserId(int) ([]*Enclosure, error)
+	// GetEnclosuresByUserId(int) ([]*Enclosure, error)
 	CreateEnclosure(Enclosure) error
 	CreateEnclosureWithUserId(Enclosure, int) error
 }
