@@ -11,25 +11,39 @@ import (
 	"github.com/whitallee/animal-family-backend/utils"
 )
 
-// Handler contains all of the stores needed for the service
+// Handler struct contains all of the stores needed for the service
 type Handler struct {
 	store     types.AnimalStore
 	userStore types.UserStore
 }
 
 func NewHandler(store types.AnimalStore, userStore types.UserStore) *Handler {
-	return &Handler{store: store}
+	return &Handler{store: store, userStore: userStore}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/animal", h.handleGetAnimals).Methods(http.MethodGet)
-	// TODO router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleGetUserAnimals, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleGetUserAnimals, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/animal", h.handleCreateAnimal).Methods(http.MethodPost)
 	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleCreateUserAnimal, h.userStore)).Methods(http.MethodPost)
 }
 
 func (h *Handler) handleGetAnimals(w http.ResponseWriter, r *http.Request) {
 	animalList, err := h.store.GetAnimals()
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, animalList)
+
+}
+
+func (h *Handler) handleGetUserAnimals(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	animalList, err := h.store.GetAnimalsUnderUser(userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return

@@ -28,7 +28,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	// get JSON payload
 	var user types.LoginUserPayload
-	if err := utils.ParseJSON(r, &user); err != nil { // I changed &payload to payload now back to &payload
+	if err := utils.ParseJSON(r, &user); err != nil { // I changed &user to user now back to &user
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}

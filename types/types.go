@@ -1,6 +1,7 @@
 package types
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -12,13 +13,13 @@ type UserStore interface {
 }
 
 type User struct {
-	ID        int       `json:"id"`
-	FirstName string    `json:"firstName"`
-	LastName  string    `json:"lastName"`
-	Email     string    `json:"email"`
-	Phone     string    `json:"phone"`
-	Password  string    `json:"-"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID        int            `json:"id"`
+	FirstName string         `json:"firstName"`
+	LastName  string         `json:"lastName"`
+	Email     string         `json:"email"`
+	Phone     sql.NullString `json:"phone"`
+	Password  string         `json:"-"`
+	CreatedAt time.Time      `json:"createdAt"`
 }
 
 type RegisterUserPayload struct {
@@ -113,6 +114,7 @@ type CreateEnclosurePayload struct {
 // Animal-related Types
 type AnimalStore interface {
 	GetAnimals() ([]*Animal, error)
+	GetAnimalsUnderUser(int) ([]*Animal, error)
 	CreateAnimal(Animal) error
 	CreateAnimalUnderUser(Animal, int) error
 }

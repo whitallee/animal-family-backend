@@ -45,6 +45,7 @@ func scanRowsIntoUser(rows *sql.Rows) (*types.User, error) {
 		&user.FirstName,
 		&user.LastName,
 		&user.Email,
+		&user.Phone,
 		&user.Password,
 		&user.CreatedAt,
 	)
@@ -57,7 +58,7 @@ func scanRowsIntoUser(rows *sql.Rows) (*types.User, error) {
 
 // GetUserById implements types.UserStore.
 func (s *Store) GetUserById(id int) (*types.User, error) {
-	rows, err := s.db.Query("SELECT * FROM users WHERE id = ?", id)
+	rows, err := s.db.Query("SELECT * FROM users WHERE userId = ?", id)
 	if err != nil {
 		return nil, err
 	}

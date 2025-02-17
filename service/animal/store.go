@@ -2,6 +2,7 @@ package animal
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/whitallee/animal-family-backend/types"
 )
@@ -23,7 +24,7 @@ func (s *Store) CreateAnimal(animal types.Animal) error {
 	return nil
 }
 
-func (s *Store) CreateAnimalUnderUser(animal types.Animal, userID int) error { // UNTESTED
+func (s *Store) CreateAnimalUnderUser(animal types.Animal, userID int) error {
 	// start transaction
 	tx, err := s.db.Begin()
 
@@ -62,6 +63,28 @@ func (s *Store) GetAnimals() ([]*types.Animal, error) {
 		}
 
 		animals = append(animals, a)
+	}
+
+	return animals, nil
+}
+
+func (s *Store) GetAnimalsUnderUser(userID int) ([]*types.Animal, error) {
+	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
+							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
+							WHERE userID = ?`, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	animals := make([]*types.Animal, 0)
+	for rows.Next() {
+		animal, err := scanRowsIntoAnimals(rows)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+
+		animals = append(animals, animal)
 	}
 
 	return animals, nil
