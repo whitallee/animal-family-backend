@@ -24,7 +24,7 @@ func (s *Store) CreateAnimal(animal types.Animal) error {
 	return nil
 }
 
-func (s *Store) CreateAnimalWithUserId(animal types.Animal, userID int) error {
+func (s *Store) CreateAnimalByUserId(animal types.Animal, userID int) error {
 	// start transaction
 	tx, err := s.db.Begin()
 

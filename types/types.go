@@ -7,9 +7,9 @@ import (
 
 // User-related types
 type UserStore interface {
+	CreateUser(User) error
 	GetUserByEmail(email string) (*User, error)
 	GetUserById(id int) (*User, error)
-	CreateUser(User) error
 }
 
 type User struct {
@@ -36,8 +36,8 @@ type LoginUserPayload struct {
 
 // Species-related types
 type SpeciesStore interface {
-	GetSpecies() ([]*Species, error)
 	CreateSpecies(Species) error
+	GetSpecies() ([]*Species, error)
 }
 
 type Species struct {
@@ -67,8 +67,8 @@ type CreateSpeciesPayload struct {
 
 // Habitat-related types
 type HabitatStore interface {
-	GetHabitats() ([]*Habitat, error)
 	CreateHabitat(Habitat) error
+	GetHabitats() ([]*Habitat, error)
 }
 
 type Habitat struct {
@@ -92,10 +92,10 @@ type CreateHabitatPayload struct {
 
 // Enclosure-related Types
 type EnclosureStore interface {
-	GetEnclosures() ([]*Enclosure, error)
-	// GetEnclosuresByUserId(int) ([]*Enclosure, error)
 	CreateEnclosure(Enclosure) error
-	CreateEnclosureWithUserId(Enclosure, int) error
+	CreateEnclosureByUserId(Enclosure, int) error
+	GetEnclosures() ([]*Enclosure, error)
+	GetEnclosuresByUserId(int) ([]*Enclosure, error)
 }
 
 type Enclosure struct {
@@ -115,10 +115,10 @@ type CreateEnclosurePayload struct {
 
 // Animal-related Types
 type AnimalStore interface {
+	CreateAnimal(Animal) error
+	CreateAnimalByUserId(Animal, int) error
 	GetAnimals() ([]*Animal, error)
 	GetAnimalsByUserId(int) ([]*Animal, error)
-	CreateAnimal(Animal) error
-	CreateAnimalWithUserId(Animal, int) error
 }
 
 type Animal struct {

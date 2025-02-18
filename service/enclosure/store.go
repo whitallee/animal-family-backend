@@ -23,7 +23,7 @@ func (s *Store) CreateEnclosure(enclosure types.Enclosure) error {
 	return nil
 }
 
-func (s *Store) CreateEnclosureWithUserId(enclosure types.Enclosure, userID int) error { // TODO
+func (s *Store) CreateEnclosureByUserId(enclosure types.Enclosure, userID int) error {
 	tx, err := s.db.Begin()
 
 	tx.Exec("INSERT INTO enclosures (enclosureName, image, notes, habitatId) VALUES (?,?,?,?)", enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId)
@@ -62,9 +62,26 @@ func (s *Store) GetEnclosures() ([]*types.Enclosure, error) {
 	return enclosures, nil
 }
 
-// func GetEnclosuresByUserId(int) ([]*types.Enclosure, error) { // TODO
+func (s *Store) GetEnclosuresByUserId(userID int) ([]*types.Enclosure, error) {
+	rows, err := s.db.Query(`SELECT e.enclosureId, e.enclosureName, e.image, e.Notes, e.habitatId
+							FROM enclosures e JOIN enclosureUser ON enclosureUser.enclosureId=e.enclosureId
+							WHERE userID = ?`, userID)
+	if err != nil {
+		return nil, err
+	}
 
-// }
+	enclosures := make([]*types.Enclosure, 0)
+	for rows.Next() {
+		enclosure, err := scanRowsIntoEnclosures(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		enclosures = append(enclosures, enclosure)
+	}
+
+	return enclosures, nil
+}
 
 func scanRowsIntoEnclosures(rows *sql.Rows) (*types.Enclosure, error) {
 	enclosures := new(types.Enclosure)

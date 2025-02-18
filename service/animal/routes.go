@@ -22,47 +22,11 @@ func NewHandler(store types.AnimalStore, userStore types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/animal", h.handleGetAnimals).Methods(http.MethodGet)
-	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleGetUserAnimals, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/animal", h.handleCreateAnimal).Methods(http.MethodPost)
-	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleCreateUserAnimal, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleCreateAnimalByUserId, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/animal", h.handleGetAnimals).Methods(http.MethodGet)
+	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleGetAnimalsByUserId, h.userStore)).Methods(http.MethodGet)
 }
-
-func (h *Handler) handleGetAnimals(w http.ResponseWriter, r *http.Request) {
-	animalList, err := h.store.GetAnimals()
-	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusOK, animalList)
-
-}
-
-func (h *Handler) handleGetUserAnimals(w http.ResponseWriter, r *http.Request) {
-	// get userId
-	userID := auth.GetuserIdFromContext(r.Context())
-
-	animalList, err := h.store.GetAnimalsByUserId(userID)
-	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusOK, animalList)
-
-}
-
-// TODO func (h *Handler) handleGetUserAnimals(w http.ResponseWriter, r *http.Request) {
-// 	animalList, err := h.store.GetUserAnimals() //need to make this in animal/store.go
-// 	if err != nil {
-// 		utils.WriteError(w, http.StatusInternalServerError, err)
-// 		return
-// 	}
-
-// 	utils.WriteJSON(w, http.StatusOK, animalList)
-
-// }
 
 func (h *Handler) handleCreateAnimal(w http.ResponseWriter, r *http.Request) {
 	// get JSON payload
@@ -85,11 +49,6 @@ func (h *Handler) handleCreateAnimal(w http.ResponseWriter, r *http.Request) {
 	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with common name %s already exists", species.comName))
 	// 	return
 	// }
-	// _, err := h.store.GetSpeciesBySciName(species.sciName)
-	// if err == nil {
-	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with scientific name %s already exists", species.sciName))
-	// 	return
-	// }
 
 	// if it doesn't exist, create new species
 	err := h.store.CreateAnimal(types.Animal{
@@ -107,7 +66,7 @@ func (h *Handler) handleCreateAnimal(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-func (h *Handler) handleCreateUserAnimal(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleCreateAnimalByUserId(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
@@ -133,7 +92,7 @@ func (h *Handler) handleCreateUserAnimal(w http.ResponseWriter, r *http.Request)
 	// }
 
 	// if it doesn't exist, create new animal
-	err := h.store.CreateAnimalWithUserId(types.Animal{
+	err := h.store.CreateAnimalByUserId(types.Animal{
 		AnimalName:  animal.AnimalName,
 		SpeciesId:   animal.SpeciesId,
 		EnclosureId: animal.EnclosureId,
@@ -146,4 +105,28 @@ func (h *Handler) handleCreateUserAnimal(w http.ResponseWriter, r *http.Request)
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, nil)
+}
+
+func (h *Handler) handleGetAnimals(w http.ResponseWriter, r *http.Request) {
+	animalList, err := h.store.GetAnimals()
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, animalList)
+
+}
+
+func (h *Handler) handleGetAnimalsByUserId(w http.ResponseWriter, r *http.Request) {
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	animalList, err := h.store.GetAnimalsByUserId(userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, animalList)
+
 }

@@ -21,33 +21,10 @@ func NewHandler(store types.EnclosureStore, userStore types.UserStore) *Handler 
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/enclosure", h.handleGetEnclosures).Methods(http.MethodGet)
-	router.HandleFunc("/enclosure/family", auth.WithJWTAuth(h.handleGetUserEnclosures, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/enclosure", h.handleCreateEnclosure).Methods(http.MethodPost)
-	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleCreateUserEnclosure, h.userStore)).Methods(http.MethodPost)
-}
-
-func (h *Handler) handleGetEnclosures(w http.ResponseWriter, r *http.Request) {
-	enclosureList, err := h.store.GetEnclosures()
-	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusOK, enclosureList)
-}
-
-func (h *Handler) handleGetUserEnclosures(w http.ResponseWriter, r *http.Request) { //TODO
-	// get userId
-	userID := auth.GetuserIdFromContext(r.Context()) //start here
-
-	enclosureList, err := h.store.GetEnclosures()
-	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusOK, enclosureList)
+	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleCreateEnclosureByUserID, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/enclosure", h.handleGetEnclosures).Methods(http.MethodGet)
+	router.HandleFunc("/enclosure/family", auth.WithJWTAuth(h.handleGetEnclosuresByUserId, h.userStore)).Methods(http.MethodGet)
 }
 
 func (h *Handler) handleCreateEnclosure(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +59,7 @@ func (h *Handler) handleCreateEnclosure(w http.ResponseWriter, r *http.Request) 
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-func (h *Handler) handleCreateUserEnclosure(w http.ResponseWriter, r *http.Request) { //TODO
+func (h *Handler) handleCreateEnclosureByUserID(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context()) //start here
 
@@ -102,17 +79,39 @@ func (h *Handler) handleCreateUserEnclosure(w http.ResponseWriter, r *http.Reque
 
 	// TODO check if enclosure exists
 
-	// if it doesn't exist, create new enclosure
-	err := h.store.CreateEnclosure(types.Enclosure{
+	// if it doesn't exist, create new enclosure with userID
+	err := h.store.CreateEnclosureByUserId(types.Enclosure{
 		EnclosureName: enclosure.EnclosureName,
 		Image:         enclosure.Image,
 		Notes:         enclosure.Notes,
 		HabitatId:     enclosure.HabitatId,
-	})
+	}, userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, nil)
+}
+
+func (h *Handler) handleGetEnclosures(w http.ResponseWriter, r *http.Request) {
+	enclosureList, err := h.store.GetEnclosures()
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, enclosureList)
+}
+
+func (h *Handler) handleGetEnclosuresByUserId(w http.ResponseWriter, r *http.Request) {
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	enclosureList, err := h.store.GetEnclosuresByUserId(userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, enclosureList)
 }

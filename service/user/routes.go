@@ -21,49 +21,11 @@ func NewHandler(store types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
+	router.HandleFunc("/register", h.handleCreateUser).Methods("POST")
 	router.HandleFunc("/login", h.handleLogin).Methods("POST")
-	router.HandleFunc("/register", h.handleRegister).Methods("POST")
 }
 
-func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
-	// get JSON payload
-	var user types.LoginUserPayload
-	if err := utils.ParseJSON(r, &user); err != nil { // I changed &user to user now back to &user
-		utils.WriteError(w, http.StatusBadRequest, err)
-		return
-	}
-
-	// validate payload done by other package
-	if err := utils.Validate.Struct(user); err != nil {
-		errors := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
-		return
-	}
-
-	// find user
-	u, err := h.store.GetUserByEmail(user.Email)
-	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
-		return
-	}
-
-	// compare password hash
-	if !auth.ComparePasswords(u.Password, []byte(user.Password)) {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
-		return
-	}
-
-	secret := []byte(config.Envs.JWTSecret)
-	token, err := auth.CreateJWT(secret, u.ID)
-	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
-}
-
-func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	// get JSON payload
 	var user types.RegisterUserPayload
 	if err := utils.ParseJSON(r, &user); err != nil {
@@ -105,4 +67,42 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, nil)
+}
+
+func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
+	// get JSON payload
+	var user types.LoginUserPayload
+	if err := utils.ParseJSON(r, &user); err != nil { // I changed &user to user now back to &user
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(user); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// find user
+	u, err := h.store.GetUserByEmail(user.Email)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
+		return
+	}
+
+	// compare password hash
+	if !auth.ComparePasswords(u.Password, []byte(user.Password)) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
+		return
+	}
+
+	secret := []byte(config.Envs.JWTSecret)
+	token, err := auth.CreateJWT(secret, u.ID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }
