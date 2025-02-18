@@ -33,7 +33,7 @@ func TestUserServiceHandlers(t *testing.T) {
 		rr := httptest.NewRecorder()
 		router := mux.NewRouter()
 
-		router.HandleFunc("/register", handler.handleRegister)
+		router.HandleFunc("/register", handler.handleCreateUser)
 
 		router.ServeHTTP(rr, req)
 
@@ -59,7 +59,7 @@ func TestUserServiceHandlers(t *testing.T) {
 		rr := httptest.NewRecorder()
 		router := mux.NewRouter()
 
-		router.HandleFunc("/register", handler.handleRegister)
+		router.HandleFunc("/register", handler.handleCreateUser)
 
 		router.ServeHTTP(rr, req)
 
