@@ -29,6 +29,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) handleCreateAnimal(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("createAnim")
 	// get JSON payload
 	var animal types.CreateAnimalPayload
 	if err := utils.ParseJSON(r, &animal); err != nil {

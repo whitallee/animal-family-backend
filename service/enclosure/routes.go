@@ -22,7 +22,7 @@ func NewHandler(store types.EnclosureStore, userStore types.UserStore) *Handler 
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/enclosure", h.handleCreateEnclosure).Methods(http.MethodPost)
-	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleCreateEnclosureByUserID, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/enclosure/family", auth.WithJWTAuth(h.handleCreateEnclosureByUserID, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/enclosure", h.handleGetEnclosures).Methods(http.MethodGet)
 	router.HandleFunc("/enclosure/family", auth.WithJWTAuth(h.handleGetEnclosuresByUserId, h.userStore)).Methods(http.MethodGet)
 }
