@@ -23,6 +23,7 @@ func NewHandler(store types.EnclosureStore, userStore types.UserStore) *Handler 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/enclosure", h.handleCreateEnclosure).Methods(http.MethodPost)
 	router.HandleFunc("/family/enclosure", auth.WithJWTAuth(h.handleCreateEnclosureByUserID, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/family/enclosure/withanimals", auth.WithJWTAuth(h.handleCreateEnclosureWithAnimalsByUserID, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/enclosure", h.handleGetEnclosures).Methods(http.MethodGet)
 	router.HandleFunc("/family/enclosure", auth.WithJWTAuth(h.handleGetEnclosuresByUserId, h.userStore)).Methods(http.MethodGet)
 }
@@ -61,10 +62,45 @@ func (h *Handler) handleCreateEnclosure(w http.ResponseWriter, r *http.Request) 
 
 func (h *Handler) handleCreateEnclosureByUserID(w http.ResponseWriter, r *http.Request) {
 	// get userId
-	userID := auth.GetuserIdFromContext(r.Context()) //start here
+	userID := auth.GetuserIdFromContext(r.Context())
 
 	// get JSON payload
 	var enclosure types.CreateEnclosurePayload
+	if err := utils.ParseJSON(r, &enclosure); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(enclosure); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// TODO check if enclosure exists
+
+	// if it doesn't exist, create new enclosure with userID
+	err := h.store.CreateEnclosureByUserId(types.Enclosure{
+		EnclosureName: enclosure.EnclosureName,
+		Image:         enclosure.Image,
+		Notes:         enclosure.Notes,
+		HabitatId:     enclosure.HabitatId,
+	}, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusCreated, nil)
+}
+
+func (h *Handler) handleCreateEnclosureWithAnimalsByUserID(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var enclosure types.CreateEnclosurePayload //start HERE, need to make a payload type that includes a list of animals to be added to the enclosure
 	if err := utils.ParseJSON(r, &enclosure); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
