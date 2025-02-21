@@ -2,7 +2,6 @@ package animal
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/whitallee/animal-family-backend/types"
 )
@@ -80,7 +79,6 @@ func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {
 	for rows.Next() {
 		animal, err := scanRowsIntoAnimals(rows)
 		if err != nil {
-			fmt.Println(err)
 			return nil, err
 		}
 

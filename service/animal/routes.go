@@ -23,9 +23,9 @@ func NewHandler(store types.AnimalStore, userStore types.UserStore) *Handler {
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/animal", h.handleCreateAnimal).Methods(http.MethodPost)
-	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleCreateAnimalByUserId, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/family/animal", auth.WithJWTAuth(h.handleCreateAnimalByUserId, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/animal", h.handleGetAnimals).Methods(http.MethodGet)
-	router.HandleFunc("/animal/family", auth.WithJWTAuth(h.handleGetAnimalsByUserId, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/family/animal", auth.WithJWTAuth(h.handleGetAnimalsByUserId, h.userStore)).Methods(http.MethodGet)
 }
 
 func (h *Handler) handleCreateAnimal(w http.ResponseWriter, r *http.Request) {
