@@ -26,6 +26,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/family/enclosure/withanimals", auth.WithJWTAuth(h.handleCreateEnclosureWithAnimalsByUserID, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/enclosure", h.handleGetEnclosures).Methods(http.MethodGet)
 	router.HandleFunc("/family/enclosure", auth.WithJWTAuth(h.handleGetEnclosuresByUserId, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/family/enclosure/id", auth.WithJWTAuth(h.handleGetEnclosureByIdWithUserId, h.userStore)).Methods(http.MethodGet)
 }
 
 func (h *Handler) handleCreateEnclosure(w http.ResponseWriter, r *http.Request) {
@@ -150,4 +151,30 @@ func (h *Handler) handleGetEnclosuresByUserId(w http.ResponseWriter, r *http.Req
 	}
 
 	utils.WriteJSON(w, http.StatusOK, enclosureList)
+}
+
+func (h *Handler) handleGetEnclosureByIdWithUserId(w http.ResponseWriter, r *http.Request) {
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var enclosureId types.GetEnclosureByIdWithUserIdPayload
+	if err := utils.ParseJSON(r, &enclosureId); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(enclosureId); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	enclosure, err := h.store.GetEnclosureByIdWithUserId(enclosureId.EnclosureId, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, enclosure)
 }

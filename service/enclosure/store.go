@@ -111,6 +111,31 @@ func (s *Store) GetEnclosuresByUserId(userID int) ([]*types.Enclosure, error) {
 	return enclosures, nil
 }
 
+func (s *Store) GetEnclosureByIdWithUserId(enclosureId int, userID int) (*types.Enclosure, error) {
+	rows, err := s.db.Query(`SELECT e.enclosureId, e.enclosureName, e.image, e.Notes, e.habitatId
+							FROM enclosures e JOIN enclosureUser ON enclosureUser.enclosureId=e.enclosureId
+							WHERE userID = ? AND e.enclosureId = ?`, userID, enclosureId)
+	if err != nil {
+		return nil, err
+	}
+
+	enclosures := make([]*types.Enclosure, 0)
+	for rows.Next() {
+		enclosure, err := scanRowsIntoEnclosures(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		enclosures = append(enclosures, enclosure)
+	}
+
+	if len(enclosures) == 0 {
+		return nil, nil
+	}
+
+	return enclosures[0], nil
+}
+
 func scanRowsIntoEnclosures(rows *sql.Rows) (*types.Enclosure, error) {
 	enclosures := new(types.Enclosure)
 

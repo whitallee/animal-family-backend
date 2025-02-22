@@ -97,6 +97,7 @@ type EnclosureStore interface {
 	CreateEnclosureWithAnimalsByUserId(Enclosure, []int, int) error
 	GetEnclosures() ([]*Enclosure, error)
 	GetEnclosuresByUserId(int) ([]*Enclosure, error)
+	GetEnclosureByIdWithUserId(enclosureId int, userID int) (*Enclosure, error)
 }
 
 type Enclosure struct {
@@ -120,6 +121,10 @@ type CreateEnclosureWithAnimalsPayload struct {
 	Image         string `json:"image"`
 	Notes         string `json:"notes"`
 	AnimalIds     []int  `json:"animalIds"`
+}
+
+type GetEnclosureByIdWithUserIdPayload struct {
+	EnclosureId int `json:"enclosureId"`
 }
 
 // Animal-related Types
