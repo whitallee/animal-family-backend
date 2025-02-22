@@ -19,6 +19,8 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 
 - Add checks for creation endpoints to see if subject already exists
 
+- Add Update functions
+
 - Implement the Tasks Feature
 
 - Implement Action History Feature
