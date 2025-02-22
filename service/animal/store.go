@@ -88,6 +88,27 @@ func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {
 	return animals, nil
 }
 
+func (s *Store) GetAnimalsByEnclosureIdWithUserId(enclosureId int, userID int) ([]*types.Animal, error) {
+	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
+							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
+							WHERE userID = ? AND enclosureID = ?`, userID, enclosureId)
+	if err != nil {
+		return nil, err
+	}
+
+	animals := make([]*types.Animal, 0)
+	for rows.Next() {
+		animal, err := scanRowsIntoAnimals(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		animals = append(animals, animal)
+	}
+
+	return animals, nil
+}
+
 func scanRowsIntoAnimals(rows *sql.Rows) (*types.Animal, error) {
 	animal := new(types.Animal)
 
