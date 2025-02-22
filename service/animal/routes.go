@@ -27,6 +27,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/animal", h.handleGetAnimals).Methods(http.MethodGet)
 	router.HandleFunc("/family/animal", auth.WithJWTAuth(h.handleGetAnimalsByUserId, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/family/animal/byenclosure", auth.WithJWTAuth(h.handleGetAnimalsByEnclosureIdWithUserId, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/family/animal", auth.WithJWTAuth(h.handleDeleteAnimalByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleCreateAnimal(w http.ResponseWriter, r *http.Request) {
@@ -157,4 +158,31 @@ func (h *Handler) handleGetAnimalsByEnclosureIdWithUserId(w http.ResponseWriter,
 
 	utils.WriteJSON(w, http.StatusOK, animalList)
 
+}
+
+func (h *Handler) handleDeleteAnimalByIdWithUserId(w http.ResponseWriter, r *http.Request) {
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var deleteAnimalPayload types.DeleteAnimalByIdWithUserIdPayload
+	if err := utils.ParseJSON(r, &deleteAnimalPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(deleteAnimalPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// delete animal
+	err := h.store.DeleteAnimalByIdWithUserId(deleteAnimalPayload.AnimalId, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }

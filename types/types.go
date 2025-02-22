@@ -134,6 +134,7 @@ type AnimalStore interface {
 	GetAnimals() ([]*Animal, error)
 	GetAnimalsByUserId(int) ([]*Animal, error)
 	GetAnimalsByEnclosureIdWithUserId(enclosureId int, userID int) ([]*Animal, error)
+	DeleteAnimalByIdWithUserId(animalId int, userID int) error
 }
 
 type Animal struct {
@@ -155,4 +156,8 @@ type CreateAnimalPayload struct {
 
 type GetAnimalsByEnclosureIdWithUserIdPayload struct {
 	EnclosureId int `json:"enclosureId"`
+}
+
+type DeleteAnimalByIdWithUserIdPayload struct {
+	AnimalId int `json:"animalId"`
 }

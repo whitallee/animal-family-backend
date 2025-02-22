@@ -26,9 +26,12 @@ func (s *Store) CreateAnimal(animal types.Animal) error {
 func (s *Store) CreateAnimalByUserId(animal types.Animal, userID int) error {
 	// start transaction
 	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
 
 	// add animal to animals table
-	tx.Exec("INSERT INTO animals (animalName, speciesId, enclosureId, image, notes) VALUES (?,?,?,?,?)", animal.AnimalName, animal.SpeciesId, animal.EnclosureId, animal.Image, animal.Notes)
+	_, err = tx.Exec("INSERT INTO animals (animalName, speciesId, enclosureId, image, notes) VALUES (?,?,?,?,?)", animal.AnimalName, animal.SpeciesId, animal.EnclosureId, animal.Image, animal.Notes)
 	if err != nil {
 		return err
 	}
@@ -107,6 +110,30 @@ func (s *Store) GetAnimalsByEnclosureIdWithUserId(enclosureId int, userID int) (
 	}
 
 	return animals, nil
+}
+
+func (s *Store) DeleteAnimalByIdWithUserId(animalId int, userID int) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM animalUser WHERE animalId = ? AND userID = ?", animalId, userID)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM animals WHERE animalId = ?", animalId)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func scanRowsIntoAnimals(rows *sql.Rows) (*types.Animal, error) {
