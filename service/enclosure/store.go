@@ -43,6 +43,34 @@ func (s *Store) CreateEnclosureByUserId(enclosure types.Enclosure, userID int) e
 	return nil
 }
 
+func (s *Store) CreateEnclosureWithAnimalsByUserId(enclosure types.Enclosure, animalIds []int, userID int) error {
+	tx, err := s.db.Begin()
+
+	tx.Exec("INSERT INTO enclosures (enclosureName, image, notes, habitatId) VALUES (?,?,?,?)", enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId)
+	if err != nil {
+		return err
+	}
+
+	var addedEnclosureId int
+	if err := tx.QueryRow("SELECT LAST_INSERT_ID()").Scan(&addedEnclosureId); err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec("INSERT INTO enclosureUser (enclosureId, userID) VALUES (?,?)", addedEnclosureId, userID); err != nil {
+		return err
+	}
+
+	for _, animalId := range animalIds {
+		if _, err := tx.Exec("UPDATE animals SET enclosureID = ? WHERE animalId = ?", addedEnclosureId, animalId); err != nil {
+			return err
+		}
+	}
+
+	tx.Commit()
+
+	return nil
+}
+
 func (s *Store) GetEnclosures() ([]*types.Enclosure, error) {
 	rows, err := s.db.Query("SELECT * FROM enclosures")
 	if err != nil {

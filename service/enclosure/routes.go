@@ -100,14 +100,14 @@ func (h *Handler) handleCreateEnclosureWithAnimalsByUserID(w http.ResponseWriter
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	// get JSON payload
-	var enclosure types.CreateEnclosurePayload //start HERE, need to make a payload type that includes a list of animals to be added to the enclosure
-	if err := utils.ParseJSON(r, &enclosure); err != nil {
+	var enclosureWithAnimals types.CreateEnclosureWithAnimalsPayload
+	if err := utils.ParseJSON(r, &enclosureWithAnimals); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	// validate payload done by other package
-	if err := utils.Validate.Struct(enclosure); err != nil {
+	if err := utils.Validate.Struct(enclosureWithAnimals); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
@@ -116,12 +116,12 @@ func (h *Handler) handleCreateEnclosureWithAnimalsByUserID(w http.ResponseWriter
 	// TODO check if enclosure exists
 
 	// if it doesn't exist, create new enclosure with userID
-	err := h.store.CreateEnclosureByUserId(types.Enclosure{
-		EnclosureName: enclosure.EnclosureName,
-		Image:         enclosure.Image,
-		Notes:         enclosure.Notes,
-		HabitatId:     enclosure.HabitatId,
-	}, userID)
+	err := h.store.CreateEnclosureWithAnimalsByUserId(types.Enclosure{
+		EnclosureName: enclosureWithAnimals.EnclosureName,
+		Image:         enclosureWithAnimals.Image,
+		Notes:         enclosureWithAnimals.Notes,
+		HabitatId:     enclosureWithAnimals.HabitatId,
+	}, enclosureWithAnimals.AnimalIds, userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
