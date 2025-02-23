@@ -209,5 +209,3 @@ func (h *Handler) handleDeleteEnclosureWithAnimalsByIdWithUserId(w http.Response
 
 	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
-
-// git test
