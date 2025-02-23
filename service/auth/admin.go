@@ -2,12 +2,10 @@ package auth
 
 import "slices"
 
-var admins = []string{
-	"whit@mail.com",
-	"whitallee@gmail.com",
-	"mariaelenamilan00@gmail.com",
+var admins = []int{
+	6, // "whit@mail.com"
 }
 
-func IsAdmin(user string) bool {
-	return slices.Contains(admins, user)
+func IsAdmin(userID int) bool {
+	return slices.Contains(admins, userID)
 }

@@ -38,6 +38,8 @@ type LoginUserPayload struct {
 type SpeciesStore interface {
 	CreateSpecies(Species) error
 	GetSpecies() ([]*Species, error)
+	DeleteSpeciesById(speciesId int) error
+	DeleteSpeciesUpdateAnimalsById(speciesId int) error
 }
 
 type Species struct {
@@ -63,6 +65,10 @@ type CreateSpeciesPayload struct {
 	Diet        string `json:"diet"`
 	Sociality   string `json:"sociality"`
 	ExtraCare   string `json:"extraCare"`
+}
+
+type SpeciesIdPayload struct {
+	SpeciesId int `json:"speciesId"`
 }
 
 // Habitat-related types

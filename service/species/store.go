@@ -42,6 +42,42 @@ func (s *Store) GetSpecies() ([]*types.Species, error) {
 	return species, nil
 }
 
+func (s *Store) DeleteSpeciesById(speciesId int) error {
+	_, err := s.db.Exec("DELETE FROM species WHERE speciesId = ?", speciesId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Store) DeleteSpeciesUpdateAnimalsById(speciesId int) error {
+	// begin transaction
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// update animals species to "No Species"
+	_, err = tx.Exec("UPDATE animals SET speciesId = 0 WHERE speciesid = ?", speciesId)
+	if err != nil {
+		return err
+	}
+
+	// delete species
+	_, err = tx.Exec("DELETE FROM species WHERE speciesId = ?", speciesId)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func scanRowsIntoSpecies(rows *sql.Rows) (*types.Species, error) {
 	species := new(types.Species)
 

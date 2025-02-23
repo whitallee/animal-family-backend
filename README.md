@@ -3,10 +3,10 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 
 ## To-Do List
 - Implement delete functions and handlers
-    - DeleteSpeciesByIdAsAdmin
-    - DeleteHabitatByIdAsAdmin
+    - DeleteSpeciesById and admin handler
+    - DeleteHabitatById and admin handler
 
-- Change functions to have ...AsAdmin functions instead
+- Change functions to have admin handlers instead
     - CreateHabitat
     - CreateSpecies
     - GetAnimals

@@ -34,7 +34,7 @@ func (s *APIServer) Run() error {
 	userHandler.RegisterRoutes(subrouter)
 
 	speciesStore := species.NewStore(s.db)
-	speciesHandler := species.NewHandler(speciesStore)
+	speciesHandler := species.NewHandler(speciesStore, userStore)
 	speciesHandler.RegisterRoutes(subrouter)
 
 	habitatStore := habitat.NewStore(s.db)
