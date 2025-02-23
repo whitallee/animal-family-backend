@@ -8,6 +8,6 @@ var admins = []string{
 	"mariaelenamilan00@gmail.com",
 }
 
-func isAdmin(user string) bool {
+func IsAdmin(user string) bool {
 	return slices.Contains(admins, user)
 }
