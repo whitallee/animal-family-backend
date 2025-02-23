@@ -3,8 +3,6 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 
 ## To-Do List
 - Implement delete functions and handlers
-    - DeleteEnclosureByIdWithUserId
-        - just removes enclosure from animals
     - DeleteSpeciesByIdAsAdmin
     - DeleteHabitatByIdAsAdmin
 

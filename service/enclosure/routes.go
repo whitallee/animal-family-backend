@@ -27,6 +27,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/enclosure", h.handleGetEnclosures).Methods(http.MethodGet)
 	router.HandleFunc("/family/enclosure", auth.WithJWTAuth(h.handleGetEnclosuresByUserId, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/family/enclosure/id", auth.WithJWTAuth(h.handleGetEnclosureByIdWithUserId, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/family/enclosure/id", auth.WithJWTAuth(h.handleDeleteEnclosureByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
 	router.HandleFunc("/family/enclosure/id/withanimals", auth.WithJWTAuth(h.handleDeleteEnclosureWithAnimalsByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
 }
 
@@ -158,7 +159,7 @@ func (h *Handler) handleGetEnclosureByIdWithUserId(w http.ResponseWriter, r *htt
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	// get JSON payload
-	var enclosureId types.GetEnclosureByIdWithUserIdPayload
+	var enclosureId types.EnclosureIdPayload
 	if err := utils.ParseJSON(r, &enclosureId); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -180,12 +181,42 @@ func (h *Handler) handleGetEnclosureByIdWithUserId(w http.ResponseWriter, r *htt
 	utils.WriteJSON(w, http.StatusOK, enclosure)
 }
 
+func (h *Handler) handleDeleteEnclosureByIdWithUserId(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var deleteEnclosurePayload types.EnclosureIdPayload
+	if err := utils.ParseJSON(r, &deleteEnclosurePayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(deleteEnclosurePayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// TODO check if enclosure exists
+
+	// if it doesn't exist, create new enclosure with userID
+	err := h.store.DeleteEnclosureByIdWithUserId(deleteEnclosurePayload.EnclosureId, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
 func (h *Handler) handleDeleteEnclosureWithAnimalsByIdWithUserId(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	// get JSON payload
-	var deleteEnclosurePayload types.DeleteEnclosureAndAnimalsByUserIdPayload
+	var deleteEnclosurePayload types.EnclosureIdPayload
 	if err := utils.ParseJSON(r, &deleteEnclosurePayload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return

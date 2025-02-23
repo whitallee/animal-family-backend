@@ -139,6 +139,57 @@ func (s *Store) GetEnclosureByIdWithUserId(enclosureId int, userID int) (*types.
 	return enclosures[0], nil
 }
 
+func (s *Store) DeleteEnclosureByIdWithUserId(enclosureId int, userID int) error {
+	// get animals fom enclosures
+	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
+							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
+							WHERE userID = ? AND enclosureID = ?`, userID, enclosureId)
+	if err != nil {
+		return err
+	}
+
+	animals := make([]*types.Animal, 0)
+	for rows.Next() {
+		animal, err := scanRowsIntoAnimals(rows)
+		if err != nil {
+			return err
+		}
+
+		animals = append(animals, animal)
+	}
+
+	// start enclosureId updates on animals and deletion transaction
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// update enclosureId for animals
+	for _, animal := range animals {
+		_, err = tx.Exec("UPDATE animals SET enclosureId = NULL WHERE animalId = ?", animal.AnimalId)
+		if err != nil {
+			return err
+		}
+	}
+
+	// delete from enclosureUser and enclosures
+	_, err = tx.Exec("DELETE FROM enclosureUser WHERE enclosureId = ? AND userId = ?", enclosureId, userID)
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM enclosures WHERE enclosureId = ?", enclosureId)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Store) DeleteEnclosureAndAnimalsByIdWithUserId(enclosureId int, userID int) error {
 	// get animals fom enclosures
 	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
