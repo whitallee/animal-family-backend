@@ -98,6 +98,7 @@ type EnclosureStore interface {
 	GetEnclosures() ([]*Enclosure, error)
 	GetEnclosuresByUserId(int) ([]*Enclosure, error)
 	GetEnclosureByIdWithUserId(enclosureId int, userID int) (*Enclosure, error)
+	DeleteEnclosureAndAnimalsByIdWithUserId(enclosureId int, userID int) error
 }
 
 type Enclosure struct {
@@ -124,6 +125,10 @@ type CreateEnclosureWithAnimalsPayload struct {
 }
 
 type GetEnclosureByIdWithUserIdPayload struct {
+	EnclosureId int `json:"enclosureId"`
+}
+
+type DeleteEnclosureAndAnimalsByUserIdPayload struct {
 	EnclosureId int `json:"enclosureId"`
 }
 

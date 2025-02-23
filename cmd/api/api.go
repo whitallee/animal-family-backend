@@ -41,13 +41,13 @@ func (s *APIServer) Run() error {
 	habitatHandler := habitat.NewHandler(habitatStore)
 	habitatHandler.RegisterRoutes(subrouter)
 
-	enclosureStore := enclosure.NewStore(s.db)
-	enclosureHandler := enclosure.NewHandler(enclosureStore, userStore)
-	enclosureHandler.RegisterRoutes(subrouter)
-
 	animalStore := animal.NewStore(s.db)
 	animalHandler := animal.NewHandler(animalStore, userStore)
 	animalHandler.RegisterRoutes(subrouter)
+
+	enclosureStore := enclosure.NewStore(s.db)
+	enclosureHandler := enclosure.NewHandler(enclosureStore, userStore)
+	enclosureHandler.RegisterRoutes(subrouter)
 
 	log.Println("Listening on", s.addr)
 
