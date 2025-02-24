@@ -23,8 +23,7 @@ func NewHandler(store types.SpeciesStore, userStore types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/species", h.handleGetSpecies).Methods(http.MethodGet)
 	router.HandleFunc("/species", h.handleCreateSpecies).Methods(http.MethodPost)
-	router.HandleFunc("/species", auth.WithJWTAuth(h.handleAdminDeleteSpeciesById, h.userStore)).Methods(http.MethodDelete)                            //untested
-	router.HandleFunc("/species/updateanimals", auth.WithJWTAuth(h.handleAdminDeleteSpeciesUpdateAnimalsById, h.userStore)).Methods(http.MethodDelete) //untested
+	router.HandleFunc("/species", auth.WithJWTAuth(h.handleAdminDeleteSpeciesById, h.userStore)).Methods(http.MethodDelete) //untested
 }
 
 func (h *Handler) handleGetSpecies(w http.ResponseWriter, r *http.Request) {
@@ -108,37 +107,6 @@ func (h *Handler) handleAdminDeleteSpeciesById(w http.ResponseWriter, r *http.Re
 
 	// delete species
 	err := h.store.DeleteSpeciesById(deleteSpeciesPayload.SpeciesId)
-	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusNoContent, nil)
-}
-
-func (h *Handler) handleAdminDeleteSpeciesUpdateAnimalsById(w http.ResponseWriter, r *http.Request) { // done and untested
-	// get userId
-	userID := auth.GetuserIdFromContext(r.Context())
-	if !auth.IsAdmin(userID) {
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
-	}
-
-	// get JSON payload
-	var deleteSpeciesPayload types.SpeciesIdPayload
-	if err := utils.ParseJSON(r, &deleteSpeciesPayload); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
-		return
-	}
-
-	// validate payload done by other package
-	if err := utils.Validate.Struct(deleteSpeciesPayload); err != nil {
-		errors := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
-		return
-	}
-
-	// delete species
-	err := h.store.DeleteSpeciesUpdateAnimalsById(deleteSpeciesPayload.SpeciesId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return

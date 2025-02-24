@@ -43,15 +43,6 @@ func (s *Store) GetSpecies() ([]*types.Species, error) {
 }
 
 func (s *Store) DeleteSpeciesById(speciesId int) error {
-	_, err := s.db.Exec("DELETE FROM species WHERE speciesId = ?", speciesId)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *Store) DeleteSpeciesUpdateAnimalsById(speciesId int) error {
 	// begin transaction
 	tx, err := s.db.Begin()
 	if err != nil {

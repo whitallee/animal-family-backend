@@ -39,7 +39,6 @@ type SpeciesStore interface {
 	CreateSpecies(Species) error
 	GetSpecies() ([]*Species, error)
 	DeleteSpeciesById(speciesId int) error
-	DeleteSpeciesUpdateAnimalsById(speciesId int) error
 }
 
 type Species struct {
