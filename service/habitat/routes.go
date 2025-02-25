@@ -6,21 +6,24 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	"github.com/whitallee/animal-family-backend/service/auth"
 	"github.com/whitallee/animal-family-backend/types"
 	"github.com/whitallee/animal-family-backend/utils"
 )
 
 type Handler struct {
-	store types.HabitatStore
+	store     types.HabitatStore
+	userStore types.UserStore
 }
 
-func NewHandler(store types.HabitatStore) *Handler {
-	return &Handler{store: store}
+func NewHandler(store types.HabitatStore, userStore types.UserStore) *Handler {
+	return &Handler{store: store, userStore: userStore}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/habitat", h.handleGetHabitats).Methods(http.MethodGet)
 	router.HandleFunc("/habitat", h.handleCreateHabitat).Methods(http.MethodPost)
+	router.HandleFunc("/habitat", auth.WithJWTAuth(h.handleAdminDeleteHabitatById, h.userStore)).Methods(http.MethodDelete) //untested
 }
 
 func (h *Handler) handleGetHabitats(w http.ResponseWriter, r *http.Request) {
@@ -33,6 +36,7 @@ func (h *Handler) handleGetHabitats(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, habitatsList)
 
 }
+
 func (h *Handler) handleCreateHabitat(w http.ResponseWriter, r *http.Request) {
 	// get JSON payload
 	var habitat types.CreateHabitatPayload
@@ -70,4 +74,35 @@ func (h *Handler) handleCreateHabitat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, nil)
+}
+
+func (h *Handler) handleAdminDeleteHabitatById(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var deleteHabitatPayload types.HabitatIdPayload
+	if err := utils.ParseJSON(r, &deleteHabitatPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(deleteHabitatPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// delete habitat
+	err := h.store.DeleteHabitatById(deleteHabitatPayload.HabitatId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }

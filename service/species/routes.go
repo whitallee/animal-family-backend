@@ -23,7 +23,7 @@ func NewHandler(store types.SpeciesStore, userStore types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/species", h.handleGetSpecies).Methods(http.MethodGet)
 	router.HandleFunc("/species", h.handleCreateSpecies).Methods(http.MethodPost)
-	router.HandleFunc("/species", auth.WithJWTAuth(h.handleAdminDeleteSpeciesById, h.userStore)).Methods(http.MethodDelete) //untested
+	router.HandleFunc("/species", auth.WithJWTAuth(h.handleAdminDeleteSpeciesById, h.userStore)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleGetSpecies(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +84,7 @@ func (h *Handler) handleCreateSpecies(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-func (h *Handler) handleAdminDeleteSpeciesById(w http.ResponseWriter, r *http.Request) { // done and untested
+func (h *Handler) handleAdminDeleteSpeciesById(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {

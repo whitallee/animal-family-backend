@@ -38,7 +38,7 @@ type LoginUserPayload struct {
 type SpeciesStore interface {
 	CreateSpecies(Species) error
 	GetSpecies() ([]*Species, error)
-	DeleteSpeciesById(speciesId int) error
+	DeleteSpeciesById(int) error
 }
 
 type Species struct {
@@ -74,6 +74,7 @@ type SpeciesIdPayload struct {
 type HabitatStore interface {
 	CreateHabitat(Habitat) error
 	GetHabitats() ([]*Habitat, error)
+	DeleteHabitatById(int) error
 }
 
 type Habitat struct {
@@ -93,6 +94,10 @@ type CreateHabitatPayload struct {
 	Humidity       string `json:"humidity"`
 	DayTempRange   string `json:"dayTempRange"`
 	NightTempRange string `json:"nightTempRange"`
+}
+
+type HabitatIdPayload struct {
+	HabitatId int `json:"habitatId"`
 }
 
 // Enclosure-related Types

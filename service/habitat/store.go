@@ -42,6 +42,39 @@ func (s *Store) GetHabitats() ([]*types.Habitat, error) {
 	return habitats, nil
 }
 
+func (s *Store) DeleteHabitatById(habitatId int) error {
+	// begin transaction
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// update enclsoures habitat to "No Habitat"
+	_, err = tx.Exec("UPDATE enclosures SET habitatId = 0 WHERE habitatId = ?", habitatId)
+	if err != nil {
+		return err
+	}
+
+	// update species habitat to "No Habitat"
+	_, err = tx.Exec("UPDATE species SET habitatId = 0 WHERE habitatId = ?", habitatId)
+	if err != nil {
+		return err
+	}
+
+	// delete habitat
+	_, err = tx.Exec("DELETE FROM habitats WHERE habitatId = ?", habitatId)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func scanRowsIntoHabitats(rows *sql.Rows) (*types.Habitat, error) {
 	habitat := new(types.Habitat)
 
