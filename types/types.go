@@ -47,6 +47,9 @@ type UserEmailPayload struct {
 type SpeciesStore interface {
 	CreateSpecies(Species) error
 	GetSpecies() ([]*Species, error)
+	GetSpeciesByComName(string) (*Species, error) // TODO
+	GetSpeciesBySciName(string) (*Species, error) // TODO
+	GetSpeciesById(int) (*Species, error)         // TODO
 	DeleteSpeciesById(int) error
 }
 
@@ -83,6 +86,8 @@ type SpeciesIdPayload struct {
 type HabitatStore interface {
 	CreateHabitat(Habitat) error
 	GetHabitats() ([]*Habitat, error)
+	GetHabitatByName(string) (*Habitat, error) // TODO
+	GetHabitatById(int) (*Habitat, error)      // TODO
 	DeleteHabitatById(int) error
 }
 
@@ -113,8 +118,9 @@ type HabitatIdPayload struct {
 type EnclosureStore interface {
 	CreateEnclosure(Enclosure) error
 	CreateEnclosureByUserId(Enclosure, int) error
-	CreateEnclosureWithAnimalsByUserId(Enclosure, []int, int) error
+	CreateEnclosureWithAnimalsByUserId(enclosure Enclosure, animalIds []int, userID int) error
 	GetEnclosures() ([]*Enclosure, error)
+	GetEnclosureByNameAndHabitatWithUserId(enclosureName string, habitatId int, userID int) (*Enclosure, error) // TODO
 	GetEnclosuresByUserId(int) ([]*Enclosure, error)
 	GetEnclosureByIdWithUserId(enclosureId int, userID int) (*Enclosure, error)
 	DeleteEnclosureByIdWithUserId(enclosureId int, userID int) error
@@ -153,6 +159,7 @@ type AnimalStore interface {
 	CreateAnimal(Animal) error
 	CreateAnimalByUserId(Animal, int) error
 	GetAnimals() ([]*Animal, error)
+	GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*Animal, error) // TODO
 	GetAnimalsByUserId(int) ([]*Animal, error)
 	GetAnimalsByEnclosureIdWithUserId(enclosureId int, userID int) ([]*Animal, error)
 	DeleteAnimalByIdWithUserId(animalId int, userID int) error
