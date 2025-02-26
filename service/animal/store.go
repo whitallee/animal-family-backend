@@ -44,10 +44,16 @@ func (s *Store) CreateAnimalByUserId(animal types.Animal, userID int) error {
 	}
 
 	// add user-animal joiner to animalUser table
-	tx.Exec("INSERT INTO animalUser (animalId, userID) VALUES (?,?)", addedAnimalId, userID)
+	_, err = tx.Exec("INSERT INTO animalUser (animalId, userID) VALUES (?,?)", addedAnimalId, userID)
+	if err != nil {
+		return err
+	}
 
 	// commit transation
-	tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

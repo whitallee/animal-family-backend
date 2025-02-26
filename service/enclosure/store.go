@@ -26,8 +26,11 @@ func (s *Store) CreateEnclosure(enclosure types.Enclosure) error {
 
 func (s *Store) CreateEnclosureByUserId(enclosure types.Enclosure, userID int) error {
 	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
 
-	tx.Exec("INSERT INTO enclosures (enclosureName, image, notes, habitatId) VALUES (?,?,?,?)", enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId)
+	_, err = tx.Exec("INSERT INTO enclosures (enclosureName, image, notes, habitatId) VALUES (?,?,?,?)", enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId)
 	if err != nil {
 		return err
 	}
@@ -37,9 +40,15 @@ func (s *Store) CreateEnclosureByUserId(enclosure types.Enclosure, userID int) e
 		return err
 	}
 
-	tx.Exec("INSERT INTO enclosureUser (enclosureId, userID) VALUES (?,?)", addedEnclosureId, userID)
+	_, err = tx.Exec("INSERT INTO enclosureUser (enclosureId, userID) VALUES (?,?)", addedEnclosureId, userID)
+	if err != nil {
+		return err
+	}
 
-	tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -70,7 +79,10 @@ func (s *Store) CreateEnclosureWithAnimalsByUserId(enclosure types.Enclosure, an
 		}
 	}
 
-	tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
