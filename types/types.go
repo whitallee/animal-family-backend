@@ -36,7 +36,7 @@ type LoginUserPayload struct {
 }
 
 type UserIDPayload struct {
-	UserID int `json:"userId" validate:"required"`
+	UserID int `json:"userId" validate:"required,min=0"`
 }
 
 type UserEmailPayload struct {
@@ -64,19 +64,19 @@ type Species struct {
 }
 
 type CreateSpeciesPayload struct {
-	ComName     string `json:"comName"`
-	SciName     string `json:"sciName"`
-	SpeciesDesc string `json:"speciesDesc"`
-	Image       string `json:"image"`
-	HabitatId   int    `json:"habitatId"`
-	BaskTemp    string `json:"baskTemp"`
-	Diet        string `json:"diet"`
-	Sociality   string `json:"sociality"`
-	ExtraCare   string `json:"extraCare"`
+	ComName     string `json:"comName" validate:"required"`
+	SciName     string `json:"sciName" validate:"required"`
+	SpeciesDesc string `json:"speciesDesc" validate:"required"`
+	Image       string `json:"image" validate:"required"`
+	HabitatId   int    `json:"habitatId" validate:"required,min=0"`
+	BaskTemp    string `json:"baskTemp" validate:"required"`
+	Diet        string `json:"diet" validate:"required"`
+	Sociality   string `json:"sociality" validate:"required"`
+	ExtraCare   string `json:"extraCare" validate:"required"`
 }
 
 type SpeciesIdPayload struct {
-	SpeciesId int `json:"speciesId"`
+	SpeciesId int `json:"speciesId" validate:"required,min=0"`
 }
 
 // Habitat-related types
@@ -97,16 +97,16 @@ type Habitat struct {
 }
 
 type CreateHabitatPayload struct {
-	HabitatName    string `json:"habitatName"`
-	HabitatDesc    string `json:"habitatDesc"`
-	Image          string `json:"image"`
-	Humidity       string `json:"humidity"`
-	DayTempRange   string `json:"dayTempRange"`
-	NightTempRange string `json:"nightTempRange"`
+	HabitatName    string `json:"habitatName" validate:"required"`
+	HabitatDesc    string `json:"habitatDesc" validate:"required"`
+	Image          string `json:"image" validate:"required"`
+	Humidity       string `json:"humidity" validate:"required"`
+	DayTempRange   string `json:"dayTempRange" validate:"required"`
+	NightTempRange string `json:"nightTempRange" validate:"required"`
 }
 
 type HabitatIdPayload struct {
-	HabitatId int `json:"habitatId"`
+	HabitatId int `json:"habitatId" validate:"required,min=0"`
 }
 
 // Enclosure-related Types
@@ -130,22 +130,22 @@ type Enclosure struct {
 }
 
 type CreateEnclosurePayload struct {
-	EnclosureName string `json:"enclosureName"`
-	HabitatId     int    `json:"habitatId"`
-	Image         string `json:"image"`
-	Notes         string `json:"notes"`
+	EnclosureName string `json:"enclosureName" validate:"required"`
+	HabitatId     int    `json:"habitatId" validate:"required,min=0"`
+	Image         string `json:"image" validate:"required"`
+	Notes         string `json:"notes" validate:"required"`
 }
 
 type CreateEnclosureWithAnimalsPayload struct {
-	EnclosureName string `json:"enclosureName"`
-	HabitatId     int    `json:"habitatId"`
-	Image         string `json:"image"`
-	Notes         string `json:"notes"`
-	AnimalIds     []int  `json:"animalIds"`
+	EnclosureName string `json:"enclosureName" validate:"required"`
+	HabitatId     int    `json:"habitatId" validate:"required,min=0"`
+	Image         string `json:"image" validate:"required"`
+	Notes         string `json:"notes" validate:"required"`
+	AnimalIds     []int  `json:"animalIds" validate:"required"`
 }
 
 type EnclosureIdPayload struct {
-	EnclosureId int `json:"enclosureId"`
+	EnclosureId int `json:"enclosureId" validate:"required,min=0"`
 }
 
 // Animal-related Types
@@ -168,17 +168,13 @@ type Animal struct {
 }
 
 type CreateAnimalPayload struct {
-	AnimalName  string `json:"animalName"`
-	SpeciesId   int    `json:"speciesId"`
-	EnclosureId *int   `json:"enclosureId"`
-	Image       string `json:"image"`
-	Notes       string `json:"notes"`
+	AnimalName  string `json:"animalName" validate:"required"`
+	SpeciesId   int    `json:"speciesId" validate:"required,min=0"`
+	EnclosureId *int   `json:"enclosureId" validate:"required,min=0"`
+	Image       string `json:"image" validate:"required"`
+	Notes       string `json:"notes" validate:"required"`
 }
 
-type GetAnimalsByEnclosureIdWithUserIdPayload struct {
-	EnclosureId int `json:"enclosureId"`
-}
-
-type DeleteAnimalByIdWithUserIdPayload struct {
-	AnimalId int `json:"animalId"`
+type AnimalIdPayload struct {
+	AnimalId int `json:"animalId" validate:"required,min=0"`
 }

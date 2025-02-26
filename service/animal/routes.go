@@ -154,20 +154,20 @@ func (h *Handler) handleGetAnimalsByEnclosureIdWithUserId(w http.ResponseWriter,
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	// get JSON payload
-	var enclosureId types.GetAnimalsByEnclosureIdWithUserIdPayload
-	if err := utils.ParseJSON(r, &enclosureId); err != nil {
+	var enclosureIdPayload types.EnclosureIdPayload
+	if err := utils.ParseJSON(r, &enclosureIdPayload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	// validate payload done by other package
-	if err := utils.Validate.Struct(enclosureId); err != nil {
+	if err := utils.Validate.Struct(enclosureIdPayload); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
 	}
 
-	animalList, err := h.store.GetAnimalsByEnclosureIdWithUserId(enclosureId.EnclosureId, userID)
+	animalList, err := h.store.GetAnimalsByEnclosureIdWithUserId(enclosureIdPayload.EnclosureId, userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -181,21 +181,21 @@ func (h *Handler) handleDeleteAnimalByIdWithUserId(w http.ResponseWriter, r *htt
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	// get JSON payload
-	var deleteAnimalPayload types.DeleteAnimalByIdWithUserIdPayload
-	if err := utils.ParseJSON(r, &deleteAnimalPayload); err != nil {
+	var animaIdPayload types.AnimalIdPayload
+	if err := utils.ParseJSON(r, &animaIdPayload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	// validate payload done by other package
-	if err := utils.Validate.Struct(deleteAnimalPayload); err != nil {
+	if err := utils.Validate.Struct(animaIdPayload); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
 	}
 
 	// delete animal
-	err := h.store.DeleteAnimalByIdWithUserId(deleteAnimalPayload.AnimalId, userID)
+	err := h.store.DeleteAnimalByIdWithUserId(animaIdPayload.AnimalId, userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
