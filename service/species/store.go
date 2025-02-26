@@ -61,6 +61,7 @@ func (s *Store) DeleteSpeciesById(speciesId int) error {
 		return err
 	}
 
+	// commit changes
 	err = tx.Commit()
 	if err != nil {
 		return err

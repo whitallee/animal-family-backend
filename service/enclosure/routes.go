@@ -21,17 +21,23 @@ func NewHandler(store types.EnclosureStore, userStore types.UserStore) *Handler 
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/enclosure", h.handleCreateEnclosure).Methods(http.MethodPost)
+	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleAdminCreateEnclosure, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/family/enclosure", auth.WithJWTAuth(h.handleCreateEnclosureByUserID, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/family/enclosure/withanimals", auth.WithJWTAuth(h.handleCreateEnclosureWithAnimalsByUserID, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/enclosure", h.handleGetEnclosures).Methods(http.MethodGet)
+	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleAdminGetEnclosures, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/family/enclosure", auth.WithJWTAuth(h.handleGetEnclosuresByUserId, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/family/enclosure/id", auth.WithJWTAuth(h.handleGetEnclosureByIdWithUserId, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/family/enclosure/id", auth.WithJWTAuth(h.handleDeleteEnclosureByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
 	router.HandleFunc("/family/enclosure/id/withanimals", auth.WithJWTAuth(h.handleDeleteEnclosureWithAnimalsByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
 }
 
-func (h *Handler) handleCreateEnclosure(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleAdminCreateEnclosure(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
 	// get JSON payload
 	var enclosure types.CreateEnclosurePayload
 	if err := utils.ParseJSON(r, &enclosure); err != nil {
@@ -133,7 +139,14 @@ func (h *Handler) handleCreateEnclosureWithAnimalsByUserID(w http.ResponseWriter
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-func (h *Handler) handleGetEnclosures(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleAdminGetEnclosures(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get enclosures
 	enclosureList, err := h.store.GetEnclosures()
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)

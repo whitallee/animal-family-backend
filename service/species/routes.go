@@ -22,7 +22,7 @@ func NewHandler(store types.SpeciesStore, userStore types.UserStore) *Handler {
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/species", h.handleGetSpecies).Methods(http.MethodGet)
-	router.HandleFunc("/species", h.handleCreateSpecies).Methods(http.MethodPost)
+	router.HandleFunc("/species", auth.WithJWTAuth(h.handleAdminCreateSpecies, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/species", auth.WithJWTAuth(h.handleAdminDeleteSpeciesById, h.userStore)).Methods(http.MethodDelete)
 }
 
@@ -37,7 +37,13 @@ func (h *Handler) handleGetSpecies(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *Handler) handleCreateSpecies(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleAdminCreateSpecies(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
 	// get JSON payload
 	var species types.CreateSpeciesPayload
 	if err := utils.ParseJSON(r, &species); err != nil {

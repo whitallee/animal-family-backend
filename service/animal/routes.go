@@ -22,15 +22,21 @@ func NewHandler(store types.AnimalStore, userStore types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/animal", h.handleCreateAnimal).Methods(http.MethodPost)
+	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleAdminCreateAnimal, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/family/animal", auth.WithJWTAuth(h.handleCreateAnimalByUserId, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/animal", h.handleGetAnimals).Methods(http.MethodGet)
+	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleAdminGetAnimals, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/family/animal", auth.WithJWTAuth(h.handleGetAnimalsByUserId, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/family/animal/byenclosure", auth.WithJWTAuth(h.handleGetAnimalsByEnclosureIdWithUserId, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/family/animal", auth.WithJWTAuth(h.handleDeleteAnimalByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
 }
 
-func (h *Handler) handleCreateAnimal(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleAdminCreateAnimal(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
 	// get JSON payload
 	var animal types.CreateAnimalPayload
 	if err := utils.ParseJSON(r, &animal); err != nil {
@@ -109,7 +115,14 @@ func (h *Handler) handleCreateAnimalByUserId(w http.ResponseWriter, r *http.Requ
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-func (h *Handler) handleGetAnimals(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleAdminGetAnimals(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get animals
 	animalList, err := h.store.GetAnimals()
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)

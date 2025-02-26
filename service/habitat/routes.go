@@ -22,8 +22,8 @@ func NewHandler(store types.HabitatStore, userStore types.UserStore) *Handler {
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/habitat", h.handleGetHabitats).Methods(http.MethodGet)
-	router.HandleFunc("/habitat", h.handleCreateHabitat).Methods(http.MethodPost)
-	router.HandleFunc("/habitat", auth.WithJWTAuth(h.handleAdminDeleteHabitatById, h.userStore)).Methods(http.MethodDelete) //untested
+	router.HandleFunc("/habitat", auth.WithJWTAuth(h.handleAdminCreateHabitat, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/habitat", auth.WithJWTAuth(h.handleAdminDeleteHabitatById, h.userStore)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleGetHabitats(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +37,13 @@ func (h *Handler) handleGetHabitats(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *Handler) handleCreateHabitat(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleAdminCreateHabitat(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
 	// get JSON payload
 	var habitat types.CreateHabitatPayload
 	if err := utils.ParseJSON(r, &habitat); err != nil {

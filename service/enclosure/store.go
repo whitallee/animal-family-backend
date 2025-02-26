@@ -140,7 +140,7 @@ func (s *Store) GetEnclosureByIdWithUserId(enclosureId int, userID int) (*types.
 }
 
 func (s *Store) DeleteEnclosureByIdWithUserId(enclosureId int, userID int) error {
-	// get animals fom enclosures
+	// get animals from enclosure
 	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
 							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
 							WHERE userID = ? AND enclosureID = ?`, userID, enclosureId)
