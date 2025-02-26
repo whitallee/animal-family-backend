@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/whitallee/animal-family-backend/types"
+	"github.com/whitallee/animal-family-backend/utils"
 )
 
 type Store struct {
@@ -82,7 +83,7 @@ func (s *Store) GetEnclosures() ([]*types.Enclosure, error) {
 
 	enclosures := make([]*types.Enclosure, 0)
 	for rows.Next() {
-		s, err := scanRowsIntoEnclosures(rows)
+		s, err := utils.ScanRowsIntoEnclosures(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -103,7 +104,7 @@ func (s *Store) GetEnclosuresByUserId(userID int) ([]*types.Enclosure, error) {
 
 	enclosures := make([]*types.Enclosure, 0)
 	for rows.Next() {
-		enclosure, err := scanRowsIntoEnclosures(rows)
+		enclosure, err := utils.ScanRowsIntoEnclosures(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -124,7 +125,7 @@ func (s *Store) GetEnclosureByIdWithUserId(enclosureId int, userID int) (*types.
 
 	enclosures := make([]*types.Enclosure, 0)
 	for rows.Next() {
-		enclosure, err := scanRowsIntoEnclosures(rows)
+		enclosure, err := utils.ScanRowsIntoEnclosures(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -150,7 +151,7 @@ func (s *Store) DeleteEnclosureByIdWithUserId(enclosureId int, userID int) error
 
 	animals := make([]*types.Animal, 0)
 	for rows.Next() {
-		animal, err := scanRowsIntoAnimals(rows)
+		animal, err := utils.ScanRowsIntoAnimals(rows)
 		if err != nil {
 			return err
 		}
@@ -201,7 +202,7 @@ func (s *Store) DeleteEnclosureAndAnimalsByIdWithUserId(enclosureId int, userID 
 
 	animals := make([]*types.Animal, 0)
 	for rows.Next() {
-		animal, err := scanRowsIntoAnimals(rows)
+		animal, err := utils.ScanRowsIntoAnimals(rows)
 		if err != nil {
 			return err
 		}
@@ -243,39 +244,4 @@ func (s *Store) DeleteEnclosureAndAnimalsByIdWithUserId(enclosureId int, userID 
 	}
 
 	return nil
-}
-
-func scanRowsIntoEnclosures(rows *sql.Rows) (*types.Enclosure, error) {
-	enclosures := new(types.Enclosure)
-
-	err := rows.Scan(
-		&enclosures.EnclosureId,
-		&enclosures.EnclosureName,
-		&enclosures.Image,
-		&enclosures.Notes,
-		&enclosures.HabitatId,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return enclosures, nil
-}
-
-func scanRowsIntoAnimals(rows *sql.Rows) (*types.Animal, error) {
-	animal := new(types.Animal)
-
-	err := rows.Scan(
-		&animal.AnimalId,
-		&animal.AnimalName,
-		&animal.Image,
-		&animal.Notes,
-		&animal.SpeciesId,
-		&animal.EnclosureId,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return animal, nil
 }

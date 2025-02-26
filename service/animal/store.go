@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/whitallee/animal-family-backend/types"
+	"github.com/whitallee/animal-family-backend/utils"
 )
 
 type Store struct {
@@ -59,7 +60,7 @@ func (s *Store) GetAnimals() ([]*types.Animal, error) {
 
 	animals := make([]*types.Animal, 0)
 	for rows.Next() {
-		a, err := scanRowsIntoAnimals(rows)
+		a, err := utils.ScanRowsIntoAnimals(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -80,7 +81,7 @@ func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {
 
 	animals := make([]*types.Animal, 0)
 	for rows.Next() {
-		animal, err := scanRowsIntoAnimals(rows)
+		animal, err := utils.ScanRowsIntoAnimals(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -101,7 +102,7 @@ func (s *Store) GetAnimalsByEnclosureIdWithUserId(enclosureId int, userID int) (
 
 	animals := make([]*types.Animal, 0)
 	for rows.Next() {
-		animal, err := scanRowsIntoAnimals(rows)
+		animal, err := utils.ScanRowsIntoAnimals(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -134,22 +135,4 @@ func (s *Store) DeleteAnimalByIdWithUserId(animalId int, userID int) error {
 	}
 
 	return nil
-}
-
-func scanRowsIntoAnimals(rows *sql.Rows) (*types.Animal, error) {
-	animal := new(types.Animal)
-
-	err := rows.Scan(
-		&animal.AnimalId,
-		&animal.AnimalName,
-		&animal.Image,
-		&animal.Notes,
-		&animal.SpeciesId,
-		&animal.EnclosureId,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return animal, nil
 }
