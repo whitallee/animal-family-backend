@@ -25,6 +25,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/login", h.handleLogin).Methods(http.MethodPost)
 	router.HandleFunc("/delete-user", auth.WithJWTAuth(h.handleSelfDeleteUserById, h.store)).Methods(http.MethodDelete)
 	router.HandleFunc("/delete-user/id", auth.WithJWTAuth(h.handleAdminDeleteUserById, h.store)).Methods(http.MethodDelete)
+	router.HandleFunc("/delete-user/email", auth.WithJWTAuth(h.handleAdminDeleteUserByEmail, h.store)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
@@ -148,6 +149,44 @@ func (h *Handler) handleAdminDeleteUserById(w http.ResponseWriter, r *http.Reque
 	err := h.store.DeleteUserById(userIdPayload.UserID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error, please try again, user may not be deleted"))
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleAdminDeleteUserByEmail(w http.ResponseWriter, r *http.Request) { //untested
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var userEmailPayload types.UserEmailPayload
+	if err := utils.ParseJSON(r, &userEmailPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(userEmailPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// get user by email
+	user, err := h.store.GetUserByEmail(userEmailPayload.UserEmail)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("no user found with email %v", userEmailPayload.UserEmail))
+		return
+	}
+
+	// delete user by id
+	err = h.store.DeleteUserById(user.ID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("please try again, user may not be deleted"))
 		return
 	}
 

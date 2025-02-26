@@ -39,6 +39,10 @@ type UserIDPayload struct {
 	UserID int `json:"userId" validate:"required"`
 }
 
+type UserEmailPayload struct {
+	UserEmail string `json:"email" validate:"required,email"`
+}
+
 // Species-related types
 type SpeciesStore interface {
 	CreateSpecies(Species) error
