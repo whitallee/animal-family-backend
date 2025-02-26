@@ -5,15 +5,21 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 - DeleteUserById and admin handler
 - DeleteUserByEmail and admin handler
 
+- change all scan functions except user to use public utils function
+
 - Check other delete functions and boil down to safest option unless it is an option users would like
 
 - Update all transaction functions to match the structure of DeleteAnimalByIdWithUserId with error handling
+
+- Add validation to all payload types (example is user payloads)
 
 - Add checks for creation endpoints to see if subject already exists
 
 - Add Update functions
 
 - Implement the Tasks Feature
+
+- Use GoRoutines for concurrent async requests like for DeleteUserById animal and enclosure requests or any for loop db requests
 
 - Implement Action History Feature
 

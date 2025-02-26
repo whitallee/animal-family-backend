@@ -10,6 +10,7 @@ type UserStore interface {
 	CreateUser(User) error
 	GetUserByEmail(email string) (*User, error)
 	GetUserById(id int) (*User, error)
+	DeleteUserById(id int) error
 }
 
 type User struct {
@@ -32,6 +33,10 @@ type RegisterUserPayload struct {
 type LoginUserPayload struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
+}
+
+type UserIDPayload struct {
+	UserID int `json:"userId" validate:"required"`
 }
 
 // Species-related types
