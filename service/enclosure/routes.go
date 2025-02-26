@@ -21,14 +21,17 @@ func NewHandler(store types.EnclosureStore, userStore types.UserStore) *Handler 
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleAdminCreateEnclosure, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/family/enclosure", auth.WithJWTAuth(h.handleCreateEnclosureByUserID, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/family/enclosure/withanimals", auth.WithJWTAuth(h.handleCreateEnclosureWithAnimalsByUserID, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleAdminGetEnclosures, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/family/enclosure", auth.WithJWTAuth(h.handleGetEnclosuresByUserId, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/family/enclosure/id", auth.WithJWTAuth(h.handleGetEnclosureByIdWithUserId, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/family/enclosure/id", auth.WithJWTAuth(h.handleDeleteEnclosureByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
-	router.HandleFunc("/family/enclosure/id/withanimals", auth.WithJWTAuth(h.handleDeleteEnclosureWithAnimalsByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
+	// user routes
+	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleCreateEnclosureByUserID, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/enclosure/withanimals", auth.WithJWTAuth(h.handleCreateEnclosureWithAnimalsByUserID, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleGetEnclosuresByUserId, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/enclosure/id", auth.WithJWTAuth(h.handleGetEnclosureByIdWithUserId, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/enclosure/id", auth.WithJWTAuth(h.handleDeleteEnclosureByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
+	router.HandleFunc("/enclosure/id/withanimals", auth.WithJWTAuth(h.handleDeleteEnclosureWithAnimalsByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
+
+	// admin routes
+	router.HandleFunc("/admin/enclosure", auth.WithJWTAuth(h.handleAdminCreateEnclosure, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/enclosure", auth.WithJWTAuth(h.handleAdminGetEnclosures, h.userStore)).Methods(http.MethodGet)
 }
 
 func (h *Handler) handleAdminCreateEnclosure(w http.ResponseWriter, r *http.Request) {

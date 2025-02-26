@@ -21,9 +21,12 @@ func NewHandler(store types.HabitatStore, userStore types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
+	// user routes
 	router.HandleFunc("/habitat", h.handleGetHabitats).Methods(http.MethodGet)
-	router.HandleFunc("/habitat", auth.WithJWTAuth(h.handleAdminCreateHabitat, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/habitat", auth.WithJWTAuth(h.handleAdminDeleteHabitatById, h.userStore)).Methods(http.MethodDelete)
+
+	// admin routes
+	router.HandleFunc("/admin/habitat", auth.WithJWTAuth(h.handleAdminCreateHabitat, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/habitat", auth.WithJWTAuth(h.handleAdminDeleteHabitatById, h.userStore)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleGetHabitats(w http.ResponseWriter, r *http.Request) {

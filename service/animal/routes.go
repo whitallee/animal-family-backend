@@ -22,12 +22,16 @@ func NewHandler(store types.AnimalStore, userStore types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleAdminCreateAnimal, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/family/animal", auth.WithJWTAuth(h.handleCreateAnimalByUserId, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleAdminGetAnimals, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/family/animal", auth.WithJWTAuth(h.handleGetAnimalsByUserId, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/family/animal/byenclosure", auth.WithJWTAuth(h.handleGetAnimalsByEnclosureIdWithUserId, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/family/animal", auth.WithJWTAuth(h.handleDeleteAnimalByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
+	// user routes
+	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleCreateAnimalByUserId, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleGetAnimalsByUserId, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/animal/byenclosure", auth.WithJWTAuth(h.handleGetAnimalsByEnclosureIdWithUserId, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleDeleteAnimalByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
+
+	//admin routes
+	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminCreateAnimal, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminGetAnimals, h.userStore)).Methods(http.MethodGet)
+
 }
 
 func (h *Handler) handleAdminCreateAnimal(w http.ResponseWriter, r *http.Request) {

@@ -21,11 +21,14 @@ func NewHandler(store types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
+	// user routes
 	router.HandleFunc("/register", h.handleCreateUser).Methods(http.MethodPost)
 	router.HandleFunc("/login", h.handleLogin).Methods(http.MethodPost)
 	router.HandleFunc("/delete-user", auth.WithJWTAuth(h.handleSelfDeleteUserById, h.store)).Methods(http.MethodDelete)
-	router.HandleFunc("/delete-user/id", auth.WithJWTAuth(h.handleAdminDeleteUserById, h.store)).Methods(http.MethodDelete)
-	router.HandleFunc("/delete-user/email", auth.WithJWTAuth(h.handleAdminDeleteUserByEmail, h.store)).Methods(http.MethodDelete)
+
+	// admin routes
+	router.HandleFunc("/admin/delete-user/id", auth.WithJWTAuth(h.handleAdminDeleteUserById, h.store)).Methods(http.MethodDelete)
+	router.HandleFunc("/admin/delete-user/email", auth.WithJWTAuth(h.handleAdminDeleteUserByEmail, h.store)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleCreateUser(w http.ResponseWriter, r *http.Request) {

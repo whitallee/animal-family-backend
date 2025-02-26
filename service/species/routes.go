@@ -21,9 +21,12 @@ func NewHandler(store types.SpeciesStore, userStore types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
+	// user routes
 	router.HandleFunc("/species", h.handleGetSpecies).Methods(http.MethodGet)
-	router.HandleFunc("/species", auth.WithJWTAuth(h.handleAdminCreateSpecies, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/species", auth.WithJWTAuth(h.handleAdminDeleteSpeciesById, h.userStore)).Methods(http.MethodDelete)
+
+	// admin routes
+	router.HandleFunc("/admin/species", auth.WithJWTAuth(h.handleAdminCreateSpecies, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/species", auth.WithJWTAuth(h.handleAdminDeleteSpeciesById, h.userStore)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleGetSpecies(w http.ResponseWriter, r *http.Request) {
