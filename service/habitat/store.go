@@ -2,6 +2,7 @@ package habitat
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/whitallee/animal-family-backend/types"
 )
@@ -42,12 +43,46 @@ func (s *Store) GetHabitats() ([]*types.Habitat, error) {
 	return habitats, nil
 }
 
-func (s *Store) GetHabitatByName(habName string) (*types.Habitat, error) { // TODO
+func (s *Store) GetHabitatByName(habName string) (*types.Habitat, error) {
+	rows, err := s.db.Query(`SELECT * FROM habitats WHERE habitatName = ?`, habName)
+	if err != nil {
+		return nil, err
+	}
 
+	habitat := new(types.Habitat)
+	for rows.Next() {
+		habitat, err = scanRowsIntoHabitats(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if habitat.HabitatId == 0 {
+		return nil, fmt.Errorf("habitat not found")
+	}
+
+	return habitat, nil
 }
 
-func (s *Store) GetHabitatById(habId int) (*types.Habitat, error) { // TODO
+func (s *Store) GetHabitatById(habId int) (*types.Habitat, error) { // not used in any handler functions yet
+	rows, err := s.db.Query(`SELECT * FROM habitats WHERE habitatId = ?`, habId)
+	if err != nil {
+		return nil, err
+	}
 
+	habitat := new(types.Habitat)
+	for rows.Next() {
+		habitat, err = scanRowsIntoHabitats(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if habitat.HabitatId == 0 {
+		return nil, fmt.Errorf("habitat not found")
+	}
+
+	return habitat, nil
 }
 
 func (s *Store) DeleteHabitatById(habitatId int) error {

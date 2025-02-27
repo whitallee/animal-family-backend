@@ -61,20 +61,20 @@ func (h *Handler) handleAdminCreateSpecies(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// check if species exists
-	// _, err := h.store.GetSpeciesByComName(species.comName)
-	// if err == nil {
-	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with common name %s already exists", species.comName))
-	// 	return
-	// }
-	// _, err := h.store.GetSpeciesBySciName(species.sciName)
-	// if err == nil {
-	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with scientific name %s already exists", species.sciName))
-	// 	return
-	// }
+	// check if species exists already
+	_, err := h.store.GetSpeciesByComName(species.ComName)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with common name %s already exists", species.ComName))
+		return
+	}
+	_, err = h.store.GetSpeciesBySciName(species.SciName)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with scientific name %s already exists", species.SciName))
+		return
+	}
 
 	// if it doesn't exist, create new species
-	err := h.store.CreateSpecies(types.Species{
+	err = h.store.CreateSpecies(types.Species{
 		ComName:     species.ComName,
 		SciName:     species.SciName,
 		SpeciesDesc: species.SpeciesDesc,

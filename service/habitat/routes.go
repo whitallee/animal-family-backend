@@ -62,14 +62,14 @@ func (h *Handler) handleAdminCreateHabitat(w http.ResponseWriter, r *http.Reques
 	}
 
 	// check if habitat exists
-	// _, err := h.store.GetHabitatByName(habitat.habitatName)
-	// if err == nil {
-	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("habitat with name %s already exists", habitat.habitatName))
-	// 	return
-	// }
+	_, err := h.store.GetHabitatByName(habitat.HabitatName)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("habitat with name %s already exists", habitat.HabitatName))
+		return
+	}
 
 	// if it doesn't exist, create new habitat
-	err := h.store.CreateHabitat(types.Habitat{
+	err = h.store.CreateHabitat(types.Habitat{
 		HabitatName:    habitat.HabitatName,
 		HabitatDesc:    habitat.HabitatDesc,
 		Image:          habitat.Image,

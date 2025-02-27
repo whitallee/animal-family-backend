@@ -2,6 +2,7 @@ package species
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/whitallee/animal-family-backend/types"
 )
@@ -37,6 +38,69 @@ func (s *Store) GetSpecies() ([]*types.Species, error) {
 		}
 
 		species = append(species, s)
+	}
+
+	return species, nil
+}
+
+func (s *Store) GetSpeciesByComName(comName string) (*types.Species, error) {
+	rows, err := s.db.Query(`SELECT * FROM species WHERE comName = ?`, comName)
+	if err != nil {
+		return nil, err
+	}
+
+	species := new(types.Species)
+	for rows.Next() {
+		species, err = scanRowsIntoSpecies(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if species.SpeciesID == 0 {
+		return nil, fmt.Errorf("species not found")
+	}
+
+	return species, nil
+}
+
+func (s *Store) GetSpeciesBySciName(sciName string) (*types.Species, error) {
+	rows, err := s.db.Query(`SELECT * FROM species WHERE sciName = ?`, sciName)
+	if err != nil {
+		return nil, err
+	}
+
+	species := new(types.Species)
+	for rows.Next() {
+		species, err = scanRowsIntoSpecies(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if species.SpeciesID == 0 {
+		return nil, fmt.Errorf("species not found")
+	}
+
+	return species, nil
+}
+
+func (s *Store) GetSpeciesById(speciesId int) (*types.Species, error) {
+	rows, err := s.db.Query(`SELECT * FROM species WHERE speciesId = ?`, speciesId)
+	if err != nil {
+		return nil, err
+	}
+
+	species := new(types.Species)
+	for rows.Next() {
+		species, err = scanRowsIntoSpecies(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if species.SpeciesID == 0 {
+		return nil, fmt.Errorf("species not found")
 	}
 
 	return species, nil

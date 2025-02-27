@@ -47,9 +47,9 @@ type UserEmailPayload struct {
 type SpeciesStore interface {
 	CreateSpecies(Species) error
 	GetSpecies() ([]*Species, error)
-	GetSpeciesByComName(string) (*Species, error) // TODO
-	GetSpeciesBySciName(string) (*Species, error) // TODO
-	GetSpeciesById(int) (*Species, error)         // TODO
+	GetSpeciesByComName(string) (*Species, error)
+	GetSpeciesBySciName(string) (*Species, error)
+	GetSpeciesById(int) (*Species, error) // not used in any handler yet
 	DeleteSpeciesById(int) error
 }
 
@@ -86,8 +86,8 @@ type SpeciesIdPayload struct {
 type HabitatStore interface {
 	CreateHabitat(Habitat) error
 	GetHabitats() ([]*Habitat, error)
-	GetHabitatByName(string) (*Habitat, error) // TODO
-	GetHabitatById(int) (*Habitat, error)      // TODO
+	GetHabitatByName(string) (*Habitat, error)
+	GetHabitatById(int) (*Habitat, error) // not used in any handler yet
 	DeleteHabitatById(int) error
 }
 
