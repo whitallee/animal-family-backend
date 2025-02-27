@@ -3,10 +3,14 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 
 ## To-Do List
 - Add Update functions
+    - UpdateAnimalByIdWithUserId and handler
+    - UpdateEnclosureByIdWithUserId and handler 
+    - UpdateHabitatById (admin) and handler
+    - UpdateSpeciesById (admin) and handler
 - Implement the Tasks Feature
 - Use GoRoutines for concurrent async requests like for DeleteUserById animal and enclosure requests or any for loop db requests
 - Implement Action History Feature
-- eventually add more admin routes such as DeleteAnimalById or DeleteEnclosureById with an admin handler
+- eventually add more admin routes such as Delete/UpdateAnimalById or Delete/UpdateEnclosureById with an admin handler
 
 ## Entity Relationship Diagram
 [Here's a diagram](https://docs.google.com/drawings/d/1Vi1yngr4CeXXt-slRGJsLI35_R-y-oIHlZ466be_wx8/edit?usp=sharing) that I made of the DB schema. Feel free to leave comments on the Drawing.
