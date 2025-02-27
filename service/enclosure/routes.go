@@ -90,10 +90,15 @@ func (h *Handler) handleCreateEnclosureByUserID(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// TODO check if enclosure exists
+	// check if enclosure exists
+	_, err := h.store.GetEnclosureByNameAndHabitatWithUserId(enclosure.EnclosureName, enclosure.HabitatId, userID)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("enclosure with name %s and habitat id %d already exists", enclosure.EnclosureName, enclosure.HabitatId))
+		return
+	}
 
 	// if it doesn't exist, create new enclosure with userID
-	err := h.store.CreateEnclosureByUserId(types.Enclosure{
+	err = h.store.CreateEnclosureByUserId(types.Enclosure{
 		EnclosureName: enclosure.EnclosureName,
 		Image:         enclosure.Image,
 		Notes:         enclosure.Notes,
@@ -125,10 +130,15 @@ func (h *Handler) handleCreateEnclosureWithAnimalsByUserID(w http.ResponseWriter
 		return
 	}
 
-	// TODO check if enclosure exists
+	// check if enclosure exists
+	_, err := h.store.GetEnclosureByNameAndHabitatWithUserId(enclosureWithAnimals.EnclosureName, enclosureWithAnimals.HabitatId, userID)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("enclosure with name %s and habitat id %d already exists", enclosureWithAnimals.EnclosureName, enclosureWithAnimals.HabitatId))
+		return
+	}
 
 	// if it doesn't exist, create new enclosure with userID
-	err := h.store.CreateEnclosureWithAnimalsByUserId(types.Enclosure{
+	err = h.store.CreateEnclosureWithAnimalsByUserId(types.Enclosure{
 		EnclosureName: enclosureWithAnimals.EnclosureName,
 		Image:         enclosureWithAnimals.Image,
 		Notes:         enclosureWithAnimals.Notes,

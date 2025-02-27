@@ -2,6 +2,7 @@ package enclosure
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/whitallee/animal-family-backend/types"
 	"github.com/whitallee/animal-family-backend/utils"
@@ -104,6 +105,29 @@ func (s *Store) GetEnclosures() ([]*types.Enclosure, error) {
 	}
 
 	return enclosures, nil
+}
+
+func (s *Store) GetEnclosureByNameAndHabitatWithUserId(enclosureName string, habitatId int, userID int) (*types.Enclosure, error) {
+	rows, err := s.db.Query(`SELECT e.enclosureId, e.enclosureName, e.image, e.Notes, e.habitatId
+							FROM enclosures e JOIN enclosureUser ON enclosureUser.enclosureId=e.enclosureId
+							WHERE enclosureName = ? AND habitatId = ? AND userID = ?`, enclosureName, habitatId, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	enclosure := new(types.Enclosure)
+	for rows.Next() {
+		enclosure, err = utils.ScanRowsIntoEnclosures(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if enclosure.EnclosureId == 0 {
+		return nil, fmt.Errorf("enclosure not found")
+	}
+
+	return enclosure, nil
 }
 
 func (s *Store) GetEnclosuresByUserId(userID int) ([]*types.Enclosure, error) {

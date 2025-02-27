@@ -42,6 +42,14 @@ func (s *Store) GetHabitats() ([]*types.Habitat, error) {
 	return habitats, nil
 }
 
+func (s *Store) GetHabitatByName(habName string) (*types.Habitat, error) { // TODO
+
+}
+
+func (s *Store) GetHabitatById(habId int) (*types.Habitat, error) { // TODO
+
+}
+
 func (s *Store) DeleteHabitatById(habitatId int) error {
 	// begin transaction
 	tx, err := s.db.Begin()

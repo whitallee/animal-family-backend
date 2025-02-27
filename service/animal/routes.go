@@ -55,15 +55,15 @@ func (h *Handler) handleAdminCreateAnimal(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// TODO check if animal exists
-	// _, err := h.store.GetAnimalByName(species.comName)
-	// if err == nil {
-	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with common name %s already exists", species.comName))
-	// 	return
-	// }
+	// check if animal exists
+	_, err := h.store.GetAnimalByNameAndSpeciesWithUserId(animal.AnimalName, animal.SpeciesId, userID)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("animal with name %s and species id %d already exists", animal.AnimalName, animal.SpeciesId))
+		return
+	}
 
-	// if it doesn't exist, create new species
-	err := h.store.CreateAnimal(types.Animal{
+	// if it doesn't exist, create new animal
+	err = h.store.CreateAnimal(types.Animal{
 		AnimalName:  animal.AnimalName,
 		SpeciesId:   animal.SpeciesId,
 		EnclosureId: animal.EnclosureId,

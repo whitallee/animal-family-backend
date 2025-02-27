@@ -120,7 +120,7 @@ type EnclosureStore interface {
 	CreateEnclosureByUserId(Enclosure, int) error
 	CreateEnclosureWithAnimalsByUserId(enclosure Enclosure, animalIds []int, userID int) error
 	GetEnclosures() ([]*Enclosure, error)
-	GetEnclosureByNameAndHabitatWithUserId(enclosureName string, habitatId int, userID int) (*Enclosure, error) // TODO
+	GetEnclosureByNameAndHabitatWithUserId(enclosureName string, habitatId int, userID int) (*Enclosure, error)
 	GetEnclosuresByUserId(int) ([]*Enclosure, error)
 	GetEnclosureByIdWithUserId(enclosureId int, userID int) (*Enclosure, error)
 	DeleteEnclosureByIdWithUserId(enclosureId int, userID int) error
@@ -159,7 +159,7 @@ type AnimalStore interface {
 	CreateAnimal(Animal) error
 	CreateAnimalByUserId(Animal, int) error
 	GetAnimals() ([]*Animal, error)
-	GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*Animal, error) // TODO
+	GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*Animal, error)
 	GetAnimalsByUserId(int) ([]*Animal, error)
 	GetAnimalsByEnclosureIdWithUserId(enclosureId int, userID int) ([]*Animal, error)
 	DeleteAnimalByIdWithUserId(animalId int, userID int) error

@@ -2,6 +2,7 @@ package animal
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/whitallee/animal-family-backend/types"
 	"github.com/whitallee/animal-family-backend/utils"
@@ -75,6 +76,29 @@ func (s *Store) GetAnimals() ([]*types.Animal, error) {
 	}
 
 	return animals, nil
+}
+
+func (s *Store) GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*types.Animal, error) {
+	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
+							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
+							WHERE animalName = ? AND speciesId = ? AND userID = ?`, animalName, speciesId, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	animal := new(types.Animal)
+	for rows.Next() {
+		animal, err = utils.ScanRowsIntoAnimals(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if animal.AnimalId == 0 {
+		return nil, fmt.Errorf("animal not found")
+	}
+
+	return animal, nil
 }
 
 func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {

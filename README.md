@@ -4,8 +4,6 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 ## To-Do List
 - **WIP** Add Get functions
 - Add checks for creation endpoints to see if subject already exists
-    - handleCreateAnimal: check by name and species in family
-    - handleCreateEnclosure: check by name and habitat in family
     - handleCreateHabitat: check by name
     - handleCreateSpecies: check by comName
     - handleCreateSpecies: check by sciName
