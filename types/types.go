@@ -79,6 +79,19 @@ type CreateSpeciesPayload struct {
 	ExtraCare   string `json:"extraCare" validate:"required"`
 }
 
+type UpdateSpeciesPayload struct {
+	SpeciesID   int    `json:"speciesId" validate:"required"`
+	ComName     string `json:"comName" validate:"required"`
+	SciName     string `json:"sciName" validate:"required"`
+	SpeciesDesc string `json:"speciesDesc" validate:"required"`
+	Image       string `json:"image" validate:"required"`
+	HabitatId   int    `json:"habitatId" validate:"required,min=0"`
+	BaskTemp    string `json:"baskTemp" validate:"required"`
+	Diet        string `json:"diet" validate:"required"`
+	Sociality   string `json:"sociality" validate:"required"`
+	ExtraCare   string `json:"extraCare" validate:"required"`
+}
+
 type SpeciesIdPayload struct {
 	SpeciesId int `json:"speciesId" validate:"required,min=0"`
 }
@@ -86,7 +99,7 @@ type SpeciesIdPayload struct {
 // Habitat-related types
 type HabitatStore interface {
 	CreateHabitat(Habitat) error
-	UpdateHabitat(Habitat) error // TODO
+	UpdateHabitat(Habitat) error
 	GetHabitats() ([]*Habitat, error)
 	GetHabitatByName(string) (*Habitat, error)
 	GetHabitatById(int) (*Habitat, error) // not used in any handler yet

@@ -26,6 +26,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 
 	// admin routes
 	router.HandleFunc("/admin/species", auth.WithJWTAuth(h.handleAdminCreateSpecies, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/species", auth.WithJWTAuth(h.handleAdminUpdateSpecies, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/species", auth.WithJWTAuth(h.handleAdminDeleteSpeciesById, h.userStore)).Methods(http.MethodDelete)
 }
 
@@ -91,6 +92,37 @@ func (h *Handler) handleAdminCreateSpecies(w http.ResponseWriter, r *http.Reques
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, nil)
+}
+
+func (h *Handler) handleAdminUpdateSpecies(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var species types.UpdateSpeciesPayload
+	if err := utils.ParseJSON(r, &species); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(species); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// update species
+	err := h.store.CreateSpecies(types.Species(species))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminDeleteSpeciesById(w http.ResponseWriter, r *http.Request) {

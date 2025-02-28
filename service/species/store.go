@@ -24,6 +24,17 @@ func (s *Store) CreateSpecies(species types.Species) error {
 	return nil
 }
 
+func (s *Store) UpdateSpecies(species types.Species) error {
+	_, err := s.db.Exec(`UPDATE species
+						SET comName = ?, sciName = ?, speciesDesc = ?, image = ?, habitatId = ?, baskTemp = ?, diet = ?, sociality = ?, extraCare = ?
+						WHERE speciesId = ?`, species.ComName, species.SciName, species.SpeciesDesc, species.Image, species.HabitatId, species.BaskTemp, species.Diet, species.Sociality, species.ExtraCare, species.SpeciesID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Store) GetSpecies() ([]*types.Species, error) {
 	rows, err := s.db.Query("SELECT * FROM species")
 	if err != nil {
