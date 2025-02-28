@@ -68,9 +68,16 @@ func (s *Store) GetUserById(id int) (*types.User, error) {
 }
 
 func (s *Store) DeleteUserById(userID int) error {
-	// get animals from userID
+	// get animals and enclosures from userID
 	aRows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
 							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
+							WHERE userID = ?`, userID)
+	if err != nil {
+		return err
+	}
+
+	eRows, err := s.db.Query(`SELECT e.enclosureId, e.enclosureName, e.image, e.Notes, e.habitatId
+							FROM enclosures e JOIN enclosureUser ON enclosureUser.enclosureId=e.enclosureId
 							WHERE userID = ?`, userID)
 	if err != nil {
 		return err
@@ -84,14 +91,6 @@ func (s *Store) DeleteUserById(userID int) error {
 		}
 
 		animals = append(animals, animal)
-	}
-
-	// get enclosures from userID
-	eRows, err := s.db.Query(`SELECT e.enclosureId, e.enclosureName, e.image, e.Notes, e.habitatId
-							FROM enclosures e JOIN enclosureUser ON enclosureUser.enclosureId=e.enclosureId
-							WHERE userID = ?`, userID)
-	if err != nil {
-		return err
 	}
 
 	enclosures := make([]*types.Enclosure, 0)
