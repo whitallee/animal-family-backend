@@ -142,15 +142,8 @@ func (h *Handler) handleAdminUpdateAnimal(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// check for ownership
-	_, err := h.store.GetAnimalUserByIds(animal.AnimalId, userID)
-	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
-		return
-	}
-
-	// if ownership exists, update animal
-	err = h.store.UpdateAnimal(types.Animal(animal))
+	// update animal
+	err := h.store.UpdateAnimal(types.Animal(animal))
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return

@@ -48,6 +48,20 @@ func ScanRowsIntoEnclosures(rows *sql.Rows) (*types.Enclosure, error) {
 	return enclosures, nil
 }
 
+func ScanRowsIntoEnclosureUser(rows *sql.Rows) (*types.EnclosureUser, error) {
+	enclosureUser := new(types.EnclosureUser)
+
+	err := rows.Scan(
+		&enclosureUser.EnclosureId,
+		&enclosureUser.UserID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return enclosureUser, nil
+}
+
 func ScanRowsIntoAnimals(rows *sql.Rows) (*types.Animal, error) {
 	animal := new(types.Animal)
 

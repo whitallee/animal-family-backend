@@ -60,8 +60,6 @@ func (s *Store) CreateAnimalByUserId(animal types.Animal, userID int) error {
 }
 
 func (s *Store) UpdateAnimal(animal types.Animal) error {
-	// check that user owns animal IN THE HANDLER with new getanimaluserbyids function
-
 	_, err := s.db.Exec(`UPDATE animals
 						SET animalName = ?, image = ?, notes = ?, speciesID = ?, enclosureID = ?
 						WHERE animalId = ?`, animal.AnimalName, animal.Image, animal.Notes, animal.SpeciesId, animal.EnclosureId, animal.AnimalId)

@@ -121,9 +121,10 @@ type EnclosureStore interface {
 	CreateEnclosure(Enclosure) error
 	CreateEnclosureByUserId(Enclosure, int) error
 	CreateEnclosureWithAnimalsByUserId(enclosure Enclosure, animalIds []int, userID int) error
-	UpdateEnclosureByIdWithUserId(enclosureId int, userID int) error // TODO
+	UpdateEnclosure(Enclosure) error
 	GetEnclosures() ([]*Enclosure, error)
 	GetEnclosureByNameAndHabitatWithUserId(enclosureName string, habitatId int, userID int) (*Enclosure, error)
+	GetEnclosureUserByIds(enclosureId int, userID int) (*EnclosureUser, error)
 	GetEnclosuresByUserId(int) ([]*Enclosure, error)
 	GetEnclosureByIdWithUserId(enclosureId int, userID int) (*Enclosure, error)
 	DeleteEnclosureByIdWithUserId(enclosureId int, userID int) error
@@ -136,6 +137,11 @@ type Enclosure struct {
 	HabitatId     int    `json:"habitatId"`
 	Image         string `json:"image"`
 	Notes         string `json:"notes"`
+}
+
+type EnclosureUser struct {
+	EnclosureId int `json:"enclosureId"`
+	UserID      int `json:"userID"`
 }
 
 type CreateEnclosurePayload struct {
@@ -151,6 +157,14 @@ type CreateEnclosureWithAnimalsPayload struct {
 	Image         string `json:"image" validate:"required"`
 	Notes         string `json:"notes" validate:"required"`
 	AnimalIds     []int  `json:"animalIds" validate:"required"`
+}
+
+type UpdateEnclosurePayload struct {
+	EnclosureId   int    `json:"enclosureId" validate:"required"`
+	EnclosureName string `json:"enclosureName" validate:"required"`
+	HabitatId     int    `json:"habitatId" validate:"required,min=0"`
+	Image         string `json:"image" validate:"required"`
+	Notes         string `json:"notes" validate:"required"`
 }
 
 type EnclosureIdPayload struct {

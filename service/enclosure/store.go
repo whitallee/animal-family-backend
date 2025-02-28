@@ -88,6 +88,17 @@ func (s *Store) CreateEnclosureWithAnimalsByUserId(enclosure types.Enclosure, an
 	return nil
 }
 
+func (s *Store) UpdateEnclosure(enclosure types.Enclosure) error {
+	_, err := s.db.Exec(`UPDATE enclosures
+						SET enclosureName = ?, image = ?, notes = ?, habitatID = ?
+						WHERE enclosureId = ?`, enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId, enclosure.EnclosureId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Store) GetEnclosures() ([]*types.Enclosure, error) {
 	rows, err := s.db.Query("SELECT * FROM enclosures")
 	if err != nil {
@@ -128,6 +139,27 @@ func (s *Store) GetEnclosureByNameAndHabitatWithUserId(enclosureName string, hab
 	}
 
 	return enclosure, nil
+}
+
+func (s *Store) GetEnclosureUserByIds(enclosureId int, userID int) (*types.EnclosureUser, error) {
+	rows, err := s.db.Query("SELECT * FROM enclosureUser WHERE enclosureId = ? AND userID = ?", enclosureId, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	enclosureUser := new(types.EnclosureUser)
+	for rows.Next() {
+		enclosureUser, err = utils.ScanRowsIntoEnclosureUser(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if enclosureUser.EnclosureId == 0 && enclosureUser.UserID == 0 {
+		return nil, fmt.Errorf("no ownership found between user and enclosure")
+	}
+
+	return enclosureUser, nil
 }
 
 func (s *Store) GetEnclosuresByUserId(userID int) ([]*types.Enclosure, error) {
