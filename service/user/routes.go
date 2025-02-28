@@ -21,14 +21,16 @@ func NewHandler(store types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
+	// public routes
+	router.HandleFunc("/user/register", h.handleCreateUser).Methods(http.MethodPost)
+
 	// user routes
-	router.HandleFunc("/register", h.handleCreateUser).Methods(http.MethodPost)
-	router.HandleFunc("/login", h.handleLogin).Methods(http.MethodPost)
-	router.HandleFunc("/delete-user", auth.WithJWTAuth(h.handleSelfDeleteUserById, h.store)).Methods(http.MethodDelete)
+	router.HandleFunc("/user/login", h.handleUserLogin).Methods(http.MethodPost)
+	router.HandleFunc("/user/delete", auth.WithJWTAuth(h.handleUserDeleteUserById, h.store)).Methods(http.MethodDelete)
 
 	// admin routes
-	router.HandleFunc("/admin/delete-user/id", auth.WithJWTAuth(h.handleAdminDeleteUserById, h.store)).Methods(http.MethodDelete)
-	router.HandleFunc("/admin/delete-user/email", auth.WithJWTAuth(h.handleAdminDeleteUserByEmail, h.store)).Methods(http.MethodDelete)
+	router.HandleFunc("/admin/user/delete/byid", auth.WithJWTAuth(h.handleAdminDeleteUserById, h.store)).Methods(http.MethodDelete)
+	router.HandleFunc("/admin/user/delete/byemail", auth.WithJWTAuth(h.handleAdminDeleteUserByEmail, h.store)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +77,7 @@ func (h *Handler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleUserLogin(w http.ResponseWriter, r *http.Request) {
 	// get JSON payload
 	var user types.LoginUserPayload
 	if err := utils.ParseJSON(r, &user); err != nil { // I changed &user to user now back to &user
@@ -113,7 +115,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }
 
-func (h *Handler) handleSelfDeleteUserById(w http.ResponseWriter, r *http.Request) { //untested
+func (h *Handler) handleUserDeleteUserById(w http.ResponseWriter, r *http.Request) { //untested
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
