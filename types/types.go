@@ -161,9 +161,10 @@ type EnclosureIdPayload struct {
 type AnimalStore interface {
 	CreateAnimal(Animal) error
 	CreateAnimalByUserId(Animal, int) error
-	UpdateAnimalByIdWithUserId(animalId int, userID int) error // TODO
+	UpdateAnimal(Animal) error
 	GetAnimals() ([]*Animal, error)
 	GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*Animal, error)
+	GetAnimalUserByIds(animalId int, userID int) (*AnimalUser, error)
 	GetAnimalsByUserId(int) ([]*Animal, error)
 	GetAnimalsByEnclosureIdWithUserId(enclosureId int, userID int) ([]*Animal, error)
 	DeleteAnimalByIdWithUserId(animalId int, userID int) error
@@ -178,7 +179,21 @@ type Animal struct {
 	Notes       string `json:"notes"`
 }
 
+type AnimalUser struct {
+	AnimalId int `json:"animalId"`
+	UserID   int `json:"userID"`
+}
+
 type CreateAnimalPayload struct {
+	AnimalName  string `json:"animalName" validate:"required"`
+	SpeciesId   int    `json:"speciesId" validate:"required,min=0"`
+	EnclosureId *int   `json:"enclosureId" validate:"required,min=0"`
+	Image       string `json:"image" validate:"required"`
+	Notes       string `json:"notes" validate:"required"`
+}
+
+type UpdateAnimalPayload struct {
+	AnimalId    string `json:"animalId" validate:"required"`
 	AnimalName  string `json:"animalName" validate:"required"`
 	SpeciesId   int    `json:"speciesId" validate:"required,min=0"`
 	EnclosureId *int   `json:"enclosureId" validate:"required,min=0"`

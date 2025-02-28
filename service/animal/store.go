@@ -59,6 +59,19 @@ func (s *Store) CreateAnimalByUserId(animal types.Animal, userID int) error {
 	return nil
 }
 
+func (s *Store) UpdateAnimal(animal types.Animal) error {
+	// check that user owns animal IN THE HANDLER with new getanimaluserbyids function
+
+	_, err := s.db.Exec(`UPDATE animals
+						SET animalName = ?, image = ?, notes = ?, speciesID = ?, enclosureID = ?
+						WHERE animalId = ?`, animal.AnimalName, animal.Image, animal.Notes, animal.SpeciesId, animal.EnclosureId, animal.AnimalId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Store) GetAnimals() ([]*types.Animal, error) {
 	rows, err := s.db.Query("SELECT * FROM animals")
 	if err != nil {
@@ -99,6 +112,27 @@ func (s *Store) GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId
 	}
 
 	return animal, nil
+}
+
+func (s *Store) GetAnimalUserByIds(animalId int, userID int) (*types.AnimalUser, error) {
+	rows, err := s.db.Query("SELECT * FROM animalUser WHERE animalId = ? AND userID = ?", animalId, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	animalUser := new(types.AnimalUser)
+	for rows.Next() {
+		animalUser, err = utils.ScanRowsIntoAnimalUser(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if animalUser.AnimalId == 0 && animalUser.UserID == 0 {
+		return nil, fmt.Errorf("no ownership found between user and animal")
+	}
+
+	return animalUser, nil
 }
 
 func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {

@@ -3,10 +3,10 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 
 ## To-Do List
 - Add Update functions
-    - UpdateAnimalByIdWithUserId and handler
-    - UpdateEnclosureByIdWithUserId and handler 
-    - UpdateHabitatById (admin) and handler
-    - UpdateSpeciesById (admin) and handler
+    - UpdateAnimal and handler
+    - UpdateEnclosure and handler 
+    - UpdateHabitat (admin) and handler
+    - UpdateSpecies (admin) and handler
 - Implement the Tasks Feature
 - Use GoRoutines for concurrent async requests like for DeleteUserById animal and enclosure requests or any for loop db requests
 - Implement Action History Feature

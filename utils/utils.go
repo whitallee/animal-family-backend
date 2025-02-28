@@ -65,3 +65,17 @@ func ScanRowsIntoAnimals(rows *sql.Rows) (*types.Animal, error) {
 
 	return animal, nil
 }
+
+func ScanRowsIntoAnimalUser(rows *sql.Rows) (*types.AnimalUser, error) {
+	animalUser := new(types.AnimalUser)
+
+	err := rows.Scan(
+		&animalUser.AnimalId,
+		&animalUser.UserID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return animalUser, nil
+}
