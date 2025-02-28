@@ -26,6 +26,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 
 	// admin routes
 	router.HandleFunc("/admin/habitat", auth.WithJWTAuth(h.handleAdminCreateHabitat, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/habitat", auth.WithJWTAuth(h.handleAdminUpdateHabitat, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/habitat", auth.WithJWTAuth(h.handleAdminDeleteHabitatById, h.userStore)).Methods(http.MethodDelete)
 }
 
@@ -83,6 +84,37 @@ func (h *Handler) handleAdminCreateHabitat(w http.ResponseWriter, r *http.Reques
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, nil)
+}
+
+func (h *Handler) handleAdminUpdateHabitat(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var habitat types.UpdateHabitatPayload
+	if err := utils.ParseJSON(r, &habitat); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(habitat); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// update habitat
+	err := h.store.UpdateHabitat(types.Habitat(habitat))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminDeleteHabitatById(w http.ResponseWriter, r *http.Request) {

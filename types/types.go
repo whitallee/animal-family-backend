@@ -46,7 +46,7 @@ type UserEmailPayload struct {
 // Species-related types
 type SpeciesStore interface {
 	CreateSpecies(Species) error
-	UpdateSpeciesById(int) error // TODO
+	UpdateSpecies(Species) error // TODO
 	GetSpecies() ([]*Species, error)
 	GetSpeciesByComName(string) (*Species, error)
 	GetSpeciesBySciName(string) (*Species, error)
@@ -86,7 +86,7 @@ type SpeciesIdPayload struct {
 // Habitat-related types
 type HabitatStore interface {
 	CreateHabitat(Habitat) error
-	UpdateHabitatById(int) error // TODO
+	UpdateHabitat(Habitat) error // TODO
 	GetHabitats() ([]*Habitat, error)
 	GetHabitatByName(string) (*Habitat, error)
 	GetHabitatById(int) (*Habitat, error) // not used in any handler yet
@@ -104,6 +104,16 @@ type Habitat struct {
 }
 
 type CreateHabitatPayload struct {
+	HabitatName    string `json:"habitatName" validate:"required"`
+	HabitatDesc    string `json:"habitatDesc" validate:"required"`
+	Image          string `json:"image" validate:"required"`
+	Humidity       string `json:"humidity" validate:"required"`
+	DayTempRange   string `json:"dayTempRange" validate:"required"`
+	NightTempRange string `json:"nightTempRange" validate:"required"`
+}
+
+type UpdateHabitatPayload struct {
+	HabitatId      int    `json:"habitatId" validate:"required"`
 	HabitatName    string `json:"habitatName" validate:"required"`
 	HabitatDesc    string `json:"habitatDesc" validate:"required"`
 	Image          string `json:"image" validate:"required"`

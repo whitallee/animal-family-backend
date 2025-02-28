@@ -24,6 +24,17 @@ func (s *Store) CreateHabitat(habitat types.Habitat) error {
 	return nil
 }
 
+func (s *Store) UpdateHabitat(habitat types.Habitat) error {
+	_, err := s.db.Exec(`UPDATE habitats
+						SET habitatName = ?, habitatDesc = ?, image = ?, humidity = ?, dayTempRange = ?, nightTempRange = ?
+						WHERE habitatId = ?`, habitat.HabitatName, habitat.HabitatDesc, habitat.Image, habitat.Humidity, habitat.DayTempRange, habitat.NightTempRange, habitat.HabitatId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Store) GetHabitats() ([]*types.Habitat, error) {
 	rows, err := s.db.Query("SELECT * FROM habitats")
 	if err != nil {
