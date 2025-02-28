@@ -21,7 +21,7 @@ func NewHandler(store types.HabitatStore, userStore types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	// user routes
+	// public routes
 	router.HandleFunc("/habitat", h.handleGetHabitats).Methods(http.MethodGet)
 
 	// admin routes

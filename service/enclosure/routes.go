@@ -22,13 +22,13 @@ func NewHandler(store types.EnclosureStore, userStore types.UserStore) *Handler 
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	// user routes
-	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleCreateEnclosureByUserID, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/enclosure/withanimals", auth.WithJWTAuth(h.handleCreateEnclosureWithAnimalsByUserID, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleUserCreateEnclosure, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/enclosure/withanimals", auth.WithJWTAuth(h.handleUserCreateEnclosureWithAnimals, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleUserUpdateEnclosure, h.userStore)).Methods(http.MethodPut)
-	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleGetEnclosuresByUserId, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/enclosure/id", auth.WithJWTAuth(h.handleGetEnclosureByIdWithUserId, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/enclosure/id", auth.WithJWTAuth(h.handleDeleteEnclosureByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
-	router.HandleFunc("/enclosure/id/withanimals", auth.WithJWTAuth(h.handleDeleteEnclosureWithAnimalsByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
+	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleUserGetEnclosures, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/enclosure/id", auth.WithJWTAuth(h.handleUserGetEnclosureById, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/enclosure/id", auth.WithJWTAuth(h.handleUserDeleteEnclosureById, h.userStore)).Methods(http.MethodDelete)
+	router.HandleFunc("/enclosure/id/withanimals", auth.WithJWTAuth(h.handleUserDeleteEnclosureWithAnimalsByIds, h.userStore)).Methods(http.MethodDelete)
 
 	// admin routes
 	router.HandleFunc("/admin/enclosure", auth.WithJWTAuth(h.handleAdminCreateEnclosure, h.userStore)).Methods(http.MethodPost)
@@ -74,7 +74,7 @@ func (h *Handler) handleAdminCreateEnclosure(w http.ResponseWriter, r *http.Requ
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-func (h *Handler) handleCreateEnclosureByUserID(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleUserCreateEnclosure(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
@@ -114,7 +114,7 @@ func (h *Handler) handleCreateEnclosureByUserID(w http.ResponseWriter, r *http.R
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-func (h *Handler) handleCreateEnclosureWithAnimalsByUserID(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleUserCreateEnclosureWithAnimals(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
@@ -237,7 +237,7 @@ func (h *Handler) handleAdminGetEnclosures(w http.ResponseWriter, r *http.Reques
 	utils.WriteJSON(w, http.StatusOK, enclosureList)
 }
 
-func (h *Handler) handleGetEnclosuresByUserId(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleUserGetEnclosures(w http.ResponseWriter, r *http.Request) {
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	enclosureList, err := h.store.GetEnclosuresByUserId(userID)
@@ -249,7 +249,7 @@ func (h *Handler) handleGetEnclosuresByUserId(w http.ResponseWriter, r *http.Req
 	utils.WriteJSON(w, http.StatusOK, enclosureList)
 }
 
-func (h *Handler) handleGetEnclosureByIdWithUserId(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleUserGetEnclosureById(w http.ResponseWriter, r *http.Request) { // changes
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	// get JSON payload
@@ -266,7 +266,7 @@ func (h *Handler) handleGetEnclosureByIdWithUserId(w http.ResponseWriter, r *htt
 		return
 	}
 
-	enclosure, err := h.store.GetEnclosureByIdWithUserId(enclosureId.EnclosureId, userID)
+	enclosure, err := h.store.GetEnclosureByIdWithUserId(enclosureId.EnclosureId, userID) // change to only enclosure id and use ownership check
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -275,7 +275,7 @@ func (h *Handler) handleGetEnclosureByIdWithUserId(w http.ResponseWriter, r *htt
 	utils.WriteJSON(w, http.StatusOK, enclosure)
 }
 
-func (h *Handler) handleDeleteEnclosureByIdWithUserId(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleUserDeleteEnclosureById(w http.ResponseWriter, r *http.Request) { // same changes as above
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
@@ -305,7 +305,7 @@ func (h *Handler) handleDeleteEnclosureByIdWithUserId(w http.ResponseWriter, r *
 	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
-func (h *Handler) handleDeleteEnclosureWithAnimalsByIdWithUserId(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleUserDeleteEnclosureWithAnimalsByIds(w http.ResponseWriter, r *http.Request) { // same as above
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 

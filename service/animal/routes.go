@@ -23,11 +23,11 @@ func NewHandler(store types.AnimalStore, userStore types.UserStore) *Handler {
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	// user routes
-	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleCreateAnimalByUserId, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserCreateAnimal, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserUpdateAnimal, h.userStore)).Methods(http.MethodPut)
-	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleGetAnimalsByUserId, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/animal/byenclosure", auth.WithJWTAuth(h.handleGetAnimalsByEnclosureIdWithUserId, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleDeleteAnimalByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
+	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserGetAnimals, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/animal/byenclosure", auth.WithJWTAuth(h.handleUserGetAnimalsByEnclosureId, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserDeleteAnimalById, h.userStore)).Methods(http.MethodDelete)
 
 	//admin routes
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminCreateAnimal, h.userStore)).Methods(http.MethodPost)
@@ -80,7 +80,7 @@ func (h *Handler) handleAdminCreateAnimal(w http.ResponseWriter, r *http.Request
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-func (h *Handler) handleCreateAnimalByUserId(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleUserCreateAnimal(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
@@ -205,7 +205,7 @@ func (h *Handler) handleAdminGetAnimals(w http.ResponseWriter, r *http.Request) 
 
 }
 
-func (h *Handler) handleGetAnimalsByUserId(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleUserGetAnimals(w http.ResponseWriter, r *http.Request) {
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	animalList, err := h.store.GetAnimalsByUserId(userID)
@@ -218,7 +218,7 @@ func (h *Handler) handleGetAnimalsByUserId(w http.ResponseWriter, r *http.Reques
 
 }
 
-func (h *Handler) handleGetAnimalsByEnclosureIdWithUserId(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleUserGetAnimalsByEnclosureId(w http.ResponseWriter, r *http.Request) {
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	// get JSON payload
@@ -245,7 +245,7 @@ func (h *Handler) handleGetAnimalsByEnclosureIdWithUserId(w http.ResponseWriter,
 
 }
 
-func (h *Handler) handleDeleteAnimalByIdWithUserId(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleUserDeleteAnimalById(w http.ResponseWriter, r *http.Request) {
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	// get JSON payload

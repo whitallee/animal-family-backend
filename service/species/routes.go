@@ -21,7 +21,7 @@ func NewHandler(store types.SpeciesStore, userStore types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	// user routes
+	// public routes
 	router.HandleFunc("/species", h.handleGetSpecies).Methods(http.MethodGet)
 
 	// admin routes
