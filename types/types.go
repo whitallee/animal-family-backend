@@ -193,7 +193,7 @@ type CreateAnimalPayload struct {
 }
 
 type UpdateAnimalPayload struct {
-	AnimalId    string `json:"animalId" validate:"required"`
+	AnimalId    int    `json:"animalId" validate:"required"`
 	AnimalName  string `json:"animalName" validate:"required"`
 	SpeciesId   int    `json:"speciesId" validate:"required,min=0"`
 	EnclosureId *int   `json:"enclosureId" validate:"required,min=0"`

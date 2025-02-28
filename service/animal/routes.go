@@ -24,12 +24,14 @@ func NewHandler(store types.AnimalStore, userStore types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	// user routes
 	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleCreateAnimalByUserId, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserUpdateAnimal, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleGetAnimalsByUserId, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/animal/byenclosure", auth.WithJWTAuth(h.handleGetAnimalsByEnclosureIdWithUserId, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleDeleteAnimalByIdWithUserId, h.userStore)).Methods(http.MethodDelete)
 
 	//admin routes
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminCreateAnimal, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminUpdateAnimal, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminGetAnimals, h.userStore)).Methods(http.MethodGet)
 
 }
@@ -96,15 +98,15 @@ func (h *Handler) handleCreateAnimalByUserId(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// TODO check if animal exists under the userID with same name
-	// _, err := h.store.GetAnimalByNameAndUserID(animal.name, userID)
-	// if err == nil {
-	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("animal named %s already exists in user animal family", animal.name))
-	// 	return
-	// }
+	// check if animal exists
+	_, err := h.store.GetAnimalByNameAndSpeciesWithUserId(animal.AnimalName, animal.SpeciesId, userID)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("animal with name %s and species id %d already exists", animal.AnimalName, animal.SpeciesId))
+		return
+	}
 
 	// if it doesn't exist, create new animal
-	err := h.store.CreateAnimalByUserId(types.Animal{
+	err = h.store.CreateAnimalByUserId(types.Animal{
 		AnimalName:  animal.AnimalName,
 		SpeciesId:   animal.SpeciesId,
 		EnclosureId: animal.EnclosureId,
@@ -117,6 +119,79 @@ func (h *Handler) handleCreateAnimalByUserId(w http.ResponseWriter, r *http.Requ
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, nil)
+}
+
+func (h *Handler) handleAdminUpdateAnimal(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var animal types.UpdateAnimalPayload
+	if err := utils.ParseJSON(r, &animal); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(animal); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
+		return
+	}
+
+	// check for ownership
+	_, err := h.store.GetAnimalUserByIds(animal.AnimalId, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
+
+	// if ownership exists, update animal
+	err = h.store.UpdateAnimal(types.Animal(animal))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleUserUpdateAnimal(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var animal types.UpdateAnimalPayload
+	if err := utils.ParseJSON(r, &animal); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(animal); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
+		return
+	}
+
+	// check for ownership
+	_, err := h.store.GetAnimalUserByIds(animal.AnimalId, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
+
+	// if ownership exists, update animal
+	err = h.store.UpdateAnimal(types.Animal(animal))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminGetAnimals(w http.ResponseWriter, r *http.Request) {
