@@ -28,12 +28,17 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleUserGetEnclosures, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/enclosure/id", auth.WithJWTAuth(h.handleUserGetEnclosureById, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/enclosure/id", auth.WithJWTAuth(h.handleUserDeleteEnclosureById, h.userStore)).Methods(http.MethodDelete)
-	router.HandleFunc("/enclosure/id/withanimals", auth.WithJWTAuth(h.handleUserDeleteEnclosureWithAnimalsByIds, h.userStore)).Methods(http.MethodDelete)
+	router.HandleFunc("/enclosure/id/withanimals", auth.WithJWTAuth(h.handleUserDeleteEnclosureWithAnimalsById, h.userStore)).Methods(http.MethodDelete)
 
 	// admin routes
 	router.HandleFunc("/admin/enclosure", auth.WithJWTAuth(h.handleAdminCreateEnclosure, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/enclosure/withanimals", auth.WithJWTAuth(h.handleAdminCreateEnclosureWithAnimals, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/admin/enclosure", auth.WithJWTAuth(h.handleAdminUpdateEnclosure, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/enclosure", auth.WithJWTAuth(h.handleAdminGetEnclosures, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/enclosure/id", auth.WithJWTAuth(h.handleAdminGetEnclosureById, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/enclosure/byuser", auth.WithJWTAuth(h.handleAdminGetEnclosuresByUser, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/enclosure/id", auth.WithJWTAuth(h.handleAdminDeleteEnclosureById, h.userStore)).Methods(http.MethodDelete)
+	router.HandleFunc("/admin/enclosure/id/withanimals", auth.WithJWTAuth(h.handleAdminDeleteEnclosureWithAnimalsById, h.userStore)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleAdminCreateEnclosure(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +49,7 @@ func (h *Handler) handleAdminCreateEnclosure(w http.ResponseWriter, r *http.Requ
 	}
 
 	// get JSON payload
-	var enclosure types.CreateEnclosurePayload
+	var enclosure types.CreateEnclosureWithOwnerPayload
 	if err := utils.ParseJSON(r, &enclosure); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -57,15 +62,20 @@ func (h *Handler) handleAdminCreateEnclosure(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// TODO check if enclosure exists
+	// check if enclosure exists
+	_, err := h.store.GetEnclosureByNameAndHabitatWithUserId(enclosure.EnclosureName, enclosure.HabitatId, enclosure.UserID)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("enclosure with name %s and habitat id %d already exists", enclosure.EnclosureName, enclosure.HabitatId))
+		return
+	}
 
 	// if it doesn't exist, create new enclosure
-	err := h.store.CreateEnclosure(types.Enclosure{
+	err = h.store.CreateEnclosure(types.Enclosure{
 		EnclosureName: enclosure.EnclosureName,
 		Image:         enclosure.Image,
 		Notes:         enclosure.Notes,
 		HabitatId:     enclosure.HabitatId,
-	})
+	}, enclosure.UserID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -100,12 +110,55 @@ func (h *Handler) handleUserCreateEnclosure(w http.ResponseWriter, r *http.Reque
 	}
 
 	// if it doesn't exist, create new enclosure with userID
-	err = h.store.CreateEnclosureByUserId(types.Enclosure{
+	err = h.store.CreateEnclosure(types.Enclosure{
 		EnclosureName: enclosure.EnclosureName,
 		Image:         enclosure.Image,
 		Notes:         enclosure.Notes,
 		HabitatId:     enclosure.HabitatId,
 	}, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusCreated, nil)
+}
+
+func (h *Handler) handleAdminCreateEnclosureWithAnimals(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var enclosureWithAnimals types.CreateEnclosureWithOwnerWithAnimalsPayload
+	if err := utils.ParseJSON(r, &enclosureWithAnimals); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(enclosureWithAnimals); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check if enclosure exists
+	_, err := h.store.GetEnclosureByNameAndHabitatWithUserId(enclosureWithAnimals.EnclosureName, enclosureWithAnimals.HabitatId, enclosureWithAnimals.UserID)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("enclosure with name %s and habitat id %d already exists", enclosureWithAnimals.EnclosureName, enclosureWithAnimals.HabitatId))
+		return
+	}
+
+	// if it doesn't exist, create new enclosure with animals
+	err = h.store.CreateEnclosureWithAnimals(types.Enclosure{
+		EnclosureName: enclosureWithAnimals.EnclosureName,
+		Image:         enclosureWithAnimals.Image,
+		Notes:         enclosureWithAnimals.Notes,
+		HabitatId:     enclosureWithAnimals.HabitatId,
+	}, enclosureWithAnimals.AnimalIds, enclosureWithAnimals.UserID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -140,7 +193,7 @@ func (h *Handler) handleUserCreateEnclosureWithAnimals(w http.ResponseWriter, r 
 	}
 
 	// if it doesn't exist, create new enclosure with userID
-	err = h.store.CreateEnclosureWithAnimalsByUserId(types.Enclosure{
+	err = h.store.CreateEnclosureWithAnimals(types.Enclosure{
 		EnclosureName: enclosureWithAnimals.EnclosureName,
 		Image:         enclosureWithAnimals.Image,
 		Notes:         enclosureWithAnimals.Notes,
@@ -237,9 +290,42 @@ func (h *Handler) handleAdminGetEnclosures(w http.ResponseWriter, r *http.Reques
 	utils.WriteJSON(w, http.StatusOK, enclosureList)
 }
 
+func (h *Handler) handleAdminGetEnclosuresByUser(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var userIdPayload types.UserIDPayload
+	if err := utils.ParseJSON(r, &userIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(userIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// get enclosures
+	enclosureList, err := h.store.GetEnclosuresByUserId(userIdPayload.UserID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, enclosureList)
+}
+
 func (h *Handler) handleUserGetEnclosures(w http.ResponseWriter, r *http.Request) {
+	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
+	// get enclosures by user
 	enclosureList, err := h.store.GetEnclosuresByUserId(userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
@@ -249,24 +335,29 @@ func (h *Handler) handleUserGetEnclosures(w http.ResponseWriter, r *http.Request
 	utils.WriteJSON(w, http.StatusOK, enclosureList)
 }
 
-func (h *Handler) handleUserGetEnclosureById(w http.ResponseWriter, r *http.Request) { // changes
+func (h *Handler) handleAdminGetEnclosureById(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
 	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
 
 	// get JSON payload
-	var enclosureId types.EnclosureIdPayload
-	if err := utils.ParseJSON(r, &enclosureId); err != nil {
+	var enclosureIdPayload types.EnclosureIdPayload
+	if err := utils.ParseJSON(r, &enclosureIdPayload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	// validate payload done by other package
-	if err := utils.Validate.Struct(enclosureId); err != nil {
+	if err := utils.Validate.Struct(enclosureIdPayload); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
 	}
 
-	enclosure, err := h.store.GetEnclosureByIdWithUserId(enclosureId.EnclosureId, userID) // change to only enclosure id and use ownership check
+	// get enclosure
+	enclosure, err := h.store.GetEnclosureById(enclosureIdPayload.EnclosureId)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -275,28 +366,64 @@ func (h *Handler) handleUserGetEnclosureById(w http.ResponseWriter, r *http.Requ
 	utils.WriteJSON(w, http.StatusOK, enclosure)
 }
 
-func (h *Handler) handleUserDeleteEnclosureById(w http.ResponseWriter, r *http.Request) { // same changes as above
+func (h *Handler) handleUserGetEnclosureById(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	// get JSON payload
-	var deleteEnclosurePayload types.EnclosureIdPayload
-	if err := utils.ParseJSON(r, &deleteEnclosurePayload); err != nil {
+	var enclosureIdPayload types.EnclosureIdPayload
+	if err := utils.ParseJSON(r, &enclosureIdPayload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	// validate payload done by other package
-	if err := utils.Validate.Struct(deleteEnclosurePayload); err != nil {
+	if err := utils.Validate.Struct(enclosureIdPayload); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
 	}
 
-	// TODO check if enclosure exists
+	// check for ownership
+	_, err := h.store.GetEnclosureUserByIds(enclosureIdPayload.EnclosureId, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
 
-	// if it doesn't exist, create new enclosure with userID
-	err := h.store.DeleteEnclosureByIdWithUserId(deleteEnclosurePayload.EnclosureId, userID)
+	// if ownership exists, get enclosure
+	enclosure, err := h.store.GetEnclosureById(enclosureIdPayload.EnclosureId)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, enclosure)
+}
+
+func (h *Handler) handleAdminDeleteEnclosureById(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var enclosureIdPayload types.EnclosureIdPayload
+	if err := utils.ParseJSON(r, &enclosureIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(enclosureIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// delete enclosure
+	err := h.store.DeleteEnclosureById(enclosureIdPayload.EnclosureId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -305,28 +432,99 @@ func (h *Handler) handleUserDeleteEnclosureById(w http.ResponseWriter, r *http.R
 	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
-func (h *Handler) handleUserDeleteEnclosureWithAnimalsByIds(w http.ResponseWriter, r *http.Request) { // same as above
+func (h *Handler) handleUserDeleteEnclosureById(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
 	// get JSON payload
-	var deleteEnclosurePayload types.EnclosureIdPayload
-	if err := utils.ParseJSON(r, &deleteEnclosurePayload); err != nil {
+	var enclosureIdPayload types.EnclosureIdPayload
+	if err := utils.ParseJSON(r, &enclosureIdPayload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	// validate payload done by other package
-	if err := utils.Validate.Struct(deleteEnclosurePayload); err != nil {
+	if err := utils.Validate.Struct(enclosureIdPayload); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
 	}
 
-	// TODO check if enclosure exists
+	// check for ownership
+	_, err := h.store.GetEnclosureUserByIds(enclosureIdPayload.EnclosureId, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
 
-	// if it doesn't exist, create new enclosure with userID
-	err := h.store.DeleteEnclosureAndAnimalsByIdWithUserId(deleteEnclosurePayload.EnclosureId, userID)
+	// if ownership exists, delete enclosure
+	err = h.store.DeleteEnclosureById(enclosureIdPayload.EnclosureId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleAdminDeleteEnclosureWithAnimalsById(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var enclosureIdPayload types.EnclosureIdPayload
+	if err := utils.ParseJSON(r, &enclosureIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(enclosureIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// delete enclosure with animals
+	err := h.store.DeleteEnclosureAndAnimalsById(enclosureIdPayload.EnclosureId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleUserDeleteEnclosureWithAnimalsById(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var enclosureIdPayload types.EnclosureIdPayload
+	if err := utils.ParseJSON(r, &enclosureIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(enclosureIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check for ownership
+	_, err := h.store.GetEnclosureUserByIds(enclosureIdPayload.EnclosureId, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
+
+	// if ownership exists, delete enclosure with animals
+	err = h.store.DeleteEnclosureAndAnimalsById(enclosureIdPayload.EnclosureId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return

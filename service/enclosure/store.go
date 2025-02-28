@@ -16,16 +16,7 @@ func NewStore(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
-func (s *Store) CreateEnclosure(enclosure types.Enclosure) error {
-	_, err := s.db.Exec("INSERT INTO enclosures (enclosureName, image, notes, habitatId) VALUES (?,?,?,?)", enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *Store) CreateEnclosureByUserId(enclosure types.Enclosure, userID int) error {
+func (s *Store) CreateEnclosure(enclosure types.Enclosure, userID int) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -54,7 +45,7 @@ func (s *Store) CreateEnclosureByUserId(enclosure types.Enclosure, userID int) e
 	return nil
 }
 
-func (s *Store) CreateEnclosureWithAnimalsByUserId(enclosure types.Enclosure, animalIds []int, userID int) error {
+func (s *Store) CreateEnclosureWithAnimals(enclosure types.Enclosure, animalIds []int, userID int) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -183,10 +174,8 @@ func (s *Store) GetEnclosuresByUserId(userID int) ([]*types.Enclosure, error) {
 	return enclosures, nil
 }
 
-func (s *Store) GetEnclosureByIdWithUserId(enclosureId int, userID int) (*types.Enclosure, error) {
-	rows, err := s.db.Query(`SELECT e.enclosureId, e.enclosureName, e.image, e.Notes, e.habitatId
-							FROM enclosures e JOIN enclosureUser ON enclosureUser.enclosureId=e.enclosureId
-							WHERE userID = ? AND e.enclosureId = ?`, userID, enclosureId)
+func (s *Store) GetEnclosureById(enclosureId int) (*types.Enclosure, error) {
+	rows, err := s.db.Query("SELECT * FROM enclosures WHERE enclosureId = ?", enclosureId)
 	if err != nil {
 		return nil, err
 	}
@@ -208,11 +197,9 @@ func (s *Store) GetEnclosureByIdWithUserId(enclosureId int, userID int) (*types.
 	return enclosures[0], nil
 }
 
-func (s *Store) DeleteEnclosureByIdWithUserId(enclosureId int, userID int) error {
+func (s *Store) DeleteEnclosureById(enclosureId int) error {
 	// get animals from enclosure
-	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
-							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
-							WHERE userID = ? AND enclosureID = ?`, userID, enclosureId)
+	rows, err := s.db.Query("SELECT * FROM animals WHERE enclosureID = ?", enclosureId)
 	if err != nil {
 		return err
 	}
@@ -242,7 +229,7 @@ func (s *Store) DeleteEnclosureByIdWithUserId(enclosureId int, userID int) error
 	}
 
 	// delete from enclosureUser and enclosures
-	_, err = tx.Exec("DELETE FROM enclosureUser WHERE enclosureId = ? AND userId = ?", enclosureId, userID)
+	_, err = tx.Exec("DELETE FROM enclosureUser WHERE enclosureId = ?", enclosureId)
 	if err != nil {
 		return err
 	}
@@ -259,11 +246,9 @@ func (s *Store) DeleteEnclosureByIdWithUserId(enclosureId int, userID int) error
 	return nil
 }
 
-func (s *Store) DeleteEnclosureAndAnimalsByIdWithUserId(enclosureId int, userID int) error {
+func (s *Store) DeleteEnclosureAndAnimalsById(enclosureId int) error {
 	// get animals fom enclosures
-	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
-							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
-							WHERE userID = ? AND enclosureID = ?`, userID, enclosureId)
+	rows, err := s.db.Query("SELECT * FROM animals WHERE enclosureID = ?", enclosureId)
 	if err != nil {
 		return err
 	}
@@ -286,7 +271,7 @@ func (s *Store) DeleteEnclosureAndAnimalsByIdWithUserId(enclosureId int, userID 
 
 	// delete from animalUser and animals
 	for _, animal := range animals {
-		_, err = tx.Exec("DELETE FROM animalUser WHERE animalId = ? AND userID = ?", animal.AnimalId, userID)
+		_, err = tx.Exec("DELETE FROM animalUser WHERE animalId = ?", animal.AnimalId)
 		if err != nil {
 			return err
 		}
@@ -297,7 +282,7 @@ func (s *Store) DeleteEnclosureAndAnimalsByIdWithUserId(enclosureId int, userID 
 	}
 
 	// delete from enclosureUser and enclosures
-	_, err = tx.Exec("DELETE FROM enclosureUser WHERE enclosureId = ? AND userId = ?", enclosureId, userID)
+	_, err = tx.Exec("DELETE FROM enclosureUser WHERE enclosureId = ?", enclosureId)
 	if err != nil {
 		return err
 	}

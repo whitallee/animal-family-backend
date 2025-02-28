@@ -16,16 +16,7 @@ func NewStore(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
-func (s *Store) CreateAnimal(animal types.Animal) error {
-	_, err := s.db.Exec("INSERT INTO animals (animalName, speciesId, enclosureId, image, notes) VALUES (?,?,?,?,?)", animal.AnimalName, animal.SpeciesId, animal.EnclosureId, animal.Image, animal.Notes)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *Store) CreateAnimalByUserId(animal types.Animal, userID int) error {
+func (s *Store) CreateAnimal(animal types.Animal, userID int) error {
 	// start transaction
 	tx, err := s.db.Begin()
 	if err != nil {
@@ -154,10 +145,8 @@ func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {
 	return animals, nil
 }
 
-func (s *Store) GetAnimalsByEnclosureIdWithUserId(enclosureId int, userID int) ([]*types.Animal, error) {
-	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
-							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
-							WHERE userID = ? AND enclosureID = ?`, userID, enclosureId)
+func (s *Store) GetAnimalsByEnclosureId(enclosureId int) ([]*types.Animal, error) {
+	rows, err := s.db.Query("SELECT * FROM animals WHERE enclosureID = ?", enclosureId)
 	if err != nil {
 		return nil, err
 	}
@@ -175,13 +164,13 @@ func (s *Store) GetAnimalsByEnclosureIdWithUserId(enclosureId int, userID int) (
 	return animals, nil
 }
 
-func (s *Store) DeleteAnimalByIdWithUserId(animalId int, userID int) error {
+func (s *Store) DeleteAnimalById(animalId int) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("DELETE FROM animalUser WHERE animalId = ? AND userID = ?", animalId, userID)
+	_, err = tx.Exec("DELETE FROM animalUser WHERE animalId = ?", animalId)
 	if err != nil {
 		return err
 	}
