@@ -124,6 +124,27 @@ func (s *Store) GetAnimalUserByIds(animalId int, userID int) (*types.AnimalUser,
 	return animalUser, nil
 }
 
+func (s *Store) GetAnimalById(animalId int) (*types.Animal, error) {
+	rows, err := s.db.Query("SELECT * FROM animals WHERE animalId = ?", animalId)
+	if err != nil {
+		return nil, err
+	}
+
+	animal := new(types.Animal)
+	for rows.Next() {
+		animal, err = utils.ScanRowsIntoAnimals(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if animal.AnimalId == 0 {
+		return nil, fmt.Errorf("animal not found")
+	}
+
+	return animal, nil
+}
+
 func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {
 	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
 							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId

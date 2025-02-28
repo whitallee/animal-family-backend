@@ -217,6 +217,7 @@ type AnimalStore interface {
 	GetAnimals() ([]*Animal, error)
 	GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*Animal, error)
 	GetAnimalUserByIds(animalId int, userID int) (*AnimalUser, error)
+	GetAnimalById(int) (*Animal, error)
 	GetAnimalsByUserId(int) ([]*Animal, error)
 	GetAnimalsByEnclosureId(int) ([]*Animal, error)
 	DeleteAnimalById(int) error
@@ -264,4 +265,29 @@ type UpdateAnimalPayload struct {
 
 type AnimalIdPayload struct {
 	AnimalId int `json:"animalId" validate:"required,min=0"`
+}
+
+type TaskStore interface { // TODO
+	CreateTask(Task, int) error
+	UpdateTask(Task) error
+	GetTaskByNameWithUserId(string, int) (*Task, error)
+	GetTaskUserByIds(taskId int, userID int) (*TaskUser, error)
+	GetTaskById(int) (*Task, error)
+	GetTasksByUserId(int) ([]*Task, error)
+	GetTasksBySubjectIdAndType(int, string) ([]*Task, error)
+	DeleteTaskById(int) error
+}
+
+type Task struct {
+	TaskId            int       `json:"taskId"`
+	TaskName          string    `json:"taskName"`
+	SubjectType       string    `json:"subjectType"` // either "A" or "E"
+	Complete          bool      `json:"complete"`
+	LastCompleted     time.Time `json:"lastCompleted"`
+	RepeatIntervHours int       `json:"repeatIntervHours"`
+}
+
+type TaskUser struct {
+	TaskId int `json:"taskId"`
+	UserID int `json:"userID"`
 }

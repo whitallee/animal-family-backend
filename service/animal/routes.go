@@ -27,6 +27,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserCreateAnimal, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserUpdateAnimal, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserGetAnimals, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/animal/byid", auth.WithJWTAuth(h.handleUserGetAnimalById, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/animal/byenclosure", auth.WithJWTAuth(h.handleUserGetAnimalsByEnclosure, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserDeleteAnimal, h.userStore)).Methods(http.MethodDelete)
 
@@ -34,8 +35,9 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminCreateAnimal, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminUpdateAnimal, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminGetAnimals, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/admin/animal/byuser", auth.WithJWTAuth(h.handleAdminGetAnimalsByUser, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/animal/byid", auth.WithJWTAuth(h.handleAdminGetAnimalById, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/animal/byenclosure", auth.WithJWTAuth(h.handleAdminGetAnimalsByEnclosure, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/animal/byuser", auth.WithJWTAuth(h.handleAdminGetAnimalsByUser, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminDeleteAnimal, h.userStore)).Methods(http.MethodDelete)
 
 }
@@ -256,6 +258,72 @@ func (h *Handler) handleUserGetAnimals(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (h *Handler) handleAdminGetAnimalById(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var animalIdPayload types.AnimalIdPayload
+	if err := utils.ParseJSON(r, &animalIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(animalIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// get animal
+	animal, err := h.store.GetAnimalById(animalIdPayload.AnimalId)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, animal)
+}
+
+func (h *Handler) handleUserGetAnimalById(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var animalIdPayload types.AnimalIdPayload
+	if err := utils.ParseJSON(r, &animalIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(animalIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check for ownership
+	_, err := h.store.GetAnimalUserByIds(animalIdPayload.AnimalId, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
+
+	// if ownership exists, get animal
+	animal, err := h.store.GetAnimalById(animalIdPayload.AnimalId)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, animal)
+}
+
 func (h *Handler) handleAdminGetAnimalsByEnclosure(w http.ResponseWriter, r *http.Request) {
 	// get userId and check if admin
 	userID := auth.GetuserIdFromContext(r.Context())
@@ -321,7 +389,6 @@ func (h *Handler) handleUserGetAnimalsByEnclosure(w http.ResponseWriter, r *http
 	}
 
 	utils.WriteJSON(w, http.StatusOK, animalList)
-
 }
 
 func (h *Handler) handleAdminDeleteAnimal(w http.ResponseWriter, r *http.Request) {
