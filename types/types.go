@@ -271,11 +271,11 @@ type AnimalIdPayload struct {
 type TaskStore interface {
 	CreateTask(task Task, animalId int, enclosureId int, userId int) error // added
 	UpdateTask(Task) error                                                 //added
-	GetTaskByNameWithUserId(string, int) (*Task, error)
+	GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*Task, error)
 	GetTaskUserByIds(taskId int, userID int) (*TaskUser, error)
 	GetTaskById(int) (*Task, error)
 	GetTasksByUserId(int) ([]*Task, error)
-	GetTasksBySubjectIdAndType(int, string) ([]*Task, error)
+	GetTasksBySubjectId(animalId int, enclosureId int) ([]*Task, error)
 	DeleteTaskById(int) error
 }
 

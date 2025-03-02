@@ -2,8 +2,10 @@ package task
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/whitallee/animal-family-backend/types"
+	"github.com/whitallee/animal-family-backend/utils"
 )
 
 type Store struct {
@@ -66,13 +68,26 @@ func (s *Store) UpdateTask(task types.Task) error {
 	return nil
 }
 
-func (s *Store) GetTaskByNameWithUserId(name string, userID int) (*types.Task, error) {
-	row := s.db.QueryRow("SELECT * FROM tasks WHERE taskName = ? AND userID = ?", name, userID)
-	task := new(types.Task)
-	err := row.Scan(&task.TaskId, &task.TaskName, &task.Complete, &task.LastCompleted, &task.RepeatIntervHours)
+func (s *Store) GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*types.Task, error) {
+	rows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
+							FROM tasks t JOIN taskUser ON taskUser.taskId=t.taskId
+							WHERE taskName = ? AND userId = ?`, taskName, userId) // ADD animalId and enclosureId to the query so it only gets real duplicate tasks
 	if err != nil {
 		return nil, err
 	}
+
+	task := new(types.Task)
+	for rows.Next() {
+		task, err = utils.ScanRowsIntoTask(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if task.TaskId == 0 {
+		return nil, fmt.Errorf("taskId not found")
+	}
+
 	return task, nil
 }
 

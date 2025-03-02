@@ -93,3 +93,20 @@ func ScanRowsIntoAnimalUser(rows *sql.Rows) (*types.AnimalUser, error) {
 
 	return animalUser, nil
 }
+
+func ScanRowsIntoTask(rows *sql.Rows) (*types.Task, error) {
+	task := new(types.Task)
+
+	err := rows.Scan(
+		&task.TaskId,
+		&task.TaskName,
+		&task.Complete,
+		&task.LastCompleted,
+		task.RepeatIntervHours,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
