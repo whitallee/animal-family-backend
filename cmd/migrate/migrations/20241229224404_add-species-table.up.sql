@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `species` (
   `sciName` VARCHAR(255) NOT NULL,
   `speciesDesc` VARCHAR(1500) NOT NULL,
   `image` VARCHAR(255) NOT NULL,
-  `habitatID` INT UNSIGNED NOT NULL,
+  `habitatId` INT UNSIGNED NOT NULL,
   `baskTemp` VARCHAR(255) NOT NULL,
   `diet` VARCHAR(1500) NOT NULL,
   `sociality` VARCHAR(1500) NOT NULL,

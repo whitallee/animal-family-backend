@@ -3,8 +3,8 @@ CREATE TABLE IF NOT EXISTS `animals` (
   `animalName` VARCHAR(255) NOT NULL,
   `image` VARCHAR(255) NOT NULL,
   `notes` VARCHAR(1500) NOT NULL,
-  `speciesID` INT UNSIGNED NOT NULL,
-  `enclosureID` INT UNSIGNED,
+  `speciesId` INT UNSIGNED NOT NULL,
+  `enclosureId` INT UNSIGNED,
   
   PRIMARY KEY (`animalId`),
   FOREIGN KEY (`speciesId`) REFERENCES species(`speciesId`),

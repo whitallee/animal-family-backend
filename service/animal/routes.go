@@ -39,7 +39,6 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/admin/animal/byenclosure", auth.WithJWTAuth(h.handleAdminGetAnimalsByEnclosure, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/animal/byuser", auth.WithJWTAuth(h.handleAdminGetAnimalsByUser, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminDeleteAnimal, h.userStore)).Methods(http.MethodDelete)
-
 }
 
 func (h *Handler) handleAdminCreateAnimal(w http.ResponseWriter, r *http.Request) {
