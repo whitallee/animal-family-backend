@@ -270,7 +270,7 @@ type AnimalIdPayload struct {
 // Task-related Types
 type TaskStore interface {
 	CreateTask(task Task, animalId int, enclosureId int, userId int) error // added
-	UpdateTask(Task) error
+	UpdateTask(Task) error                                                 //added
 	GetTaskByNameWithUserId(string, int) (*Task, error)
 	GetTaskUserByIds(taskId int, userID int) (*TaskUser, error)
 	GetTaskById(int) (*Task, error)
