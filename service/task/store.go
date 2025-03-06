@@ -71,7 +71,7 @@ func (s *Store) UpdateTask(task types.Task) error {
 func (s *Store) GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*types.Task, error) {
 	rows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
 							FROM tasks t JOIN taskUser ON taskUser.taskId=t.taskId JOIN taskSubject ON taskSubject.taskId=t.taskId
-							WHERE taskName = ? AND userId = ?`, taskName, userId) // ADD animalId and enclosureId to the query so it only gets real duplicate tasks
+							WHERE taskName = ? AND userId = ?`, taskName, animalId, enclosureId, userId)
 	if err != nil {
 		return nil, err
 	}
