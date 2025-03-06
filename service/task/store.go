@@ -92,12 +92,23 @@ func (s *Store) GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId in
 }
 
 func (s *Store) GetTaskUserByIds(taskId int, userID int) (*types.TaskUser, error) {
-	row := s.db.QueryRow("SELECT * FROM taskUser WHERE taskId = ? AND userID = ?", taskId, userID)
-	taskUser := new(types.TaskUser)
-	err := row.Scan(&taskUser.TaskId, &taskUser.UserID)
+	rows, err := s.db.Query("SELECT * FROM taskUser WHERE taskId = ? AND userID = ?", taskId, userID)
 	if err != nil {
 		return nil, err
 	}
+
+	taskUser := new(types.TaskUser)
+	for rows.Next() {
+		taskUser, err = utils.ScanRowsIntoTaskUser(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if taskUser.TaskId == 0 && taskUser.UserID == 0 {
+		return nil, fmt.Errorf("no ownership found between user and task")
+	}
+
 	return taskUser, nil
 }
 

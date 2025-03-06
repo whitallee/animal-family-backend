@@ -110,3 +110,17 @@ func ScanRowsIntoTask(rows *sql.Rows) (*types.Task, error) {
 
 	return task, nil
 }
+
+func ScanRowsIntoTaskUser(rows *sql.Rows) (*types.TaskUser, error) {
+	taskUser := new(types.TaskUser)
+
+	err := rows.Scan(
+		&taskUser.TaskId,
+		&taskUser.UserID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return taskUser, nil
+}
