@@ -113,31 +113,45 @@ func (s *Store) GetTaskUserByIds(taskId int, userID int) (*types.TaskUser, error
 }
 
 func (s *Store) GetTaskById(taskId int) (*types.Task, error) {
-	row := s.db.QueryRow("SELECT * FROM tasks WHERE taskId = ?", taskId)
-	task := new(types.Task)
-	err := row.Scan(&task.TaskId, &task.TaskName, &task.Complete, &task.LastCompleted, &task.RepeatIntervHours)
+	rows, err := s.db.Query("SELECT * FROM tasks WHERE taskId = ?", taskId)
 	if err != nil {
 		return nil, err
 	}
+
+	task := new(types.Task)
+	for rows.Next() {
+		task, err = utils.ScanRowsIntoTask(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if task.TaskId == 0 {
+		return nil, fmt.Errorf("task not found")
+	}
+
 	return task, nil
 }
 
 func (s *Store) GetTasksByUserId(userID int) ([]*types.Task, error) {
-	rows, err := s.db.Query("SELECT * FROM tasks WHERE userID = ?", userID)
+	rows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
+							FROM tasks t JOIN taskUser ON taskUser.taskId=t.taskId
+							WHERE userId = ?`, userID)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	tasks := make([]*types.Task, 0)
 	for rows.Next() {
 		task := new(types.Task)
-		err := rows.Scan(&task.TaskId, &task.TaskName, &task.Complete, &task.LastCompleted, &task.RepeatIntervHours)
+		task, err := utils.ScanRowsIntoTask(rows)
 		if err != nil {
 			return nil, err
 		}
+
 		tasks = append(tasks, task)
 	}
+
 	return tasks, nil
 }
 
