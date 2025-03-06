@@ -269,13 +269,13 @@ type AnimalIdPayload struct {
 
 // Task-related Types
 type TaskStore interface {
-	CreateTask(task Task, animalId int, enclosureId int, userId int) error                                         // added
-	UpdateTask(Task) error                                                                                         // added
-	GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*Task, error) // added
-	GetTaskUserByIds(taskId int, userID int) (*TaskUser, error)                                                    // added
-	GetTaskById(int) (*Task, error)                                                                                // added
-	GetTasksByUserId(int) ([]*Task, error)                                                                         // added
-	GetTasksBySubjectId(animalId int, enclosureId int) ([]*Task, error)                                            // added
+	CreateTask(task Task, animalId int, enclosureId int, userId int) error
+	UpdateTask(Task) error
+	GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*Task, error)
+	GetTaskUserByIds(taskId int, userID int) (*TaskUser, error)
+	GetTaskById(int) (*Task, error)
+	GetTasksByUserId(int) ([]*Task, error)
+	GetTasksBySubjectId(animalId int, enclosureId int) ([]*Task, error)
 	DeleteTaskById(int) error
 }
 

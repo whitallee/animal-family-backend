@@ -178,6 +178,30 @@ func (s *Store) GetTasksBySubjectIdAndType(animalId int, enclosureId int) ([]*ty
 }
 
 func (s *Store) DeleteTaskById(taskId int) error {
-	_, err := s.db.Exec("DELETE FROM tasks WHERE taskId = ?", taskId)
-	return err
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM taskUser WHERE taskId = ?", taskId)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM taskSubject WHERE taskId = ?", taskId)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM tasks WHERE taskId = ?", taskId)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

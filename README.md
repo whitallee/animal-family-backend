@@ -3,7 +3,8 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 
 ## To-Do List
 - Implement the Tasks Feature
-    - X
+    - Stpre: done
+    - Routes
 
 - Implement Action History Feature
 
