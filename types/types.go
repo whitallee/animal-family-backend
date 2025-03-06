@@ -274,8 +274,8 @@ type TaskStore interface {
 	GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*Task, error) // added
 	GetTaskUserByIds(taskId int, userID int) (*TaskUser, error)                                                    // added
 	GetTaskById(int) (*Task, error)                                                                                // added
-	GetTasksByUserId(int) ([]*Task, error)
-	GetTasksBySubjectId(animalId int, enclosureId int) ([]*Task, error)
+	GetTasksByUserId(int) ([]*Task, error)                                                                         // added
+	GetTasksBySubjectId(animalId int, enclosureId int) ([]*Task, error)                                            // added
 	DeleteTaskById(int) error
 }
 

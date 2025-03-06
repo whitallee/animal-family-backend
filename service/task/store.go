@@ -155,22 +155,25 @@ func (s *Store) GetTasksByUserId(userID int) ([]*types.Task, error) {
 	return tasks, nil
 }
 
-func (s *Store) GetTasksBySubjectIdAndType(subjectId int, taskType string) ([]*types.Task, error) {
-	rows, err := s.db.Query("SELECT * FROM tasks WHERE subjectId = ? AND taskType = ?", subjectId, taskType)
+func (s *Store) GetTasksBySubjectIdAndType(animalId int, enclosureId int) ([]*types.Task, error) {
+	rows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
+							FROM tasks t JOIN taskSubject ON taskSubject.taskId=t.taskId
+							WHERE animalId = ? AND enclosureId = ?`, animalId, enclosureId)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	tasks := make([]*types.Task, 0)
 	for rows.Next() {
 		task := new(types.Task)
-		err := rows.Scan(&task.TaskId, &task.TaskName, &task.Complete, &task.LastCompleted, &task.RepeatIntervHours)
+		task, err := utils.ScanRowsIntoTask(rows)
 		if err != nil {
 			return nil, err
 		}
+
 		tasks = append(tasks, task)
 	}
+
 	return tasks, nil
 }
 
