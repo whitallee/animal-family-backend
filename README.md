@@ -5,9 +5,9 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 - Add UpdateUser and UpdateSubject functions and routes to all services
 - Make every transaction function properly rollback on err
 
-- Move to Frontend Development
-
 - Implement Action History Feature
+
+- Move to Frontend Development
 
 - Use GoRoutines/WaitGroups for concurrent async requests (e.g. DeleteUserById animal and enclosure looped db requests)
     - Will need to create smaller store functions to implement this
