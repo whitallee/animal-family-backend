@@ -68,7 +68,15 @@ func (s *Store) GetUserById(id int) (*types.User, error) {
 }
 
 func (s *Store) DeleteUserById(userID int) error {
-	// get animals and enclosures from userID
+	// get tasks, animals, and enclosures from userID
+
+	tRows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
+							FROM tasks t JOIN taskUser ON taskUser.taskId=t.taskId
+							WHERE userId = ?`, userID)
+	if err != nil {
+		return err
+	}
+
 	aRows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
 							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
 							WHERE userID = ?`, userID)
@@ -81,6 +89,17 @@ func (s *Store) DeleteUserById(userID int) error {
 							WHERE userID = ?`, userID)
 	if err != nil {
 		return err
+	}
+
+	tasks := make([]*types.Task, 0)
+	for tRows.Next() {
+		task := new(types.Task)
+		task, err := utils.ScanRowsIntoTask(tRows)
+		if err != nil {
+			return err
+		}
+
+		tasks = append(tasks, task)
 	}
 
 	animals := make([]*types.Animal, 0)
@@ -107,6 +126,22 @@ func (s *Store) DeleteUserById(userID int) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
+	}
+
+	// delete taskUser, taskSubject, and tasks entries
+	_, err = tx.Exec("DELETE FROM taskUser WHERE userID = ?", userID)
+	if err != nil {
+		return err
+	}
+	for _, task := range tasks {
+		_, err = tx.Exec("DELETE FROM taskSubject WHERE taskId = ?", task.TaskId)
+		if err != nil {
+			return err
+		}
+		_, err = tx.Exec("DELETE FROM tasks WHERE taskId = ?", task.TaskId)
+		if err != nil {
+			return err
+		}
 	}
 
 	// delete animalUser and animals entries
