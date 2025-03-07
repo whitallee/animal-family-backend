@@ -68,6 +68,17 @@ func (s *Store) UpdateTask(task types.Task) error {
 	return nil
 }
 
+func (s *Store) UpdateTaskSubject(taskSubject types.TaskSubject) error {
+	_, err := s.db.Exec(`UPDATE taskSubject
+						SET animalId = ?, enclosureId = ?
+						WHERE taskId = ?`, taskSubject.AnimalId, taskSubject.EnclosureId, taskSubject.TaskId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Store) GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*types.Task, error) {
 	rows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
 							FROM tasks t JOIN taskUser ON taskUser.taskId=t.taskId JOIN taskSubject ON taskSubject.taskId=t.taskId
@@ -155,7 +166,7 @@ func (s *Store) GetTasksByUserId(userID int) ([]*types.Task, error) {
 	return tasks, nil
 }
 
-func (s *Store) GetTasksBySubjectIdAndType(animalId int, enclosureId int) ([]*types.Task, error) {
+func (s *Store) GetTasksBySubjectIds(animalId int, enclosureId int) ([]*types.Task, error) {
 	rows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
 							FROM tasks t JOIN taskSubject ON taskSubject.taskId=t.taskId
 							WHERE animalId = ? AND enclosureId = ?`, animalId, enclosureId)

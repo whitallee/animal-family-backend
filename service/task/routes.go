@@ -25,9 +25,21 @@ func NewHandler(store types.TaskStore, userStore types.UserStore, animalStore ty
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	// user routes
 	router.HandleFunc("/task", auth.WithJWTAuth(h.handleUserCreateTask, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/task", auth.WithJWTAuth(h.handleUserUpdateTask, h.userStore)).Methods(http.MethodPut)
+	router.HandleFunc("/task/subject", auth.WithJWTAuth(h.handleUserUpdateTaskSubject, h.userStore)).Methods(http.MethodPut)
+	router.HandleFunc("/task", auth.WithJWTAuth(h.handleUserGetTasks, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/task/byid", auth.WithJWTAuth(h.handleUserGetTaskById, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/task/bysubject", auth.WithJWTAuth(h.handleUserGetTasksBySubject, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/task", auth.WithJWTAuth(h.handleUserDeleteTask, h.userStore)).Methods(http.MethodDelete)
 
 	// admin routes
 	router.HandleFunc("/admin/task", auth.WithJWTAuth(h.handleAdminCreateTask, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/task", auth.WithJWTAuth(h.handleAdminUpdateTask, h.userStore)).Methods(http.MethodPut)
+	router.HandleFunc("/admin/task/subject", auth.WithJWTAuth(h.handleAdminUpdateTaskSubject, h.userStore)).Methods(http.MethodPut)
+	router.HandleFunc("/admin/task/byid", auth.WithJWTAuth(h.handleAdminGetTaskById, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/task/byuser", auth.WithJWTAuth(h.handleAdminGetTasksByUser, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/task/bysubject", auth.WithJWTAuth(h.handleAdminGetTasksBySubject, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/task", auth.WithJWTAuth(h.handleAdminDeleteTask, h.userStore)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleAdminCreateTask(w http.ResponseWriter, r *http.Request) {
@@ -107,4 +119,393 @@ func (h *Handler) handleUserCreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, nil)
+}
+
+func (h *Handler) handleAdminUpdateTask(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userId := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userId) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var taskPayload types.UpdateTaskPayload
+	if err := utils.ParseJSON(r, &taskPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(taskPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// update task
+	err := h.store.UpdateTask(types.Task(taskPayload))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleUserUpdateTask(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userId := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var taskPayload types.UpdateTaskPayload
+	if err := utils.ParseJSON(r, &taskPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(taskPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check if ownership exists
+	_, err := h.store.GetTaskUserByIds(taskPayload.TaskId, userId)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
+
+	// if ownership exists, update task
+	err = h.store.UpdateTask(types.Task(taskPayload))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleAdminUpdateTaskSubject(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userId := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userId) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var taskSubjectPayload types.UpdateTaskSubjectPayload
+	if err := utils.ParseJSON(r, &taskSubjectPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(taskSubjectPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// update task
+	err := h.store.UpdateTaskSubject(types.TaskSubject(taskSubjectPayload))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleUserUpdateTaskSubject(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userId := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var taskSubjectPayload types.UpdateTaskSubjectPayload
+	if err := utils.ParseJSON(r, &taskSubjectPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(taskSubjectPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check if ownership exists
+	_, err := h.store.GetTaskUserByIds(taskSubjectPayload.TaskId, userId)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
+
+	// if ownership exists, update task
+	err = h.store.UpdateTaskSubject(types.TaskSubject(taskSubjectPayload))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleAdminGetTasksByUser(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userId := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userId) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var userIdPayload types.UserIDPayload
+	if err := utils.ParseJSON(r, &userIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(userIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// get tasks
+	task, err := h.store.GetTasksByUserId(userIdPayload.UserID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, task)
+
+}
+
+func (h *Handler) handleUserGetTasks(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userId := auth.GetuserIdFromContext(r.Context())
+
+	// get tasks
+	taskList, err := h.store.GetTasksByUserId(userId)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, taskList)
+
+}
+
+func (h *Handler) handleAdminGetTaskById(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userId := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userId) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var taskIdPayload types.TaskIdPayload
+	if err := utils.ParseJSON(r, &taskIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(taskIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// get task
+	task, err := h.store.GetTaskById(taskIdPayload.TaskId)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, task)
+
+}
+
+func (h *Handler) handleUserGetTaskById(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userId := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var taskIdPayload types.TaskIdPayload
+	if err := utils.ParseJSON(r, &taskIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(taskIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check if ownership exists
+	_, err := h.store.GetTaskUserByIds(taskIdPayload.TaskId, userId)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
+
+	// get task
+	task, err := h.store.GetTaskById(taskIdPayload.TaskId)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, task)
+
+}
+
+func (h *Handler) handleAdminGetTasksBySubject(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userId := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userId) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var subjectIdsPayload types.SubjectIdsPayload
+	if err := utils.ParseJSON(r, &subjectIdsPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(subjectIdsPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// get tasks
+	taskList, err := h.store.GetTasksBySubjectId(subjectIdsPayload.AnimalId, subjectIdsPayload.EnclosureId)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, taskList)
+
+}
+
+func (h *Handler) handleUserGetTasksBySubject(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userId := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var subjectIdsPayload types.SubjectIdsPayload
+	if err := utils.ParseJSON(r, &subjectIdsPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(subjectIdsPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check if ownership exists
+	if subjectIdsPayload.AnimalId != 0 {
+		_, err := h.animalStore.GetAnimalUserByIds(subjectIdsPayload.AnimalId, userId)
+		if err == nil {
+			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+			return
+		}
+	} else if subjectIdsPayload.EnclosureId != 0 {
+		_, err := h.enclosureStore.GetEnclosureUserByIds(subjectIdsPayload.EnclosureId, userId)
+		if err == nil {
+			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+			return
+		}
+	}
+
+	// if ownership exists, get tasks
+	taskList, err := h.store.GetTasksBySubjectId(subjectIdsPayload.AnimalId, subjectIdsPayload.EnclosureId)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, taskList)
+
+}
+
+func (h *Handler) handleAdminDeleteTask(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userId := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userId) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var taskIdPayload types.TaskIdPayload
+	if err := utils.ParseJSON(r, &taskIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(taskIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// delete task
+	err := h.store.DeleteTaskById(taskIdPayload.TaskId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleUserDeleteTask(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userId := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var taskIdPayload types.TaskIdPayload
+	if err := utils.ParseJSON(r, &taskIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(taskIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check for ownership
+	_, err := h.store.GetTaskUserByIds(taskIdPayload.TaskId, userId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
+
+	// if ownership exists delete task
+	err = h.store.DeleteTaskById(taskIdPayload.TaskId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }

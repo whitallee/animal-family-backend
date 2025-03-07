@@ -271,6 +271,7 @@ type AnimalIdPayload struct {
 type TaskStore interface {
 	CreateTask(task Task, animalId int, enclosureId int, userId int) error
 	UpdateTask(Task) error
+	UpdateTaskSubject(TaskSubject) error
 	GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*Task, error)
 	GetTaskUserByIds(taskId int, userID int) (*TaskUser, error)
 	GetTaskById(int) (*Task, error)
@@ -292,6 +293,12 @@ type TaskUser struct {
 	UserID int `json:"userID"`
 }
 
+type TaskSubject struct {
+	TaskId      int `json:"taskId"`
+	AnimalId    int `json:"animalId"`
+	EnclosureId int `json:"enclosureId"`
+}
+
 type CreateTaskPayload struct {
 	TaskName          string `json:"taskName" validate:"required"`
 	RepeatIntervHours int    `json:"repeatIntervHours" validate:"required,min=1"`
@@ -305,4 +312,27 @@ type CreateTaskWithOwnerPayload struct {
 	AnimalId          int    `json:"animalId" validate:"required,min=0"`
 	EnclosureId       int    `json:"enclosureId" validate:"required,min=0"`
 	UserId            int    `json:"userId" validate:"required,min=0"`
+}
+
+type UpdateTaskPayload struct {
+	TaskId            int       `json:"taskId" validate:"required,min=0"`
+	TaskName          string    `json:"taskName" validate:"required"`
+	Complete          bool      `json:"complete" validate:"required"`
+	LastCompleted     time.Time `json:"lastCompleted" validate:"required"`
+	RepeatIntervHours int       `json:"repeatIntervHours" validate:"required,min=0"`
+}
+
+type UpdateTaskSubjectPayload struct {
+	TaskId      int `json:"taskId" validate:"required,min=0"`
+	AnimalId    int `json:"animalId" validate:"required,min=0"`
+	EnclosureId int `json:"enclosureId" validate:"required,min=0"`
+}
+
+type TaskIdPayload struct {
+	TaskId int `json:"taskId" validate:"required,min=0"`
+}
+
+type SubjectIdsPayload struct {
+	AnimalId    int `json:"animalId" validate:"required,min=0"`
+	EnclosureId int `json:"enclosureId" validate:"required,min=0"`
 }

@@ -6,7 +6,9 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
     - Store: done
     - Routes
 
-- Move to Frontend Decelopment
+- Add UpdateUser and UpdateSubject functions and routes to all services
+
+- Move to Frontend Development
 
 - Implement Action History Feature
 
