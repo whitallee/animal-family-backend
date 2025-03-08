@@ -144,6 +144,7 @@ type EnclosureStore interface {
 	CreateEnclosure(Enclosure, int) error
 	CreateEnclosureWithAnimals(enclosure Enclosure, animalIds []int, userID int) error
 	UpdateEnclosure(Enclosure) error
+	UpdateEnclosureOwnerWithAnimals(oldEnclosureUser EnclosureUser, newUserId int) error
 	GetEnclosures() ([]*Enclosure, error)
 	GetEnclosureByNameAndHabitatWithUserId(enclosureName string, habitatId int, userID int) (*Enclosure, error)
 	GetEnclosureUserByIds(enclosureId int, userID int) (*EnclosureUser, error)
@@ -206,6 +207,12 @@ type UpdateEnclosurePayload struct {
 	Notes         string `json:"notes" validate:"required"`
 }
 
+type UpdateEnclosureOwnerPayload struct {
+	EnclosureId int `json:"enclosureId" validate:"required,min=0"`
+	OldUserId   int `json:"oldUserId" validate:"required,min=0"`
+	NewUserId   int `json:"newUserId" validate:"required,min=0"`
+}
+
 type EnclosureIdPayload struct {
 	EnclosureId int `json:"enclosureId" validate:"required,min=0"`
 }
@@ -214,6 +221,7 @@ type EnclosureIdPayload struct {
 type AnimalStore interface {
 	CreateAnimal(Animal, int) error
 	UpdateAnimal(Animal) error
+	UpdateAnimalOwner(oldAnimalUser AnimalUser, newUserId int) error
 	GetAnimals() ([]*Animal, error)
 	GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*Animal, error)
 	GetAnimalUserByIds(animalId int, userID int) (*AnimalUser, error)
@@ -263,6 +271,12 @@ type UpdateAnimalPayload struct {
 	Notes       string `json:"notes" validate:"required"`
 }
 
+type UpdateAnimalOwnerPayload struct {
+	AnimalId  int `json:"animalId" validate:"required,min=0"`
+	OldUserId int `json:"oldUserId" validate:"required,min=0"`
+	NewUserId int `json:"newUserId" validate:"required,min=0"`
+}
+
 type AnimalIdPayload struct {
 	AnimalId int `json:"animalId" validate:"required,min=0"`
 }
@@ -271,6 +285,7 @@ type AnimalIdPayload struct {
 type TaskStore interface {
 	CreateTask(task Task, animalId int, enclosureId int, userId int) error
 	UpdateTask(Task) error
+	UpdateTaskOwner(oldTaskUser TaskUser, newUserId int) error
 	UpdateTaskSubject(TaskSubject) error
 	GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*Task, error)
 	GetTaskUserByIds(taskId int, userID int) (*TaskUser, error)
@@ -320,6 +335,12 @@ type UpdateTaskPayload struct {
 	Complete          bool      `json:"complete" validate:"required"`
 	LastCompleted     time.Time `json:"lastCompleted" validate:"required"`
 	RepeatIntervHours int       `json:"repeatIntervHours" validate:"required,min=0"`
+}
+
+type UpdateTaskOwnerPayload struct {
+	TaskId    int `json:"taskId" validate:"required,min=0"`
+	OldUserId int `json:"oldUserId" validate:"required,min=0"`
+	NewUserId int `json:"newUserId" validate:"required,min=0"`
 }
 
 type UpdateTaskSubjectPayload struct {

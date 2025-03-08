@@ -68,6 +68,17 @@ func (s *Store) UpdateTask(task types.Task) error {
 	return nil
 }
 
+func (s *Store) UpdateTaskOwner(oldTaskUser types.TaskUser, newUserId int) error {
+	_, err := s.db.Exec(`UPDATE taskUser
+						SET userId = ?
+						WHERE taskId = ? AND userId = ?`, newUserId, oldTaskUser.TaskId, oldTaskUser.UserID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Store) UpdateTaskSubject(taskSubject types.TaskSubject) error {
 	_, err := s.db.Exec(`UPDATE taskSubject
 						SET animalId = ?, enclosureId = ?

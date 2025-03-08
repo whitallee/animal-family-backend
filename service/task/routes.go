@@ -35,6 +35,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	// admin routes
 	router.HandleFunc("/admin/task", auth.WithJWTAuth(h.handleAdminCreateTask, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/admin/task", auth.WithJWTAuth(h.handleAdminUpdateTask, h.userStore)).Methods(http.MethodPut)
+	router.HandleFunc("/admin/task/owner", auth.WithJWTAuth(h.handleAdminUpdateTaskOwner, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/task/subject", auth.WithJWTAuth(h.handleAdminUpdateTaskSubject, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/task/byid", auth.WithJWTAuth(h.handleAdminGetTaskById, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/task/byuser", auth.WithJWTAuth(h.handleAdminGetTasksByUser, h.userStore)).Methods(http.MethodGet)
@@ -144,6 +145,40 @@ func (h *Handler) handleAdminUpdateTask(w http.ResponseWriter, r *http.Request) 
 
 	// update task
 	err := h.store.UpdateTask(types.Task(taskPayload))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleAdminUpdateTaskOwner(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userId := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userId) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var updateTaskOwnerPayload types.UpdateTaskOwnerPayload
+	if err := utils.ParseJSON(r, &updateTaskOwnerPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(updateTaskOwnerPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// update taskOwner
+	err := h.store.UpdateTaskOwner(types.TaskUser{
+		TaskId: updateTaskOwnerPayload.TaskId,
+		UserID: updateTaskOwnerPayload.OldUserId,
+	}, updateTaskOwnerPayload.NewUserId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return

@@ -34,6 +34,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/admin/enclosure", auth.WithJWTAuth(h.handleAdminCreateEnclosure, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/admin/enclosure/withanimals", auth.WithJWTAuth(h.handleAdminCreateEnclosureWithAnimals, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/admin/enclosure", auth.WithJWTAuth(h.handleAdminUpdateEnclosure, h.userStore)).Methods(http.MethodPut)
+	router.HandleFunc("/admin/enclosure/owner", auth.WithJWTAuth(h.handleAdminUpdateEnclosureOwner, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/enclosure", auth.WithJWTAuth(h.handleAdminGetEnclosures, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/enclosure/id", auth.WithJWTAuth(h.handleAdminGetEnclosureById, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/enclosure/byuser", auth.WithJWTAuth(h.handleAdminGetEnclosuresByUser, h.userStore)).Methods(http.MethodGet)
@@ -265,6 +266,39 @@ func (h *Handler) handleUserUpdateEnclosure(w http.ResponseWriter, r *http.Reque
 
 	// if ownership exists, update enclosure
 	err = h.store.UpdateEnclosure(types.Enclosure(enclosure))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleAdminUpdateEnclosureOwner(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var updateEnclosureOwnerPayload types.UpdateEnclosureOwnerPayload
+	if err := utils.ParseJSON(r, &updateEnclosureOwnerPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(updateEnclosureOwnerPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
+		return
+	}
+
+	// update enclosureUser
+	err := h.store.UpdateEnclosureOwnerWithAnimals(types.EnclosureUser{
+		EnclosureId: updateEnclosureOwnerPayload.EnclosureId,
+		UserID:      updateEnclosureOwnerPayload.OldUserId}, updateEnclosureOwnerPayload.NewUserId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return

@@ -34,6 +34,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	// admin routes
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminCreateAnimal, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminUpdateAnimal, h.userStore)).Methods(http.MethodPut)
+	router.HandleFunc("/admin/animal/owner", auth.WithJWTAuth(h.handleAdminUpdateAnimalOwner, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminGetAnimals, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/animal/byid", auth.WithJWTAuth(h.handleAdminGetAnimalById, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/animal/byenclosure", auth.WithJWTAuth(h.handleAdminGetAnimalsByEnclosure, h.userStore)).Methods(http.MethodGet)
@@ -184,6 +185,39 @@ func (h *Handler) handleUserUpdateAnimal(w http.ResponseWriter, r *http.Request)
 
 	// if ownership exists, update animal
 	err = h.store.UpdateAnimal(types.Animal(animal))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleAdminUpdateAnimalOwner(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+	}
+
+	// get JSON payload
+	var updateAnimalOwnerPayload types.UpdateAnimalOwnerPayload
+	if err := utils.ParseJSON(r, &updateAnimalOwnerPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(updateAnimalOwnerPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
+		return
+	}
+
+	// update animalUser
+	err := h.store.UpdateAnimalOwner(types.AnimalUser{
+		AnimalId: updateAnimalOwnerPayload.AnimalId,
+		UserID:   updateAnimalOwnerPayload.OldUserId}, updateAnimalOwnerPayload.NewUserId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return

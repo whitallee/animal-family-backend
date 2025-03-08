@@ -90,6 +90,55 @@ func (s *Store) UpdateEnclosure(enclosure types.Enclosure) error {
 	return nil
 }
 
+func (s *Store) UpdateEnclosureOwnerWithAnimals(oldEnclosureUser types.EnclosureUser, newUserId int) error {
+	// get animals in enclosure
+	rows, err := s.db.Query("SELECT * FROM animals WHERE enclosureID = ?", oldEnclosureUser.EnclosureId)
+	if err != nil {
+		return err
+	}
+	animals := make([]*types.Animal, 0)
+	for rows.Next() {
+		animal, err := utils.ScanRowsIntoAnimals(rows)
+		if err != nil {
+			return err
+		}
+
+		animals = append(animals, animal)
+	}
+
+	// start update owners transaction
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// update all animals' owners
+	for _, animal := range animals {
+		_, err := tx.Exec(`UPDATE animalUser
+							SET userId = ?
+							WHERE animalId = ? AND userId = ?`, newUserId, animal.AnimalId, oldEnclosureUser.UserID)
+		if err != nil {
+			return err
+		}
+	}
+
+	// update enclosure owner
+	_, err = tx.Exec(`UPDATE enclosureUser
+						SET userId = ?
+						WHERE enclosureId = ? AND userId = ?`, newUserId, oldEnclosureUser.EnclosureId, oldEnclosureUser.UserID)
+	if err != nil {
+		return err
+	}
+
+	// commit changes
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Store) GetEnclosures() ([]*types.Enclosure, error) {
 	rows, err := s.db.Query("SELECT * FROM enclosures")
 	if err != nil {

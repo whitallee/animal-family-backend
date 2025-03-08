@@ -61,6 +61,17 @@ func (s *Store) UpdateAnimal(animal types.Animal) error {
 	return nil
 }
 
+func (s *Store) UpdateAnimalOwner(oldAnimalUser types.AnimalUser, newUserId int) error {
+	_, err := s.db.Exec(`UPDATE animalUser
+						SET userId = ?
+						WHERE animalId = ? AND userId = ?`, newUserId, oldAnimalUser.AnimalId, oldAnimalUser.UserID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Store) GetAnimals() ([]*types.Animal, error) {
 	rows, err := s.db.Query("SELECT * FROM animals")
 	if err != nil {
