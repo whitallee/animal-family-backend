@@ -24,9 +24,11 @@ type Config struct {
 var Envs = initConfig()
 
 func initConfig() Config {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if os.Getenv("ENVIRONMENT") == "" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
 
 	return Config{
