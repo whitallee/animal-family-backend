@@ -69,7 +69,6 @@ func (s *Store) GetUserById(id int) (*types.User, error) {
 
 func (s *Store) DeleteUserById(userID int) error {
 	// get tasks, animals, and enclosures from userID
-
 	tRows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
 							FROM tasks t JOIN taskUser ON taskUser.taskId=t.taskId
 							WHERE userId = ?`, userID)
@@ -166,6 +165,12 @@ func (s *Store) DeleteUserById(userID int) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	// delete user
+	_, err = tx.Exec("DELETE FROM users WHERE userID = ?", userID)
+	if err != nil {
+		return err
 	}
 
 	// commit changes
