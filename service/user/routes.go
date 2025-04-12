@@ -80,7 +80,7 @@ func (h *Handler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleUserLogin(w http.ResponseWriter, r *http.Request) {
 	// get JSON payload
 	var user types.LoginUserPayload
-	if err := utils.ParseJSON(r, &user); err != nil { // I changed &user to user now back to &user
+	if err := utils.ParseJSON(r, &user); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -115,7 +115,7 @@ func (h *Handler) handleUserLogin(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }
 
-func (h *Handler) handleUserDeleteUserById(w http.ResponseWriter, r *http.Request) { //untested
+func (h *Handler) handleUserDeleteUserById(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
@@ -129,7 +129,7 @@ func (h *Handler) handleUserDeleteUserById(w http.ResponseWriter, r *http.Reques
 	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
-func (h *Handler) handleAdminDeleteUserById(w http.ResponseWriter, r *http.Request) { //untested
+func (h *Handler) handleAdminDeleteUserById(w http.ResponseWriter, r *http.Request) {
 	// get userId and check if admin
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
@@ -161,7 +161,7 @@ func (h *Handler) handleAdminDeleteUserById(w http.ResponseWriter, r *http.Reque
 	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
-func (h *Handler) handleAdminDeleteUserByEmail(w http.ResponseWriter, r *http.Request) { //untested
+func (h *Handler) handleAdminDeleteUserByEmail(w http.ResponseWriter, r *http.Request) {
 	// get userId and check if admin
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
