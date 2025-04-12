@@ -103,7 +103,7 @@ func (s *Store) DeleteHabitatById(habitatId int) error {
 		return err
 	}
 
-	// update enclsoures habitat to "No Habitat"
+	// update enclosures habitat to "No Habitat"
 	_, err = tx.Exec("UPDATE enclosures SET habitatId = 0 WHERE habitatId = ?", habitatId)
 	if err != nil {
 		return err

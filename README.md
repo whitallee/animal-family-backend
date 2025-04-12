@@ -5,6 +5,7 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 - currently testing all new endpoints
     - user (done)
     - habitat
+        - need to have delete habitat check if the habitat exists and if it doesnt then the user needs to know
     - species
     - enclosure
     - animal
