@@ -134,6 +134,7 @@ func (h *Handler) handleAdminDeleteUserById(w http.ResponseWriter, r *http.Reque
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload

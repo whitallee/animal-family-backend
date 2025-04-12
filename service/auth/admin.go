@@ -3,7 +3,7 @@ package auth
 import "slices"
 
 var admins = []int{
-	6, // "whit@mail.com"
+	2, // "admin@mail.com"
 }
 
 func IsAdmin(userID int) bool {
