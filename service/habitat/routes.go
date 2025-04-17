@@ -138,6 +138,13 @@ func (h *Handler) handleAdminDeleteHabitatById(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	// check if habitat exists
+	// _, err := h.store.GetHabitatById(deleteHabitatPayload.HabitatId)
+	// if err != nil {
+	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("habitat with species id %d not found", deleteHabitatPayload.HabitatId))
+	// 	return
+	// }
+
 	// delete habitat
 	err := h.store.DeleteHabitatById(deleteHabitatPayload.HabitatId)
 	if err != nil {
