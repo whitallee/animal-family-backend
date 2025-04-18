@@ -107,8 +107,15 @@ func (h *Handler) handleAdminUpdateHabitat(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// check if habitat exists
+	_, err := h.store.GetHabitatById(habitat.HabitatId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("habitat with id %d not found", habitat.HabitatId))
+		return
+	}
+
 	// update habitat
-	err := h.store.UpdateHabitat(types.Habitat(habitat))
+	err = h.store.UpdateHabitat(types.Habitat(habitat))
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -138,10 +145,10 @@ func (h *Handler) handleAdminDeleteHabitatById(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	// check if habitat exists START HERE
+	// check if habitat exists
 	_, err := h.store.GetHabitatById(deleteHabitatPayload.HabitatId)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("habitat with species id %d not found", deleteHabitatPayload.HabitatId))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("habitat with id %d not found", deleteHabitatPayload.HabitatId))
 		return
 	}
 
