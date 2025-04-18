@@ -94,7 +94,7 @@ func (h *Handler) handleAdminCreateSpecies(w http.ResponseWriter, r *http.Reques
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-func (h *Handler) handleAdminUpdateSpecies(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleAdminUpdateSpecies(w http.ResponseWriter, r *http.Request) { // BUG: when updateing, it creates a new entry
 	// get userId and check if admin
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
@@ -115,8 +115,15 @@ func (h *Handler) handleAdminUpdateSpecies(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// check if species exists
+	_, err := h.store.GetSpeciesById(species.SpeciesID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with id %d not found", species.SpeciesID))
+		return
+	}
+
 	// update species
-	err := h.store.CreateSpecies(types.Species(species))
+	err = h.store.CreateSpecies(types.Species(species))
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -146,8 +153,15 @@ func (h *Handler) handleAdminDeleteSpeciesById(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	// check if species exists
+	_, err := h.store.GetSpeciesById(deleteSpeciesPayload.SpeciesId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with id %d not found", deleteSpeciesPayload.SpeciesId))
+		return
+	}
+
 	// delete species
-	err := h.store.DeleteSpeciesById(deleteSpeciesPayload.SpeciesId)
+	err = h.store.DeleteSpeciesById(deleteSpeciesPayload.SpeciesId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
