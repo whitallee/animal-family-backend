@@ -202,6 +202,27 @@ func (s *Store) GetEnclosureUserByIds(enclosureId int, userID int) (*types.Enclo
 	return enclosureUser, nil
 }
 
+func (s *Store) GetEnclosureUserByEnclosureId(enclosureId int) (*types.EnclosureUser, error) {
+	rows, err := s.db.Query("SELECT * FROM enclosureUser WHERE enclosureId = ?", enclosureId)
+	if err != nil {
+		return nil, err
+	}
+
+	enclosureUser := new(types.EnclosureUser)
+	for rows.Next() {
+		enclosureUser, err = utils.ScanRowsIntoEnclosureUser(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if enclosureUser.EnclosureId == 0 && enclosureUser.UserID == 0 {
+		return nil, fmt.Errorf("no owner of enclosure with id %d found", enclosureId)
+	}
+
+	return enclosureUser, nil
+}
+
 func (s *Store) GetEnclosuresByUserId(userID int) ([]*types.Enclosure, error) {
 	rows, err := s.db.Query(`SELECT e.enclosureId, e.enclosureName, e.image, e.Notes, e.habitatId
 							FROM enclosures e JOIN enclosureUser ON enclosureUser.enclosureId=e.enclosureId

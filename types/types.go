@@ -148,6 +148,7 @@ type EnclosureStore interface {
 	GetEnclosures() ([]*Enclosure, error)
 	GetEnclosureByNameAndHabitatWithUserId(enclosureName string, habitatId int, userID int) (*Enclosure, error)
 	GetEnclosureUserByIds(enclosureId int, userID int) (*EnclosureUser, error)
+	GetEnclosureUserByEnclosureId(enclosureId int) (*EnclosureUser, error)
 	GetEnclosuresByUserId(int) ([]*Enclosure, error)
 	GetEnclosureById(int) (*Enclosure, error)
 	DeleteEnclosureById(enclosureId int) error

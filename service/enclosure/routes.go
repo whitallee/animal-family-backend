@@ -363,8 +363,17 @@ func (h *Handler) handleAdminUpdateEnclosure(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	// get owner's userID
+
+	// check if duplicate enclosure exists under owner
+	_, err := h.store.GetEnclosureByNameAndHabitatWithUserId(enclosure.EnclosureName, enclosure.HabitatId, userID)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("enclosure with name %s and habitat id %d already exists", enclosure.EnclosureName, enclosure.HabitatId))
+		return
+	}
+
 	// update enclosure
-	err := h.store.UpdateEnclosure(types.Enclosure(enclosure))
+	err = h.store.UpdateEnclosure(types.Enclosure(enclosure))
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
