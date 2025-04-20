@@ -365,7 +365,7 @@ func (h *Handler) handleAdminUpdateEnclosure(w http.ResponseWriter, r *http.Requ
 
 	// get owner's userID
 	enclosureUser, err := h.store.GetEnclosureUserByEnclosureId(enclosure.EnclosureId)
-	if err == nil {
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}

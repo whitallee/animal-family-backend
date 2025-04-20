@@ -6,11 +6,8 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
     - user (done)
     - habitat (done)
     - species (done)
-    - enclosure (wip)
-        - completed all user endpoints (further testing after animals are added)
-        - completed all admin GET endpoints
-        - working on admin POST
-    - animal
+    - enclosure (done)
+    - animal (wip)
     - task
 
     - check all admin/auth endpoints for a return
