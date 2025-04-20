@@ -318,9 +318,9 @@ type TaskSubject struct {
 
 type CreateTaskPayload struct {
 	TaskName          string `json:"taskName" validate:"required"`
-	RepeatIntervHours int    `json:"repeatIntervHours" validate:"required,min=1"`
-	AnimalId          int    `json:"animalId" validate:"required,min=0"`
-	EnclosureId       int    `json:"enclosureId" validate:"required,min=0"`
+	RepeatIntervHours int    `json:"repeatIntervHours" validate:"required,min=0"`
+	AnimalId          int    `json:"animalId" validate:"min=-1"`
+	EnclosureId       int    `json:"enclosureId" validate:"min=-1"`
 }
 
 type CreateTaskWithOwnerPayload struct {

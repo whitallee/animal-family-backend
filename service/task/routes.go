@@ -3,6 +3,7 @@ package task
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
@@ -103,6 +104,12 @@ func (h *Handler) handleUserCreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// check that only 1 subject is non-0
+	if (taskPayload.AnimalId == 0 && taskPayload.EnclosureId == 0) || (taskPayload.AnimalId != 0 && taskPayload.EnclosureId != 0) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload, exclusively either animalId or enclosureId must be nonzero"))
+		return
+	}
+
 	// check if task exists
 	_, err := h.store.GetTaskByNameAndSubjectIdWithUserId(taskPayload.TaskName, taskPayload.AnimalId, taskPayload.EnclosureId, userId)
 	if err == nil {
@@ -114,6 +121,7 @@ func (h *Handler) handleUserCreateTask(w http.ResponseWriter, r *http.Request) {
 	err = h.store.CreateTask(types.Task{
 		TaskName:          taskPayload.TaskName,
 		RepeatIntervHours: taskPayload.RepeatIntervHours,
+		LastCompleted:     time.Now(),
 	}, taskPayload.AnimalId, taskPayload.EnclosureId, userId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
