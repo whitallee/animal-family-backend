@@ -6,7 +6,7 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
     - user (done)
     - habitat (done)
     - species (done)
-    - enclosure
+    - enclosure (wip)
     - animal
     - task
 
