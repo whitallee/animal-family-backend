@@ -24,21 +24,21 @@ func NewHandler(store types.AnimalStore, userStore types.UserStore, enclosureSto
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	// user routes
-	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserCreateAnimal, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserUpdateAnimal, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserGetAnimals, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/animal/byid", auth.WithJWTAuth(h.handleUserGetAnimalById, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/animal/byenclosure", auth.WithJWTAuth(h.handleUserGetAnimalsByEnclosure, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserCreateAnimal, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserUpdateAnimal, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/animal", auth.WithJWTAuth(h.handleUserDeleteAnimal, h.userStore)).Methods(http.MethodDelete)
 
 	// admin routes
-	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminCreateAnimal, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminUpdateAnimal, h.userStore)).Methods(http.MethodPut)
-	router.HandleFunc("/admin/animal/owner", auth.WithJWTAuth(h.handleAdminUpdateAnimalOwner, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminGetAnimals, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/animal/byid", auth.WithJWTAuth(h.handleAdminGetAnimalById, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/animal/byenclosure", auth.WithJWTAuth(h.handleAdminGetAnimalsByEnclosure, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/animal/byuser", auth.WithJWTAuth(h.handleAdminGetAnimalsByUser, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminCreateAnimal, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminUpdateAnimal, h.userStore)).Methods(http.MethodPut)
+	router.HandleFunc("/admin/animal/owner", auth.WithJWTAuth(h.handleAdminUpdateAnimalOwner, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/animal", auth.WithJWTAuth(h.handleAdminDeleteAnimal, h.userStore)).Methods(http.MethodDelete)
 }
 
@@ -230,7 +230,7 @@ func (h *Handler) handleAdminGetAnimals(w http.ResponseWriter, r *http.Request) 
 	// get userId and check if admin
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized to access this endpoint"))
 	}
 
 	// get animals
