@@ -7,8 +7,8 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
     - habitat (done)
     - species (done)
     - enclosure (done)
-    - animal (wip)
-    - task
+    - animal (done)
+    - task (wip)
 
     - check all admin/auth endpoints for a return
     - will need to add a dupe check when changing ownership
@@ -18,7 +18,7 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
     - handleUserUpdateAnimalOwner (needs to send a request for another user to accept)
     - handleUserUpdateEnclosureOwner (needs to send a request for another user to accept)
     - handleUserUpdateTaskOwner (needs to send a request for another user to accept)
-- Make every transaction function properly rollback on err
+- Make every transaction function properly i.e. rollback on err
 
 - Implement Action History Feature
 
