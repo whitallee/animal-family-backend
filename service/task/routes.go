@@ -66,6 +66,12 @@ func (h *Handler) handleAdminCreateTask(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// check that only 1 subject is non-0
+	if (taskPayload.AnimalId == 0 && taskPayload.EnclosureId == 0) || (taskPayload.AnimalId != 0 && taskPayload.EnclosureId != 0) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload, exclusively either animalId or enclosureId must be nonzero"))
+		return
+	}
+
 	// check if task exists
 	_, err := h.store.GetTaskByNameAndSubjectIdWithUserId(taskPayload.TaskName, taskPayload.AnimalId, taskPayload.EnclosureId, taskPayload.UserId)
 	if err == nil {
@@ -255,6 +261,12 @@ func (h *Handler) handleAdminUpdateTaskSubject(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	// check that only 1 subject is non-0
+	if (taskSubjectPayload.AnimalId == 0 && taskSubjectPayload.EnclosureId == 0) || (taskSubjectPayload.AnimalId != 0 && taskSubjectPayload.EnclosureId != 0) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload, exclusively either animalId or enclosureId must be nonzero"))
+		return
+	}
+
 	// update task
 	err := h.store.UpdateTaskSubject(types.TaskSubject(taskSubjectPayload))
 	if err != nil {
@@ -280,6 +292,12 @@ func (h *Handler) handleUserUpdateTaskSubject(w http.ResponseWriter, r *http.Req
 	if err := utils.Validate.Struct(taskSubjectPayload); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check that only 1 subject is non-0
+	if (taskSubjectPayload.AnimalId == 0 && taskSubjectPayload.EnclosureId == 0) || (taskSubjectPayload.AnimalId != 0 && taskSubjectPayload.EnclosureId != 0) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload, exclusively either animalId or enclosureId must be nonzero"))
 		return
 	}
 
