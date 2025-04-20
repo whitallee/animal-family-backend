@@ -24,22 +24,22 @@ func NewHandler(store types.TaskStore, userStore types.UserStore, animalStore ty
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	// user routes
-	router.HandleFunc("/task", auth.WithJWTAuth(h.handleUserCreateTask, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/task", auth.WithJWTAuth(h.handleUserUpdateTask, h.userStore)).Methods(http.MethodPut)
-	router.HandleFunc("/task/subject", auth.WithJWTAuth(h.handleUserUpdateTaskSubject, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/task", auth.WithJWTAuth(h.handleUserGetTasks, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/task/byid", auth.WithJWTAuth(h.handleUserGetTaskById, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/task/bysubject", auth.WithJWTAuth(h.handleUserGetTasksBySubject, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/task", auth.WithJWTAuth(h.handleUserCreateTask, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/task", auth.WithJWTAuth(h.handleUserUpdateTask, h.userStore)).Methods(http.MethodPut)
+	router.HandleFunc("/task/subject", auth.WithJWTAuth(h.handleUserUpdateTaskSubject, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/task", auth.WithJWTAuth(h.handleUserDeleteTask, h.userStore)).Methods(http.MethodDelete)
 
 	// admin routes
+	router.HandleFunc("/admin/task/byid", auth.WithJWTAuth(h.handleAdminGetTaskById, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/task/byuser", auth.WithJWTAuth(h.handleAdminGetTasksByUser, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/task/bysubject", auth.WithJWTAuth(h.handleAdminGetTasksBySubject, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/task", auth.WithJWTAuth(h.handleAdminCreateTask, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/admin/task", auth.WithJWTAuth(h.handleAdminUpdateTask, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/task/owner", auth.WithJWTAuth(h.handleAdminUpdateTaskOwner, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/task/subject", auth.WithJWTAuth(h.handleAdminUpdateTaskSubject, h.userStore)).Methods(http.MethodPut)
-	router.HandleFunc("/admin/task/byid", auth.WithJWTAuth(h.handleAdminGetTaskById, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/admin/task/byuser", auth.WithJWTAuth(h.handleAdminGetTasksByUser, h.userStore)).Methods(http.MethodGet)
-	router.HandleFunc("/admin/task/bysubject", auth.WithJWTAuth(h.handleAdminGetTasksBySubject, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/task", auth.WithJWTAuth(h.handleAdminDeleteTask, h.userStore)).Methods(http.MethodDelete)
 }
 
@@ -47,7 +47,8 @@ func (h *Handler) handleAdminCreateTask(w http.ResponseWriter, r *http.Request) 
 	// get userId and check if admin
 	userId := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userId) {
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -126,7 +127,8 @@ func (h *Handler) handleAdminUpdateTask(w http.ResponseWriter, r *http.Request) 
 	// get userId and check if admin
 	userId := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userId) {
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -157,7 +159,8 @@ func (h *Handler) handleAdminUpdateTaskOwner(w http.ResponseWriter, r *http.Requ
 	// get userId and check if admin
 	userId := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userId) {
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -226,7 +229,8 @@ func (h *Handler) handleAdminUpdateTaskSubject(w http.ResponseWriter, r *http.Re
 	// get userId and check if admin
 	userId := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userId) {
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -292,7 +296,8 @@ func (h *Handler) handleAdminGetTasksByUser(w http.ResponseWriter, r *http.Reque
 	// get userId and check if admin
 	userId := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userId) {
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -339,7 +344,8 @@ func (h *Handler) handleAdminGetTaskById(w http.ResponseWriter, r *http.Request)
 	// get userId and check if admin
 	userId := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userId) {
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -407,7 +413,8 @@ func (h *Handler) handleAdminGetTasksBySubject(w http.ResponseWriter, r *http.Re
 	// get userId and check if admin
 	userId := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userId) {
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -425,7 +432,7 @@ func (h *Handler) handleAdminGetTasksBySubject(w http.ResponseWriter, r *http.Re
 	}
 
 	// get tasks
-	taskList, err := h.store.GetTasksBySubjectId(subjectIdsPayload.AnimalId, subjectIdsPayload.EnclosureId)
+	taskList, err := h.store.GetTasksBySubjectIds(subjectIdsPayload.AnimalId, subjectIdsPayload.EnclosureId)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -469,7 +476,7 @@ func (h *Handler) handleUserGetTasksBySubject(w http.ResponseWriter, r *http.Req
 	}
 
 	// if ownership exists, get tasks
-	taskList, err := h.store.GetTasksBySubjectId(subjectIdsPayload.AnimalId, subjectIdsPayload.EnclosureId)
+	taskList, err := h.store.GetTasksBySubjectIds(subjectIdsPayload.AnimalId, subjectIdsPayload.EnclosureId)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -483,7 +490,8 @@ func (h *Handler) handleAdminDeleteTask(w http.ResponseWriter, r *http.Request) 
 	// get userId and check if admin
 	userId := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userId) {
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload

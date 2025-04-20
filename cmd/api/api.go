@@ -10,6 +10,7 @@ import (
 	"github.com/whitallee/animal-family-backend/service/enclosure"
 	"github.com/whitallee/animal-family-backend/service/habitat"
 	"github.com/whitallee/animal-family-backend/service/species"
+	"github.com/whitallee/animal-family-backend/service/task"
 	"github.com/whitallee/animal-family-backend/service/user"
 )
 
@@ -48,6 +49,10 @@ func (s *APIServer) Run() error {
 	animalStore := animal.NewStore(s.db)
 	animalHandler := animal.NewHandler(animalStore, userStore, enclosureStore)
 	animalHandler.RegisterRoutes(subrouter)
+
+	taskStore := task.NewStore(s.db)
+	taskHandler := task.NewHandler(taskStore, userStore, animalStore, enclosureStore)
+	taskHandler.RegisterRoutes(subrouter)
 
 	log.Println("Listening on", s.addr)
 
