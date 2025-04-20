@@ -127,7 +127,6 @@ func (h *Handler) handleUserCreateAnimal(w http.ResponseWriter, r *http.Request)
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-// needs a dupe check
 func (h *Handler) handleAdminUpdateAnimal(w http.ResponseWriter, r *http.Request) {
 	// get userId and check if admin
 	userID := auth.GetuserIdFromContext(r.Context())
@@ -173,7 +172,6 @@ func (h *Handler) handleAdminUpdateAnimal(w http.ResponseWriter, r *http.Request
 	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
-// needs a dupe check
 func (h *Handler) handleUserUpdateAnimal(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())

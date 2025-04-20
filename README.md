@@ -11,6 +11,7 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
     - task
 
     - check all admin/auth endpoints for a return
+    - will need to add a dupe check when changing ownership
 
 - Add CreateAnimalAndEnclosure and/or CreateEnclosureAndAnimalsssss for simultaneous creation
 - Add UpdateUser and UpdateSubject functions and routes to all service
