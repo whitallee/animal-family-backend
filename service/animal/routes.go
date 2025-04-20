@@ -127,6 +127,7 @@ func (h *Handler) handleUserCreateAnimal(w http.ResponseWriter, r *http.Request)
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
+// needs a dupe check
 func (h *Handler) handleAdminUpdateAnimal(w http.ResponseWriter, r *http.Request) {
 	// get userId and check if admin
 	userID := auth.GetuserIdFromContext(r.Context())
@@ -148,8 +149,22 @@ func (h *Handler) handleAdminUpdateAnimal(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// update animal
-	err := h.store.UpdateAnimal(types.Animal(animal))
+	// get owner's userID
+	animalUser, err := h.store.GetAnimalUserByAnimalId(animal.AnimalId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// check if dupe of animal exists under user
+	_, err = h.store.GetAnimalByNameAndSpeciesWithUserId(animal.AnimalName, animal.SpeciesId, animalUser.UserID)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("animal with name %s and species id %d already exists", animal.AnimalName, animal.SpeciesId))
+		return
+	}
+
+	// update animal if no dupe exists
+	err = h.store.UpdateAnimal(types.Animal(animal))
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -158,6 +173,7 @@ func (h *Handler) handleAdminUpdateAnimal(w http.ResponseWriter, r *http.Request
 	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
+// needs a dupe check
 func (h *Handler) handleUserUpdateAnimal(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
@@ -180,6 +196,13 @@ func (h *Handler) handleUserUpdateAnimal(w http.ResponseWriter, r *http.Request)
 	_, err := h.store.GetAnimalUserByIds(animal.AnimalId, userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
+
+	// check if dupe of animal exists under user
+	_, err = h.store.GetAnimalByNameAndSpeciesWithUserId(animal.AnimalName, animal.SpeciesId, userID)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("animal with name %s and species id %d already exists", animal.AnimalName, animal.SpeciesId))
 		return
 	}
 

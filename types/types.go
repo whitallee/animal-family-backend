@@ -226,6 +226,7 @@ type AnimalStore interface {
 	GetAnimals() ([]*Animal, error)
 	GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*Animal, error)
 	GetAnimalUserByIds(animalId int, userID int) (*AnimalUser, error)
+	GetAnimalUserByAnimalId(animalId int) (*AnimalUser, error)
 	GetAnimalById(int) (*Animal, error)
 	GetAnimalsByUserId(int) ([]*Animal, error)
 	GetAnimalsByEnclosureId(int) ([]*Animal, error)
