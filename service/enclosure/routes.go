@@ -65,6 +65,7 @@ func (h *Handler) handleAdminGetEnclosuresByUser(w http.ResponseWriter, r *http.
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -110,6 +111,7 @@ func (h *Handler) handleAdminGetEnclosureById(w http.ResponseWriter, r *http.Req
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -176,6 +178,7 @@ func (h *Handler) handleAdminCreateEnclosure(w http.ResponseWriter, r *http.Requ
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -259,6 +262,7 @@ func (h *Handler) handleAdminCreateEnclosureWithAnimals(w http.ResponseWriter, r
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -342,6 +346,7 @@ func (h *Handler) handleAdminUpdateEnclosure(w http.ResponseWriter, r *http.Requ
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -373,6 +378,7 @@ func (h *Handler) handleAdminUpdateEnclosureOwner(w http.ResponseWriter, r *http
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -448,6 +454,7 @@ func (h *Handler) handleAdminDeleteEnclosureById(w http.ResponseWriter, r *http.
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
@@ -514,6 +521,7 @@ func (h *Handler) handleAdminDeleteEnclosureWithAnimalsById(w http.ResponseWrite
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		return
 	}
 
 	// get JSON payload
