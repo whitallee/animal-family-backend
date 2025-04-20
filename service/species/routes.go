@@ -94,7 +94,7 @@ func (h *Handler) handleAdminCreateSpecies(w http.ResponseWriter, r *http.Reques
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
-func (h *Handler) handleAdminUpdateSpecies(w http.ResponseWriter, r *http.Request) { // BUG: when updateing, it creates a new entry
+func (h *Handler) handleAdminUpdateSpecies(w http.ResponseWriter, r *http.Request) {
 	// get userId and check if admin
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
@@ -123,7 +123,7 @@ func (h *Handler) handleAdminUpdateSpecies(w http.ResponseWriter, r *http.Reques
 	}
 
 	// update species
-	err = h.store.CreateSpecies(types.Species(species))
+	err = h.store.UpdateSpecies(types.Species(species))
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return

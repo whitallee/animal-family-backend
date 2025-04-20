@@ -5,8 +5,7 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 - currently testing all new endpoints
     - user (done)
     - habitat (done)
-    - species (in progress)
-        - add existence checks for update and delete endpoints
+    - species (done)
     - enclosure
     - animal
     - task
