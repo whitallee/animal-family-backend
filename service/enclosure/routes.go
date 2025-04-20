@@ -47,6 +47,7 @@ func (h *Handler) handleAdminGetEnclosures(w http.ResponseWriter, r *http.Reques
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		return
 	}
 
 	// get enclosures
