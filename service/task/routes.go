@@ -72,7 +72,7 @@ func (h *Handler) handleAdminCreateTask(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// check if task exists
+	// check if task exists DOESNT PREVENT DUPES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	_, err := h.store.GetTaskByNameAndSubjectIdWithUserId(taskPayload.TaskName, taskPayload.AnimalId, taskPayload.EnclosureId, taskPayload.UserId)
 	if err == nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("task with name %s and subject ids: %d and %d already exists", taskPayload.TaskName, taskPayload.AnimalId, taskPayload.EnclosureId))
@@ -83,6 +83,7 @@ func (h *Handler) handleAdminCreateTask(w http.ResponseWriter, r *http.Request) 
 	err = h.store.CreateTask(types.Task{
 		TaskName:          taskPayload.TaskName,
 		RepeatIntervHours: taskPayload.RepeatIntervHours,
+		LastCompleted:     time.Now(),
 	}, taskPayload.AnimalId, taskPayload.EnclosureId, taskPayload.UserId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
