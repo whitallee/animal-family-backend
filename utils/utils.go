@@ -102,7 +102,7 @@ func ScanRowsIntoTask(rows *sql.Rows) (*types.Task, error) {
 		&task.TaskName,
 		&task.Complete,
 		&task.LastCompleted,
-		task.RepeatIntervHours,
+		&task.RepeatIntervHours,
 	)
 	if err != nil {
 		return nil, err
