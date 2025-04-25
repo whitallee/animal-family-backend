@@ -334,7 +334,7 @@ type CreateTaskWithOwnerPayload struct {
 type UpdateTaskPayload struct {
 	TaskId            int       `json:"taskId" validate:"required,min=0"`
 	TaskName          string    `json:"taskName" validate:"required"`
-	Complete          bool      `json:"complete" validate:"required"`
+	Complete          bool      `json:"complete" validate:""`
 	LastCompleted     time.Time `json:"lastCompleted" validate:"required"`
 	RepeatIntervHours int       `json:"repeatIntervHours" validate:"required,min=0"`
 }
@@ -347,8 +347,8 @@ type UpdateTaskOwnerPayload struct {
 
 type UpdateTaskSubjectPayload struct {
 	TaskId      int `json:"taskId" validate:"required,min=0"`
-	AnimalId    int `json:"animalId" validate:"required,min=0"`
-	EnclosureId int `json:"enclosureId" validate:"required,min=0"`
+	AnimalId    int `json:"animalId" validate:"min=0"`
+	EnclosureId int `json:"enclosureId" validate:"min=0"`
 }
 
 type TaskIdPayload struct {

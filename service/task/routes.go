@@ -224,7 +224,7 @@ func (h *Handler) handleUserUpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	// check if ownership exists
 	_, err := h.store.GetTaskUserByIds(taskPayload.TaskId, userId)
-	if err == nil {
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
 		return
 	}
@@ -303,7 +303,7 @@ func (h *Handler) handleUserUpdateTaskSubject(w http.ResponseWriter, r *http.Req
 
 	// check if ownership exists
 	_, err := h.store.GetTaskUserByIds(taskSubjectPayload.TaskId, userId)
-	if err == nil {
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
 		return
 	}
