@@ -489,13 +489,13 @@ func (h *Handler) handleUserGetTasksBySubject(w http.ResponseWriter, r *http.Req
 	// check if ownership exists
 	if subjectIdsPayload.AnimalId != 0 {
 		_, err := h.animalStore.GetAnimalUserByIds(subjectIdsPayload.AnimalId, userId)
-		if err == nil {
+		if err != nil {
 			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
 			return
 		}
 	} else if subjectIdsPayload.EnclosureId != 0 {
 		_, err := h.enclosureStore.GetEnclosureUserByIds(subjectIdsPayload.EnclosureId, userId)
-		if err == nil {
+		if err != nil {
 			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
 			return
 		}

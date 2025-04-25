@@ -356,6 +356,6 @@ type TaskIdPayload struct {
 }
 
 type SubjectIdsPayload struct {
-	AnimalId    int `json:"animalId" validate:"required,min=0"`
-	EnclosureId int `json:"enclosureId" validate:"required,min=0"`
+	AnimalId    int `json:"animalId" validate:"min=0"`
+	EnclosureId int `json:"enclosureId" validate:"min=0"`
 }
