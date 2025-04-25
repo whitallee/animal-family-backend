@@ -419,7 +419,7 @@ func (h *Handler) handleUserGetTaskById(w http.ResponseWriter, r *http.Request) 
 
 	// check if ownership exists
 	_, err := h.store.GetTaskUserByIds(taskIdPayload.TaskId, userId)
-	if err == nil {
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
 		return
 	}
