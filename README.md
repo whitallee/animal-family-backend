@@ -13,6 +13,8 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
     - check all admin/auth endpoints for a return
     - will need to add a dupe check when changing ownership
 
+    - modularize common checks and actions in routes to reduce repitition
+
 - Add CreateAnimalAndEnclosure and/or CreateEnclosureAndAnimalsssss for simultaneous creation
 - Add UpdateUser and UpdateSubject functions and routes to all service
     - handleUserUpdateAnimalOwner (needs to send a request for another user to accept)
