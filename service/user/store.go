@@ -17,7 +17,7 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) CreateUser(user types.User) error {
-	_, err := s.db.Exec("INSERT INTO users (firstName, lastName, email, password) VALUES (?,?,?,?)", user.FirstName, user.LastName, user.Email, user.Password)
+	_, err := s.db.Exec("INSERT INTO users (firstName, lastName, email, password) VALUES ($1, $2, $3, $4)", user.FirstName, user.LastName, user.Email, user.Password)
 	if err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func (s *Store) CreateUser(user types.User) error {
 }
 
 func (s *Store) GetUserByEmail(email string) (*types.User, error) {
-	rows, err := s.db.Query("SELECT * FROM users WHERE email = ?", email)
+	rows, err := s.db.Query("SELECT * FROM users WHERE email = $1", email)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 }
 
 func (s *Store) GetUserById(id int) (*types.User, error) {
-	rows, err := s.db.Query("SELECT * FROM users WHERE userId = ?", id)
+	rows, err := s.db.Query("SELECT * FROM users WHERE userId = $1", id)
 	if err != nil {
 		return nil, err
 	}
@@ -71,21 +71,21 @@ func (s *Store) DeleteUserById(userID int) error {
 	// get tasks, animals, and enclosures from userID
 	tRows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
 							FROM tasks t JOIN taskUser ON taskUser.taskId=t.taskId
-							WHERE userId = ?`, userID)
+							WHERE userId = $1`, userID)
 	if err != nil {
 		return err
 	}
 
 	aRows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
 							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
-							WHERE userID = ?`, userID)
+							WHERE userID = $1`, userID)
 	if err != nil {
 		return err
 	}
 
 	eRows, err := s.db.Query(`SELECT e.enclosureId, e.enclosureName, e.image, e.Notes, e.habitatId
 							FROM enclosures e JOIN enclosureUser ON enclosureUser.enclosureId=e.enclosureId
-							WHERE userID = ?`, userID)
+							WHERE userID = $1`, userID)
 	if err != nil {
 		return err
 	}
@@ -128,47 +128,47 @@ func (s *Store) DeleteUserById(userID int) error {
 	}
 
 	// delete taskUser, taskSubject, and tasks entries
-	_, err = tx.Exec("DELETE FROM taskUser WHERE userID = ?", userID)
+	_, err = tx.Exec("DELETE FROM taskUser WHERE userID = $1", userID)
 	if err != nil {
 		return err
 	}
 	for _, task := range tasks {
-		_, err = tx.Exec("DELETE FROM taskSubject WHERE taskId = ?", task.TaskId)
+		_, err = tx.Exec("DELETE FROM taskSubject WHERE taskId = $1", task.TaskId)
 		if err != nil {
 			return err
 		}
-		_, err = tx.Exec("DELETE FROM tasks WHERE taskId = ?", task.TaskId)
+		_, err = tx.Exec("DELETE FROM tasks WHERE taskId = $1", task.TaskId)
 		if err != nil {
 			return err
 		}
 	}
 
 	// delete animalUser and animals entries
-	_, err = tx.Exec("DELETE FROM animalUser WHERE userID = ?", userID)
+	_, err = tx.Exec("DELETE FROM animalUser WHERE userID = $1", userID)
 	if err != nil {
 		return err
 	}
 	for _, animal := range animals {
-		_, err = tx.Exec("DELETE FROM animals WHERE animalId = ?", animal.AnimalId)
+		_, err = tx.Exec("DELETE FROM animals WHERE animalId = $1", animal.AnimalId)
 		if err != nil {
 			return err
 		}
 	}
 
 	// delete enclosureUser and enclosures entries
-	_, err = tx.Exec("DELETE FROM enclosureUser WHERE userID = ?", userID)
+	_, err = tx.Exec("DELETE FROM enclosureUser WHERE userID = $1", userID)
 	if err != nil {
 		return err
 	}
 	for _, enclosure := range enclosures {
-		_, err = tx.Exec("DELETE FROM enclosures WHERE enclosureId = ?", enclosure.EnclosureId)
+		_, err = tx.Exec("DELETE FROM enclosures WHERE enclosureId = $1", enclosure.EnclosureId)
 		if err != nil {
 			return err
 		}
 	}
 
 	// delete user
-	_, err = tx.Exec("DELETE FROM users WHERE userID = ?", userID)
+	_, err = tx.Exec("DELETE FROM users WHERE userID = $1", userID)
 	if err != nil {
 		return err
 	}

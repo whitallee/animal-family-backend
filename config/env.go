@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -13,9 +12,10 @@ type Config struct {
 	PublicHost string
 	Port       string
 
+	DBHost      string
+	DBPort      string
 	DBUser      string
 	DBPassword  string
-	DBAddress   string
 	DBName      string
 	JWTExpInSec int64
 	JWTSecret   string
@@ -34,9 +34,10 @@ func initConfig() Config {
 	return Config{
 		PublicHost:  getEnv("PUBLIC_HOST", "http://localhost"),
 		Port:        getEnv("PORT", "8080"),
-		DBUser:      getEnv("DB_USER", "root"),
+		DBHost:      getEnv("DB_HOST", "localhost"),
+		DBPort:      getEnv("DB_PORT", "5432"),
+		DBUser:      getEnv("DB_USER", "postgres"),
 		DBPassword:  getEnv("DB_PASSWORD", "passwordNotFound"),
-		DBAddress:   fmt.Sprintf("%s:%s", getEnv("DB_HOST", "hostNotFound"), getEnv("DB_PORT", "portNotFound")),
 		DBName:      getEnv("DB_NAME", "nameNotFound"),
 		JWTExpInSec: getEnvAsInt("JWT_EXP_IN_SEC", 3600*24*7),
 		JWTSecret:   getEnv("JWT_SECRET", "secretNotFoundAndNotSecretAnymore"),

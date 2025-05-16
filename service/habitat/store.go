@@ -16,7 +16,7 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) CreateHabitat(habitat types.Habitat) error {
-	_, err := s.db.Exec("INSERT INTO habitats (habitatId, habitatName, habitatDesc, image, humidity, dayTempRange, nightTempRange) VALUES (?,?,?,?,?,?,?)", habitat.HabitatId, habitat.HabitatName, habitat.HabitatDesc, habitat.Image, habitat.Humidity, habitat.DayTempRange, habitat.NightTempRange)
+	_, err := s.db.Exec("INSERT INTO habitats (habitatId, habitatName, habitatDesc, image, humidity, dayTempRange, nightTempRange) VALUES ($1,$2,$3,$4,$5,$6,$7)", habitat.HabitatId, habitat.HabitatName, habitat.HabitatDesc, habitat.Image, habitat.Humidity, habitat.DayTempRange, habitat.NightTempRange)
 	if err != nil {
 		return err
 	}
@@ -26,8 +26,8 @@ func (s *Store) CreateHabitat(habitat types.Habitat) error {
 
 func (s *Store) UpdateHabitat(habitat types.Habitat) error {
 	_, err := s.db.Exec(`UPDATE habitats
-						SET habitatName = ?, habitatDesc = ?, image = ?, humidity = ?, dayTempRange = ?, nightTempRange = ?
-						WHERE habitatId = ?`, habitat.HabitatName, habitat.HabitatDesc, habitat.Image, habitat.Humidity, habitat.DayTempRange, habitat.NightTempRange, habitat.HabitatId)
+						SET habitatName = $1, habitatDesc = $2, image = $3, humidity = $4, dayTempRange = $5, nightTempRange = $6
+						WHERE habitatId = $7`, habitat.HabitatName, habitat.HabitatDesc, habitat.Image, habitat.Humidity, habitat.DayTempRange, habitat.NightTempRange, habitat.HabitatId)
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func (s *Store) GetHabitats() ([]*types.Habitat, error) {
 }
 
 func (s *Store) GetHabitatByName(habName string) (*types.Habitat, error) {
-	rows, err := s.db.Query(`SELECT * FROM habitats WHERE habitatName = ?`, habName)
+	rows, err := s.db.Query(`SELECT * FROM habitats WHERE habitatName = $1`, habName)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (s *Store) GetHabitatByName(habName string) (*types.Habitat, error) {
 }
 
 func (s *Store) GetHabitatById(habId int) (*types.Habitat, error) { // not used in any handler functions yet
-	rows, err := s.db.Query(`SELECT * FROM habitats WHERE habitatId = ?`, habId)
+	rows, err := s.db.Query(`SELECT * FROM habitats WHERE habitatId = $1`, habId)
 	if err != nil {
 		return nil, err
 	}
@@ -104,19 +104,19 @@ func (s *Store) DeleteHabitatById(habitatId int) error {
 	}
 
 	// update enclosures habitat to "No Habitat"
-	_, err = tx.Exec("UPDATE enclosures SET habitatId = 0 WHERE habitatId = ?", habitatId)
+	_, err = tx.Exec("UPDATE enclosures SET habitatId = 0 WHERE habitatId = $1", habitatId)
 	if err != nil {
 		return err
 	}
 
 	// update species habitat to "No Habitat"
-	_, err = tx.Exec("UPDATE species SET habitatId = 0 WHERE habitatId = ?", habitatId)
+	_, err = tx.Exec("UPDATE species SET habitatId = 0 WHERE habitatId = $1", habitatId)
 	if err != nil {
 		return err
 	}
 
 	// delete habitat
-	_, err = tx.Exec("DELETE FROM habitats WHERE habitatId = ?", habitatId)
+	_, err = tx.Exec("DELETE FROM habitats WHERE habitatId = $1", habitatId)
 	if err != nil {
 		return err
 	}

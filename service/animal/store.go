@@ -24,19 +24,15 @@ func (s *Store) CreateAnimal(animal types.Animal, userID int) error {
 	}
 
 	// add animal to animals table
-	_, err = tx.Exec("INSERT INTO animals (animalName, speciesId, enclosureId, image, notes) VALUES (?,?,?,?,?)", animal.AnimalName, animal.SpeciesId, animal.EnclosureId, animal.Image, animal.Notes)
+	var addedAnimalId int
+	err = tx.QueryRow("INSERT INTO animals (animalName, speciesId, enclosureId, image, notes) VALUES ($1, $2, $3, $4, $5) RETURNING animalId",
+		animal.AnimalName, animal.SpeciesId, animal.EnclosureId, animal.Image, animal.Notes).Scan(&addedAnimalId)
 	if err != nil {
 		return err
 	}
 
-	// get animal id of the newly added animal
-	var addedAnimalId int
-	if err := tx.QueryRow("SELECT LAST_INSERT_ID()").Scan(&addedAnimalId); err != nil {
-		return err
-	}
-
 	// add user-animal joiner to animalUser table
-	_, err = tx.Exec("INSERT INTO animalUser (animalId, userID) VALUES (?,?)", addedAnimalId, userID)
+	_, err = tx.Exec("INSERT INTO animalUser (animalId, userID) VALUES ($1, $2)", addedAnimalId, userID)
 	if err != nil {
 		return err
 	}
@@ -52,8 +48,8 @@ func (s *Store) CreateAnimal(animal types.Animal, userID int) error {
 
 func (s *Store) UpdateAnimal(animal types.Animal) error {
 	_, err := s.db.Exec(`UPDATE animals
-						SET animalName = ?, image = ?, notes = ?, speciesID = ?, enclosureID = ?
-						WHERE animalId = ?`, animal.AnimalName, animal.Image, animal.Notes, animal.SpeciesId, animal.EnclosureId, animal.AnimalId)
+						SET animalName = $1, image = $2, notes = $3, speciesID = $4, enclosureID = $5
+						WHERE animalId = $6`, animal.AnimalName, animal.Image, animal.Notes, animal.SpeciesId, animal.EnclosureId, animal.AnimalId)
 	if err != nil {
 		return err
 	}
@@ -63,8 +59,8 @@ func (s *Store) UpdateAnimal(animal types.Animal) error {
 
 func (s *Store) UpdateAnimalOwner(oldAnimalUser types.AnimalUser, newUserId int) error {
 	_, err := s.db.Exec(`UPDATE animalUser
-						SET userId = ?
-						WHERE animalId = ? AND userId = ?`, newUserId, oldAnimalUser.AnimalId, oldAnimalUser.UserID)
+						SET userId = $1
+						WHERE animalId = $2 AND userId = $3`, newUserId, oldAnimalUser.AnimalId, oldAnimalUser.UserID)
 	if err != nil {
 		return err
 	}
@@ -94,7 +90,7 @@ func (s *Store) GetAnimals() ([]*types.Animal, error) {
 func (s *Store) GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*types.Animal, error) {
 	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
 							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
-							WHERE animalName = ? AND speciesId = ? AND userID = ?`, animalName, speciesId, userID)
+							WHERE animalName = $1 AND speciesId = $2 AND userID = $3`, animalName, speciesId, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +111,7 @@ func (s *Store) GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId
 }
 
 func (s *Store) GetAnimalUserByIds(animalId int, userID int) (*types.AnimalUser, error) {
-	rows, err := s.db.Query("SELECT * FROM animalUser WHERE animalId = ? AND userID = ?", animalId, userID)
+	rows, err := s.db.Query("SELECT * FROM animalUser WHERE animalId = $1 AND userID = $2", animalId, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +132,7 @@ func (s *Store) GetAnimalUserByIds(animalId int, userID int) (*types.AnimalUser,
 }
 
 func (s *Store) GetAnimalUserByAnimalId(animalId int) (*types.AnimalUser, error) {
-	rows, err := s.db.Query("SELECT * FROM animalUser WHERE animalId = ?", animalId)
+	rows, err := s.db.Query("SELECT * FROM animalUser WHERE animalId = $1", animalId)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +153,7 @@ func (s *Store) GetAnimalUserByAnimalId(animalId int) (*types.AnimalUser, error)
 }
 
 func (s *Store) GetAnimalById(animalId int) (*types.Animal, error) {
-	rows, err := s.db.Query("SELECT * FROM animals WHERE animalId = ?", animalId)
+	rows, err := s.db.Query("SELECT * FROM animals WHERE animalId = $1", animalId)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +176,7 @@ func (s *Store) GetAnimalById(animalId int) (*types.Animal, error) {
 func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {
 	rows, err := s.db.Query(`SELECT a.animalId, a.animalName, a.image, a.notes, a.speciesId, a.enclosureId
 							FROM animals a JOIN animalUser ON animalUser.animalId=a.animalId
-							WHERE userID = ?`, userID)
+							WHERE userID = $1`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +195,7 @@ func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {
 }
 
 func (s *Store) GetAnimalsByEnclosureId(enclosureId int) ([]*types.Animal, error) {
-	rows, err := s.db.Query("SELECT * FROM animals WHERE enclosureID = ?", enclosureId)
+	rows, err := s.db.Query("SELECT * FROM animals WHERE enclosureID = $1", enclosureId)
 	if err != nil {
 		return nil, err
 	}
@@ -223,12 +219,12 @@ func (s *Store) DeleteAnimalById(animalId int) error {
 		return err
 	}
 
-	_, err = tx.Exec("DELETE FROM animalUser WHERE animalId = ?", animalId)
+	_, err = tx.Exec("DELETE FROM animalUser WHERE animalId = $1", animalId)
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("DELETE FROM animals WHERE animalId = ?", animalId)
+	_, err = tx.Exec("DELETE FROM animals WHERE animalId = $1", animalId)
 	if err != nil {
 		return err
 	}

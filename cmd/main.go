@@ -4,23 +4,21 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/go-sql-driver/mysql"
 	"github.com/whitallee/animal-family-backend/cmd/api"
 	"github.com/whitallee/animal-family-backend/config"
 	"github.com/whitallee/animal-family-backend/db"
 )
 
 func main() {
-	cfg := mysql.Config{
-		User:                 config.Envs.DBUser,
-		Passwd:               config.Envs.DBPassword,
-		Addr:                 config.Envs.DBAddress,
-		DBName:               config.Envs.DBName,
-		Net:                  "tcp",
-		AllowNativePasswords: true,
-		ParseTime:            true,
+	cfg := db.PostgresConfig{
+		Host:     config.Envs.DBHost,
+		Port:     config.Envs.DBPort,
+		User:     config.Envs.DBUser,
+		Password: config.Envs.DBPassword,
+		DBName:   config.Envs.DBName,
+		SSLMode:  "disable", // or "require" for production
 	}
-	db, err := db.NewMySQLStorage(cfg)
+	db, err := db.NewPostgresStorage(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}

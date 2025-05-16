@@ -1,13 +1,9 @@
 CREATE TABLE IF NOT EXISTS users (
-    `userId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `firstName` VARCHAR(255) NOT NULL,
-    `lastName` VARCHAR(255) NOT NULL,
-    `email` VARCHAR(255) NOT NULL,
-    `phone` VARCHAR(15),
-    `password` VARCHAR(255) NOT NULL,
-    `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (userId),
-    UNIQUE KEY (email),
-    UNIQUE KEY (phone)
+    "userId" SERIAL PRIMARY KEY,
+    "firstName" VARCHAR(255) NOT NULL,
+    "lastName" VARCHAR(255) NOT NULL,
+    "email" VARCHAR(255) NOT NULL UNIQUE,
+    "phone" VARCHAR(15) UNIQUE,
+    "password" VARCHAR(255) NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
