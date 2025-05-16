@@ -69,7 +69,12 @@ func ScanRowsIntoAnimals(rows *sql.Rows) (*types.Animal, error) {
 		&animal.AnimalId,
 		&animal.AnimalName,
 		&animal.Image,
-		&animal.Notes,
+		&animal.Gender,
+		&animal.Dob,
+		&animal.PersonalityDesc,
+		&animal.DietDesc,
+		&animal.RoutineDesc,
+		&animal.ExtraNotes,
 		&animal.SpeciesId,
 		&animal.EnclosureId,
 	)

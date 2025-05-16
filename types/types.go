@@ -234,12 +234,17 @@ type AnimalStore interface {
 }
 
 type Animal struct {
-	AnimalId    int    `json:"animalId"`
-	AnimalName  string `json:"animalName"`
-	SpeciesId   int    `json:"speciesId"`
-	EnclosureId *int   `json:"enclosureId"`
-	Image       string `json:"image"`
-	Notes       string `json:"notes"`
+	AnimalId        int       `json:"animalId"`
+	AnimalName      string    `json:"animalName"`
+	SpeciesId       int       `json:"speciesId"`
+	EnclosureId     *int      `json:"enclosureId"`
+	Image           string    `json:"image"`
+	Gender          string    `json:"gender"`
+	Dob             time.Time `json:"dob"`
+	PersonalityDesc string    `json:"personalityDesc"`
+	DietDesc        string    `json:"dietDesc"`
+	RoutineDesc     string    `json:"routineDesc"`
+	ExtraNotes      string    `json:"extraNotes"`
 }
 
 type AnimalUser struct {
@@ -248,29 +253,44 @@ type AnimalUser struct {
 }
 
 type CreateAnimalWithOwnerPayload struct {
-	AnimalName  string `json:"animalName" validate:"required"`
-	SpeciesId   int    `json:"speciesId" validate:"required,min=0"`
-	EnclosureId *int   `json:"enclosureId" validate:"required,min=0"`
-	Image       string `json:"image" validate:"required"`
-	Notes       string `json:"notes" validate:"required"`
-	UserID      int    `json:"userId" validate:"required,min=0"`
+	AnimalName      string    `json:"animalName" validate:"required"`
+	SpeciesId       int       `json:"speciesId" validate:"required,min=0"`
+	EnclosureId     *int      `json:"enclosureId" validate:"required,min=0"`
+	Image           string    `json:"image" validate:"required"`
+	Gender          string    `json:"gender" validate:"required"`
+	Dob             time.Time `json:"dob" validate:"required"`
+	PersonalityDesc string    `json:"personalityDesc" validate:"required"`
+	DietDesc        string    `json:"dietDesc" validate:"required"`
+	RoutineDesc     string    `json:"routineDesc" validate:"required"`
+	ExtraNotes      string    `json:"extraNotes" validate:"required"`
+	UserID          int       `json:"userId" validate:"required,min=0"`
 }
 
 type CreateAnimalPayload struct {
-	AnimalName  string `json:"animalName" validate:"required"`
-	SpeciesId   int    `json:"speciesId" validate:"required,min=0"`
-	EnclosureId *int   `json:"enclosureId" validate:"required,min=0"`
-	Image       string `json:"image" validate:"required"`
-	Notes       string `json:"notes" validate:"required"`
+	AnimalName      string    `json:"animalName" validate:"required"`
+	SpeciesId       int       `json:"speciesId" validate:"required,min=0"`
+	EnclosureId     *int      `json:"enclosureId" validate:"required,min=0"`
+	Image           string    `json:"image" validate:"required"`
+	Gender          string    `json:"gender" validate:"required"`
+	Dob             time.Time `json:"dob" validate:"required"`
+	PersonalityDesc string    `json:"personalityDesc" validate:"required"`
+	DietDesc        string    `json:"dietDesc" validate:"required"`
+	RoutineDesc     string    `json:"routineDesc" validate:"required"`
+	ExtraNotes      string    `json:"extraNotes" validate:"required"`
 }
 
 type UpdateAnimalPayload struct {
-	AnimalId    int    `json:"animalId" validate:"required"`
-	AnimalName  string `json:"animalName" validate:"required"`
-	SpeciesId   int    `json:"speciesId" validate:"required,min=0"`
-	EnclosureId *int   `json:"enclosureId" validate:"required,min=0"`
-	Image       string `json:"image" validate:"required"`
-	Notes       string `json:"notes" validate:"required"`
+	AnimalId        int       `json:"animalId" validate:"required"`
+	AnimalName      string    `json:"animalName" validate:"required"`
+	SpeciesId       int       `json:"speciesId" validate:"required,min=0"`
+	EnclosureId     *int      `json:"enclosureId" validate:"required,min=0"`
+	Image           string    `json:"image" validate:"required"`
+	Gender          string    `json:"gender" validate:"required"`
+	Dob             time.Time `json:"dob" validate:"required"`
+	PersonalityDesc string    `json:"personalityDesc" validate:"required"`
+	DietDesc        string    `json:"dietDesc" validate:"required"`
+	RoutineDesc     string    `json:"routineDesc" validate:"required"`
+	ExtraNotes      string    `json:"extraNotes" validate:"required"`
 }
 
 type UpdateAnimalOwnerPayload struct {

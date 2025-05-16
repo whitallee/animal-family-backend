@@ -72,11 +72,16 @@ func (h *Handler) handleAdminCreateAnimal(w http.ResponseWriter, r *http.Request
 
 	// if it doesn't exist, create new animal
 	err = h.store.CreateAnimal(types.Animal{
-		AnimalName:  animal.AnimalName,
-		SpeciesId:   animal.SpeciesId,
-		EnclosureId: animal.EnclosureId,
-		Image:       animal.Image,
-		Notes:       animal.Notes,
+		AnimalName:      animal.AnimalName,
+		SpeciesId:       animal.SpeciesId,
+		EnclosureId:     animal.EnclosureId,
+		Image:           animal.Image,
+		Gender:          animal.Gender,
+		Dob:             animal.Dob,
+		PersonalityDesc: animal.PersonalityDesc,
+		DietDesc:        animal.DietDesc,
+		RoutineDesc:     animal.RoutineDesc,
+		ExtraNotes:      animal.ExtraNotes,
 	}, animal.UserID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
@@ -113,11 +118,16 @@ func (h *Handler) handleUserCreateAnimal(w http.ResponseWriter, r *http.Request)
 
 	// if it doesn't exist, create new animal
 	err = h.store.CreateAnimal(types.Animal{
-		AnimalName:  animal.AnimalName,
-		SpeciesId:   animal.SpeciesId,
-		EnclosureId: animal.EnclosureId,
-		Image:       animal.Image,
-		Notes:       animal.Notes,
+		AnimalName:      animal.AnimalName,
+		SpeciesId:       animal.SpeciesId,
+		EnclosureId:     animal.EnclosureId,
+		Image:           animal.Image,
+		Gender:          animal.Gender,
+		Dob:             animal.Dob,
+		PersonalityDesc: animal.PersonalityDesc,
+		DietDesc:        animal.DietDesc,
+		RoutineDesc:     animal.RoutineDesc,
+		ExtraNotes:      animal.ExtraNotes,
 	}, userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
