@@ -16,7 +16,7 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) CreateSpecies(species types.Species) error {
-	_, err := s.db.Exec("INSERT INTO species (comName, sciName, speciesDesc, image, habitatId, baskTemp, diet, sociality, extraCare) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)", species.ComName, species.SciName, species.SpeciesDesc, species.Image, species.HabitatId, species.BaskTemp, species.Diet, species.Sociality, species.ExtraCare)
+	_, err := s.db.Exec(`INSERT INTO "species" ("comName", "sciName", "speciesDesc", "image", "habitatId", "baskTemp", "diet", "sociality", "extraCare") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`, species.ComName, species.SciName, species.SpeciesDesc, species.Image, species.HabitatId, species.BaskTemp, species.Diet, species.Sociality, species.ExtraCare)
 	if err != nil {
 		return err
 	}
@@ -25,9 +25,9 @@ func (s *Store) CreateSpecies(species types.Species) error {
 }
 
 func (s *Store) UpdateSpecies(species types.Species) error {
-	_, err := s.db.Exec(`UPDATE species
-						SET comName = $1, sciName = $2, speciesDesc = $3, image = $4, habitatId = $5, baskTemp = $6, diet = $7, sociality = $8, extraCare = $9
-						WHERE speciesId = $10`, species.ComName, species.SciName, species.SpeciesDesc, species.Image, species.HabitatId, species.BaskTemp, species.Diet, species.Sociality, species.ExtraCare, species.SpeciesID)
+	_, err := s.db.Exec(`UPDATE "species"
+						SET "comName" = $1, "sciName" = $2, "speciesDesc" = $3, "image" = $4, "habitatId" = $5, "baskTemp" = $6, "diet" = $7, "sociality" = $8, "extraCare" = $9
+						WHERE "speciesId" = $10`, species.ComName, species.SciName, species.SpeciesDesc, species.Image, species.HabitatId, species.BaskTemp, species.Diet, species.Sociality, species.ExtraCare, species.SpeciesID)
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func (s *Store) UpdateSpecies(species types.Species) error {
 }
 
 func (s *Store) GetSpecies() ([]*types.Species, error) {
-	rows, err := s.db.Query("SELECT * FROM species")
+	rows, err := s.db.Query(`SELECT * FROM "species"`)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (s *Store) GetSpecies() ([]*types.Species, error) {
 }
 
 func (s *Store) GetSpeciesByComName(comName string) (*types.Species, error) {
-	rows, err := s.db.Query(`SELECT * FROM species WHERE comName = $1`, comName)
+	rows, err := s.db.Query(`SELECT * FROM "species" WHERE "comName" = $1`, comName)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (s *Store) GetSpeciesByComName(comName string) (*types.Species, error) {
 }
 
 func (s *Store) GetSpeciesBySciName(sciName string) (*types.Species, error) {
-	rows, err := s.db.Query(`SELECT * FROM species WHERE sciName = $1`, sciName)
+	rows, err := s.db.Query(`SELECT * FROM "species" WHERE "sciName" = $1`, sciName)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (s *Store) GetSpeciesBySciName(sciName string) (*types.Species, error) {
 }
 
 func (s *Store) GetSpeciesById(speciesId int) (*types.Species, error) {
-	rows, err := s.db.Query(`SELECT * FROM species WHERE speciesId = $1`, speciesId)
+	rows, err := s.db.Query(`SELECT * FROM "species" WHERE "speciesId" = $1`, speciesId)
 	if err != nil {
 		return nil, err
 	}
@@ -125,13 +125,13 @@ func (s *Store) DeleteSpeciesById(speciesId int) error {
 	}
 
 	// update animals species to "No Species"
-	_, err = tx.Exec("UPDATE animals SET speciesId = 0 WHERE speciesid = $1", speciesId)
+	_, err = tx.Exec(`UPDATE "animals" SET "speciesId" = 0 WHERE "speciesid" = $1`, speciesId)
 	if err != nil {
 		return err
 	}
 
 	// delete species
-	_, err = tx.Exec("DELETE FROM species WHERE speciesId = $1", speciesId)
+	_, err = tx.Exec(`DELETE FROM "species" WHERE "speciesId" = $1`, speciesId)
 	if err != nil {
 		return err
 	}

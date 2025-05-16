@@ -25,20 +25,20 @@ func (s *Store) CreateTask(task types.Task, animalId int, enclosureId int, userI
 
 	// create task in tasks table
 	var addedTaskId int
-	err = tx.QueryRow("INSERT INTO tasks (taskName, complete, lastCompleted, repeatIntervHours) VALUES ($1, $2, $3, $4) RETURNING taskId",
+	err = tx.QueryRow(`INSERT INTO "tasks" ("taskName", "complete", "lastCompleted", "repeatIntervHours") VALUES ($1, $2, $3, $4) RETURNING "taskId"`,
 		task.TaskName, task.Complete, task.LastCompleted, task.RepeatIntervHours).Scan(&addedTaskId)
 	if err != nil {
 		return err
 	}
 
 	// add user-task joiner to taskUser table
-	_, err = tx.Exec("INSERT INTO taskUser (taskId, userID) VALUES ($1, $2)", addedTaskId, userId)
+	_, err = tx.Exec(`INSERT INTO "taskUser" ("taskId", "userID") VALUES ($1, $2)`, addedTaskId, userId)
 	if err != nil {
 		return err
 	}
 
 	// add subject-task joiner to taskSubject table
-	_, err = tx.Exec("INSERT INTO taskSubject (taskId, animalId, enclosureId) VALUES ($1, $2, $3)", addedTaskId, animalId, enclosureId)
+	_, err = tx.Exec(`INSERT INTO "taskSubject" ("taskId", "animalId", "enclosureId") VALUES ($1, $2, $3)`, addedTaskId, animalId, enclosureId)
 	if err != nil {
 		return err
 	}
@@ -53,9 +53,9 @@ func (s *Store) CreateTask(task types.Task, animalId int, enclosureId int, userI
 }
 
 func (s *Store) UpdateTask(task types.Task) error {
-	_, err := s.db.Exec(`UPDATE tasks
-						SET taskName = $1, complete = $2, lastCompleted = $3, repeatIntervHours = $4
-						WHERE taskId = $5`, task.TaskName, task.Complete, task.LastCompleted, task.RepeatIntervHours, task.TaskId)
+	_, err := s.db.Exec(`UPDATE "tasks"
+						SET "taskName" = $1, "complete" = $2, "lastCompleted" = $3, "repeatIntervHours" = $4
+						WHERE "taskId" = $5`, task.TaskName, task.Complete, task.LastCompleted, task.RepeatIntervHours, task.TaskId)
 	if err != nil {
 		return err
 	}
@@ -64,9 +64,9 @@ func (s *Store) UpdateTask(task types.Task) error {
 }
 
 func (s *Store) UpdateTaskOwner(oldTaskUser types.TaskUser, newUserId int) error {
-	_, err := s.db.Exec(`UPDATE taskUser
-						SET userId = $1
-						WHERE taskId = $2 AND userId = $3`, newUserId, oldTaskUser.TaskId, oldTaskUser.UserID)
+	_, err := s.db.Exec(`UPDATE "taskUser"
+						SET "userId" = $1
+						WHERE "taskId" = $2 AND "userId" = $3`, newUserId, oldTaskUser.TaskId, oldTaskUser.UserID)
 	if err != nil {
 		return err
 	}
@@ -75,9 +75,9 @@ func (s *Store) UpdateTaskOwner(oldTaskUser types.TaskUser, newUserId int) error
 }
 
 func (s *Store) UpdateTaskSubject(taskSubject types.TaskSubject) error {
-	_, err := s.db.Exec(`UPDATE taskSubject
-						SET animalId = $1, enclosureId = $2
-						WHERE taskId = $3`, taskSubject.AnimalId, taskSubject.EnclosureId, taskSubject.TaskId)
+	_, err := s.db.Exec(`UPDATE "taskSubject"
+						SET "animalId" = $1, "enclosureId" = $2
+						WHERE "taskId" = $3`, taskSubject.AnimalId, taskSubject.EnclosureId, taskSubject.TaskId)
 	if err != nil {
 		return err
 	}
@@ -86,9 +86,9 @@ func (s *Store) UpdateTaskSubject(taskSubject types.TaskSubject) error {
 }
 
 func (s *Store) GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*types.Task, error) {
-	rows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
-							FROM tasks t JOIN taskUser ON taskUser.taskId=t.taskId JOIN taskSubject ON taskSubject.taskId=t.taskId
-							WHERE taskName = $1 AND userId = $2`, taskName, animalId, enclosureId, userId)
+	rows, err := s.db.Query(`SELECT t."taskId", t."taskName", t."complete", t."lastCompleted", t."repeatIntervHours"
+							FROM "tasks" t JOIN "taskUser" ON "taskUser"."taskId"=t."taskId" JOIN "taskSubject" ON "taskSubject"."taskId"=t."taskId"
+							WHERE "taskName" = $1 AND "userId" = $2`, taskName, animalId, enclosureId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (s *Store) GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId in
 }
 
 func (s *Store) GetTaskUserByIds(taskId int, userID int) (*types.TaskUser, error) {
-	rows, err := s.db.Query("SELECT * FROM taskUser WHERE taskId = $1 AND userID = $2", taskId, userID)
+	rows, err := s.db.Query(`SELECT * FROM "taskUser" WHERE "taskId" = $1 AND "userID" = $2`, taskId, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (s *Store) GetTaskUserByIds(taskId int, userID int) (*types.TaskUser, error
 }
 
 func (s *Store) GetTaskById(taskId int) (*types.Task, error) {
-	rows, err := s.db.Query("SELECT * FROM tasks WHERE taskId = $1", taskId)
+	rows, err := s.db.Query(`SELECT * FROM "tasks" WHERE "taskId" = $1`, taskId)
 	if err != nil {
 		return nil, err
 	}
@@ -151,9 +151,9 @@ func (s *Store) GetTaskById(taskId int) (*types.Task, error) {
 }
 
 func (s *Store) GetTasksByUserId(userID int) ([]*types.Task, error) {
-	rows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
-							FROM tasks t JOIN taskUser ON taskUser.taskId=t.taskId
-							WHERE userId = $1`, userID)
+	rows, err := s.db.Query(`SELECT t."taskId", t."taskName", t."complete", t."lastCompleted", t."repeatIntervHours"
+							FROM "tasks" t JOIN "taskUser" ON "taskUser"."taskId"=t."taskId"
+							WHERE "userId" = $1`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -173,9 +173,9 @@ func (s *Store) GetTasksByUserId(userID int) ([]*types.Task, error) {
 }
 
 func (s *Store) GetTasksBySubjectIds(animalId int, enclosureId int) ([]*types.Task, error) {
-	rows, err := s.db.Query(`SELECT t.taskId, t.taskName, t.complete, t.lastCompleted, t.repeatIntervHours
-							FROM tasks t JOIN taskSubject ON taskSubject.taskId=t.taskId
-							WHERE animalId = $1 AND enclosureId = $2`, animalId, enclosureId)
+	rows, err := s.db.Query(`SELECT t."taskId", t."taskName", t."complete", t."lastCompleted", t."repeatIntervHours"
+							FROM "tasks" t JOIN "taskSubject" ON "taskSubject"."taskId"=t."taskId"
+							WHERE "animalId" = $1 AND "enclosureId" = $2`, animalId, enclosureId)
 	if err != nil {
 		return nil, err
 	}
@@ -200,17 +200,17 @@ func (s *Store) DeleteTaskById(taskId int) error {
 		return err
 	}
 
-	_, err = tx.Exec("DELETE FROM taskUser WHERE taskId = $1", taskId)
+	_, err = tx.Exec(`DELETE FROM "taskUser" WHERE "taskId" = $1`, taskId)
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("DELETE FROM taskSubject WHERE taskId = $1", taskId)
+	_, err = tx.Exec(`DELETE FROM "taskSubject" WHERE "taskId" = $1`, taskId)
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("DELETE FROM tasks WHERE taskId = $1", taskId)
+	_, err = tx.Exec(`DELETE FROM "tasks" WHERE "taskId" = $1`, taskId)
 	if err != nil {
 		return err
 	}

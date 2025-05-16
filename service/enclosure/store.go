@@ -23,12 +23,12 @@ func (s *Store) CreateEnclosure(enclosure types.Enclosure, userID int) error {
 	}
 
 	var addedEnclosureId int
-	err = tx.QueryRow("INSERT INTO enclosures (enclosureName, image, notes, habitatId) VALUES ($1,$2,$3,$4) RETURNING enclosureId", enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId).Scan(&addedEnclosureId)
+	err = tx.QueryRow(`INSERT INTO "enclosures" ("enclosureName", "image", "notes", "habitatId") VALUES ($1,$2,$3,$4) RETURNING "enclosureId"`, enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId).Scan(&addedEnclosureId)
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("INSERT INTO enclosureUser (enclosureId, userID) VALUES ($1,$2)", addedEnclosureId, userID)
+	_, err = tx.Exec(`INSERT INTO "enclosureUser" ("enclosureId", "userID") VALUES ($1,$2)`, addedEnclosureId, userID)
 	if err != nil {
 		return err
 	}
@@ -48,17 +48,17 @@ func (s *Store) CreateEnclosureWithAnimals(enclosure types.Enclosure, animalIds 
 	}
 
 	var addedEnclosureId int
-	err = tx.QueryRow("INSERT INTO enclosures (enclosureName, image, notes, habitatId) VALUES ($1,$2,$3,$4) RETURNING enclosureId", enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId).Scan(&addedEnclosureId)
+	err = tx.QueryRow(`INSERT INTO "enclosures" ("enclosureName", "image", "notes", "habitatId") VALUES ($1,$2,$3,$4) RETURNING "enclosureId"`, enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId).Scan(&addedEnclosureId)
 	if err != nil {
 		return err
 	}
 
-	if _, err := tx.Exec("INSERT INTO enclosureUser (enclosureId, userID) VALUES ($1,$2)", addedEnclosureId, userID); err != nil {
+	if _, err := tx.Exec(`INSERT INTO "enclosureUser" ("enclosureId", "userID") VALUES ($1,$2)`, addedEnclosureId, userID); err != nil {
 		return err
 	}
 
 	for _, animalId := range animalIds {
-		if _, err := tx.Exec("UPDATE animals SET enclosureID = $1 WHERE animalId = $2", addedEnclosureId, animalId); err != nil {
+		if _, err := tx.Exec(`UPDATE "animals" SET "enclosureID" = $1 WHERE "animalId" = $2`, addedEnclosureId, animalId); err != nil {
 			return err
 		}
 	}
@@ -72,9 +72,9 @@ func (s *Store) CreateEnclosureWithAnimals(enclosure types.Enclosure, animalIds 
 }
 
 func (s *Store) UpdateEnclosure(enclosure types.Enclosure) error {
-	_, err := s.db.Exec(`UPDATE enclosures
-						SET enclosureName = $1, image = $2, notes = $3, habitatID = $4
-						WHERE enclosureId = $5`, enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId, enclosure.EnclosureId)
+	_, err := s.db.Exec(`UPDATE "enclosures"
+						SET "enclosureName" = $1, "image" = $2, "notes" = $3, "habitatID" = $4
+						WHERE "enclosureId" = $5`, enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId, enclosure.EnclosureId)
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func (s *Store) UpdateEnclosure(enclosure types.Enclosure) error {
 
 func (s *Store) UpdateEnclosureOwnerWithAnimals(oldEnclosureUser types.EnclosureUser, newUserId int) error {
 	// get animals in enclosure
-	rows, err := s.db.Query("SELECT * FROM animals WHERE enclosureID = $1", oldEnclosureUser.EnclosureId)
+	rows, err := s.db.Query(`SELECT * FROM "animals" WHERE "enclosureID" = $1`, oldEnclosureUser.EnclosureId)
 	if err != nil {
 		return err
 	}
@@ -106,18 +106,18 @@ func (s *Store) UpdateEnclosureOwnerWithAnimals(oldEnclosureUser types.Enclosure
 
 	// update all animals' owners
 	for _, animal := range animals {
-		_, err := tx.Exec(`UPDATE animalUser
-							SET userId = $1
-							WHERE animalId = $2 AND userId = $3`, newUserId, animal.AnimalId, oldEnclosureUser.UserID)
+		_, err := tx.Exec(`UPDATE "animalUser"
+							SET "userId" = $1
+							WHERE "animalId" = $2 AND "userId" = $3`, newUserId, animal.AnimalId, oldEnclosureUser.UserID)
 		if err != nil {
 			return err
 		}
 	}
 
 	// update enclosure owner
-	_, err = tx.Exec(`UPDATE enclosureUser
-						SET userId = $1
-						WHERE enclosureId = $2 AND userId = $3`, newUserId, oldEnclosureUser.EnclosureId, oldEnclosureUser.UserID)
+	_, err = tx.Exec(`UPDATE "enclosureUser"
+						SET "userId" = $1
+						WHERE "enclosureId" = $2 AND "userId" = $3`, newUserId, oldEnclosureUser.EnclosureId, oldEnclosureUser.UserID)
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func (s *Store) UpdateEnclosureOwnerWithAnimals(oldEnclosureUser types.Enclosure
 }
 
 func (s *Store) GetEnclosures() ([]*types.Enclosure, error) {
-	rows, err := s.db.Query("SELECT * FROM enclosures")
+	rows, err := s.db.Query(`SELECT * FROM "enclosures"`)
 	if err != nil {
 		return nil, err
 	}
@@ -151,9 +151,9 @@ func (s *Store) GetEnclosures() ([]*types.Enclosure, error) {
 }
 
 func (s *Store) GetEnclosureByNameAndHabitatWithUserId(enclosureName string, habitatId int, userID int) (*types.Enclosure, error) {
-	rows, err := s.db.Query(`SELECT e.enclosureId, e.enclosureName, e.image, e.Notes, e.habitatId
-							FROM enclosures e JOIN enclosureUser ON enclosureUser.enclosureId=e.enclosureId
-							WHERE enclosureName = $1 AND habitatId = $2 AND userID = $3`, enclosureName, habitatId, userID)
+	rows, err := s.db.Query(`SELECT e."enclosureId", e."enclosureName", e."image", e."Notes", e."habitatId"
+							FROM "enclosures" e JOIN "enclosureUser" ON "enclosureUser"."enclosureId"=e."enclosureId"
+							WHERE "enclosureName" = $1 AND "habitatId" = $2 AND "userID" = $3`, enclosureName, habitatId, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +174,7 @@ func (s *Store) GetEnclosureByNameAndHabitatWithUserId(enclosureName string, hab
 }
 
 func (s *Store) GetEnclosureUserByIds(enclosureId int, userID int) (*types.EnclosureUser, error) {
-	rows, err := s.db.Query("SELECT * FROM enclosureUser WHERE enclosureId = $1 AND userID = $2", enclosureId, userID)
+	rows, err := s.db.Query(`SELECT * FROM "enclosureUser" WHERE "enclosureId" = $1 AND "userID" = $2`, enclosureId, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +195,7 @@ func (s *Store) GetEnclosureUserByIds(enclosureId int, userID int) (*types.Enclo
 }
 
 func (s *Store) GetEnclosureUserByEnclosureId(enclosureId int) (*types.EnclosureUser, error) {
-	rows, err := s.db.Query("SELECT * FROM enclosureUser WHERE enclosureId = $1", enclosureId)
+	rows, err := s.db.Query(`SELECT * FROM "enclosureUser" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
 		return nil, err
 	}
@@ -216,9 +216,9 @@ func (s *Store) GetEnclosureUserByEnclosureId(enclosureId int) (*types.Enclosure
 }
 
 func (s *Store) GetEnclosuresByUserId(userID int) ([]*types.Enclosure, error) {
-	rows, err := s.db.Query(`SELECT e.enclosureId, e.enclosureName, e.image, e.Notes, e.habitatId
-							FROM enclosures e JOIN enclosureUser ON enclosureUser.enclosureId=e.enclosureId
-							WHERE userID = $1`, userID)
+	rows, err := s.db.Query(`SELECT e."enclosureId", e."enclosureName", e."image", e."Notes", e."habitatId"
+							FROM "enclosures" e JOIN "enclosureUser" ON "enclosureUser"."enclosureId"=e."enclosureId"
+							WHERE "userID" = $1`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +237,7 @@ func (s *Store) GetEnclosuresByUserId(userID int) ([]*types.Enclosure, error) {
 }
 
 func (s *Store) GetEnclosureById(enclosureId int) (*types.Enclosure, error) {
-	rows, err := s.db.Query("SELECT * FROM enclosures WHERE enclosureId = $1", enclosureId)
+	rows, err := s.db.Query(`SELECT * FROM "enclosures" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
 		return nil, err
 	}
@@ -261,7 +261,7 @@ func (s *Store) GetEnclosureById(enclosureId int) (*types.Enclosure, error) {
 
 func (s *Store) DeleteEnclosureById(enclosureId int) error {
 	// get animals from enclosure
-	rows, err := s.db.Query("SELECT * FROM animals WHERE enclosureID = $1", enclosureId)
+	rows, err := s.db.Query(`SELECT * FROM "animals" WHERE "enclosureID" = $1`, enclosureId)
 	if err != nil {
 		return err
 	}
@@ -284,18 +284,18 @@ func (s *Store) DeleteEnclosureById(enclosureId int) error {
 
 	// update enclosureId for animals
 	for _, animal := range animals {
-		_, err = tx.Exec("UPDATE animals SET enclosureId = NULL WHERE animalId = $1", animal.AnimalId)
+		_, err = tx.Exec(`UPDATE "animals" SET "enclosureId" = NULL WHERE "animalId" = $1`, animal.AnimalId)
 		if err != nil {
 			return err
 		}
 	}
 
 	// delete from enclosureUser and enclosures
-	_, err = tx.Exec("DELETE FROM enclosureUser WHERE enclosureId = $1", enclosureId)
+	_, err = tx.Exec(`DELETE FROM "enclosureUser" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DELETE FROM enclosures WHERE enclosureId = $1", enclosureId)
+	_, err = tx.Exec(`DELETE FROM "enclosures" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
 		return err
 	}
@@ -310,7 +310,7 @@ func (s *Store) DeleteEnclosureById(enclosureId int) error {
 
 func (s *Store) DeleteEnclosureAndAnimalsById(enclosureId int) error {
 	// get animals fom enclosures
-	rows, err := s.db.Query("SELECT * FROM animals WHERE enclosureID = $1", enclosureId)
+	rows, err := s.db.Query(`SELECT * FROM "animals" WHERE "enclosureID" = $1`, enclosureId)
 	if err != nil {
 		return err
 	}
@@ -333,22 +333,22 @@ func (s *Store) DeleteEnclosureAndAnimalsById(enclosureId int) error {
 
 	// delete from animalUser and animals
 	for _, animal := range animals {
-		_, err = tx.Exec("DELETE FROM animalUser WHERE animalId = $1", animal.AnimalId)
+		_, err = tx.Exec(`DELETE FROM "animalUser" WHERE "animalId" = $1`, animal.AnimalId)
 		if err != nil {
 			return err
 		}
-		_, err = tx.Exec("DELETE FROM animals WHERE animalId = $1", animal.AnimalId)
+		_, err = tx.Exec(`DELETE FROM "animals" WHERE "animalId" = $1`, animal.AnimalId)
 		if err != nil {
 			return err
 		}
 	}
 
 	// delete from enclosureUser and enclosures
-	_, err = tx.Exec("DELETE FROM enclosureUser WHERE enclosureId = $1", enclosureId)
+	_, err = tx.Exec(`DELETE FROM "enclosureUser" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DELETE FROM enclosures WHERE enclosureId = $1", enclosureId)
+	_, err = tx.Exec(`DELETE FROM "enclosures" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
 		return err
 	}
