@@ -100,6 +100,7 @@ func ScanRowsIntoTask(rows *sql.Rows) (*types.Task, error) {
 	err := rows.Scan(
 		&task.TaskId,
 		&task.TaskName,
+		&task.TaskDesc,
 		&task.Complete,
 		&task.LastCompleted,
 		&task.RepeatIntervHours,

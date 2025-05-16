@@ -300,6 +300,7 @@ type TaskStore interface {
 type Task struct {
 	TaskId            int       `json:"taskId"`
 	TaskName          string    `json:"taskName"`
+	TaskDesc          string    `json:"taskDesc"`
 	Complete          bool      `json:"complete"`
 	LastCompleted     time.Time `json:"lastCompleted"`
 	RepeatIntervHours int       `json:"repeatIntervHours"`
@@ -318,6 +319,7 @@ type TaskSubject struct {
 
 type CreateTaskPayload struct {
 	TaskName          string `json:"taskName" validate:"required"`
+	TaskDesc          string `json:"taskDesc" validate:"required"`
 	RepeatIntervHours int    `json:"repeatIntervHours" validate:"required,min=0"`
 	AnimalId          int    `json:"animalId" validate:"min=0"`
 	EnclosureId       int    `json:"enclosureId" validate:"min=0"`
@@ -325,6 +327,7 @@ type CreateTaskPayload struct {
 
 type CreateTaskWithOwnerPayload struct {
 	TaskName          string `json:"taskName" validate:"required"`
+	TaskDesc          string `json:"taskDesc" validate:"required"`
 	RepeatIntervHours int    `json:"repeatIntervHours" validate:"required,min=1"`
 	AnimalId          int    `json:"animalId" validate:"min=0"`
 	EnclosureId       int    `json:"enclosureId" validate:"min=0"`
@@ -334,6 +337,7 @@ type CreateTaskWithOwnerPayload struct {
 type UpdateTaskPayload struct {
 	TaskId            int       `json:"taskId" validate:"required,min=0"`
 	TaskName          string    `json:"taskName" validate:"required"`
+	TaskDesc          string    `json:"taskDesc" validate:"required"`
 	Complete          bool      `json:"complete" validate:""`
 	LastCompleted     time.Time `json:"lastCompleted" validate:"required"`
 	RepeatIntervHours int       `json:"repeatIntervHours" validate:"required,min=0"`
