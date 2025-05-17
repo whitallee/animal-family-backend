@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS enclosures;
+DROP TABLE IF EXISTS "enclosures";

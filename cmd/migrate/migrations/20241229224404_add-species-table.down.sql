@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS species;
+DROP TABLE IF EXISTS "species";

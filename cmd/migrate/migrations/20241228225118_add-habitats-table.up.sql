@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS habitats (
+CREATE TABLE IF NOT EXISTS "habitats" (
     "habitatId" SERIAL PRIMARY KEY,
     "habitatName" VARCHAR(255) NOT NULL,
     "habitatDesc" VARCHAR(1500) NOT NULL,

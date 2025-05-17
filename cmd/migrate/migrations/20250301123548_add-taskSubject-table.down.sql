@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS taskSubject;
+DROP TABLE IF EXISTS "taskSubject";

@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS habitats;
+DROP TABLE IF EXISTS "habitats";

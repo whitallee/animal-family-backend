@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS animalUser;
+DROP TABLE IF EXISTS "animalUser";

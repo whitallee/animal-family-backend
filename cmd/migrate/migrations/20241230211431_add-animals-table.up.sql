@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS animals (
+CREATE TABLE IF NOT EXISTS "animals" (
     "animalId" SERIAL PRIMARY KEY,
     "animalName" VARCHAR(255) NOT NULL,
     "image" VARCHAR(255) NOT NULL,

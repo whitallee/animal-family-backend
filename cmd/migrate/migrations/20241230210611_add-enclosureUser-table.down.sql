@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS enclosureUser;
+DROP TABLE IF EXISTS "enclosureUser";

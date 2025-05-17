@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS taskUser;
+DROP TABLE IF EXISTS "taskUser";

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS enclosures (
+CREATE TABLE IF NOT EXISTS "enclosures" (
     "enclosureId" SERIAL PRIMARY KEY,
     "enclosureName" VARCHAR(255) NOT NULL,
     "image" VARCHAR(255) NOT NULL,

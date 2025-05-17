@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS species (
+CREATE TABLE IF NOT EXISTS "species" (
     "speciesId" SERIAL PRIMARY KEY,
     "comName" VARCHAR(255) NOT NULL,
     "sciName" VARCHAR(255) NOT NULL,
