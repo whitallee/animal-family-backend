@@ -33,7 +33,7 @@ func (s *Store) CreateAnimal(animal types.Animal, userID int) error {
 	}
 
 	// add user-animal joiner to animalUser table
-	_, err = tx.Exec(`INSERT INTO "animalUser" ("animalId", "userID") VALUES ($1, $2)`, addedAnimalId, userID)
+	_, err = tx.Exec(`INSERT INTO "animalUser" ("animalId", "userId") VALUES ($1, $2)`, addedAnimalId, userID)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (s *Store) GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId
 	rows, err := s.db.Query(`SELECT a."animalId", a."animalName", a."image", a."extraNotes", a."speciesId", a."enclosureId",
 							a."gender", a."dob", a."personalityDesc", a."dietDesc", a."routineDesc"
 							FROM "animals" a JOIN "animalUser" ON "animalUser"."animalId"=a."animalId"
-							WHERE "animalName" = $1 AND "speciesId" = $2 AND "userID" = $3`, animalName, speciesId, userID)
+							WHERE "animalName" = $1 AND "speciesId" = $2 AND "userId" = $3`, animalName, speciesId, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (s *Store) GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId
 }
 
 func (s *Store) GetAnimalUserByIds(animalId int, userID int) (*types.AnimalUser, error) {
-	rows, err := s.db.Query(`SELECT * FROM "animalUser" WHERE "animalId" = $1 AND "userID" = $2`, animalId, userID)
+	rows, err := s.db.Query(`SELECT * FROM "animalUser" WHERE "animalId" = $1 AND "userId" = $2`, animalId, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {
 	rows, err := s.db.Query(`SELECT a."animalId", a."animalName", a."image", a."extraNotes", a."speciesId", a."enclosureId",
 							a."gender", a."dob", a."personalityDesc", a."dietDesc", a."routineDesc"
 							FROM "animals" a JOIN "animalUser" ON "animalUser"."animalId"=a."animalId"
-							WHERE "userID" = $1`, userID)
+							WHERE "userId" = $1`, userID)
 	if err != nil {
 		return nil, err
 	}

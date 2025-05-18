@@ -78,14 +78,14 @@ func (s *Store) DeleteUserById(userID int) error {
 
 	aRows, err := s.db.Query(`SELECT a."animalId", a."animalName", a."image", a."notes", a."speciesId", a."enclosureId"
 							FROM "animals" a JOIN "animalUser" ON "animalUser"."animalId"=a."animalId"
-							WHERE "userID" = $1`, userID)
+							WHERE "userId" = $1`, userID)
 	if err != nil {
 		return err
 	}
 
 	eRows, err := s.db.Query(`SELECT e."enclosureId", e."enclosureName", e."image", e."Notes", e."habitatId"
 							FROM "enclosures" e JOIN "enclosureUser" ON "enclosureUser"."enclosureId"=e."enclosureId"
-							WHERE "userID" = $1`, userID)
+							WHERE "userId" = $1`, userID)
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func (s *Store) DeleteUserById(userID int) error {
 	}
 
 	// delete taskUser, taskSubject, and tasks entries
-	_, err = tx.Exec(`DELETE FROM "taskUser" WHERE "userID" = $1`, userID)
+	_, err = tx.Exec(`DELETE FROM "taskUser" WHERE "userId" = $1`, userID)
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func (s *Store) DeleteUserById(userID int) error {
 	}
 
 	// delete animalUser and animals entries
-	_, err = tx.Exec(`DELETE FROM "animalUser" WHERE "userID" = $1`, userID)
+	_, err = tx.Exec(`DELETE FROM "animalUser" WHERE "userId" = $1`, userID)
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func (s *Store) DeleteUserById(userID int) error {
 	}
 
 	// delete enclosureUser and enclosures entries
-	_, err = tx.Exec(`DELETE FROM "enclosureUser" WHERE "userID" = $1`, userID)
+	_, err = tx.Exec(`DELETE FROM "enclosureUser" WHERE "userId" = $1`, userID)
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func (s *Store) DeleteUserById(userID int) error {
 	}
 
 	// delete user
-	_, err = tx.Exec(`DELETE FROM "users" WHERE "userID" = $1`, userID)
+	_, err = tx.Exec(`DELETE FROM "users" WHERE "userId" = $1`, userID)
 	if err != nil {
 		return err
 	}

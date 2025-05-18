@@ -32,7 +32,7 @@ func (s *Store) CreateTask(task types.Task, animalId int, enclosureId int, userI
 	}
 
 	// add user-task joiner to taskUser table
-	_, err = tx.Exec(`INSERT INTO "taskUser" ("taskId", "userID") VALUES ($1, $2)`, addedTaskId, userId)
+	_, err = tx.Exec(`INSERT INTO "taskUser" ("taskId", "userId") VALUES ($1, $2)`, addedTaskId, userId)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func (s *Store) GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId in
 }
 
 func (s *Store) GetTaskUserByIds(taskId int, userID int) (*types.TaskUser, error) {
-	rows, err := s.db.Query(`SELECT * FROM "taskUser" WHERE "taskId" = $1 AND "userID" = $2`, taskId, userID)
+	rows, err := s.db.Query(`SELECT * FROM "taskUser" WHERE "taskId" = $1 AND "userId" = $2`, taskId, userID)
 	if err != nil {
 		return nil, err
 	}

@@ -28,7 +28,7 @@ func (s *Store) CreateEnclosure(enclosure types.Enclosure, userID int) error {
 		return err
 	}
 
-	_, err = tx.Exec(`INSERT INTO "enclosureUser" ("enclosureId", "userID") VALUES ($1,$2)`, addedEnclosureId, userID)
+	_, err = tx.Exec(`INSERT INTO "enclosureUser" ("enclosureId", "userId") VALUES ($1,$2)`, addedEnclosureId, userID)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (s *Store) CreateEnclosureWithAnimals(enclosure types.Enclosure, animalIds 
 		return err
 	}
 
-	if _, err := tx.Exec(`INSERT INTO "enclosureUser" ("enclosureId", "userID") VALUES ($1,$2)`, addedEnclosureId, userID); err != nil {
+	if _, err := tx.Exec(`INSERT INTO "enclosureUser" ("enclosureId", "userId") VALUES ($1,$2)`, addedEnclosureId, userID); err != nil {
 		return err
 	}
 
@@ -153,7 +153,7 @@ func (s *Store) GetEnclosures() ([]*types.Enclosure, error) {
 func (s *Store) GetEnclosureByNameAndHabitatWithUserId(enclosureName string, habitatId int, userID int) (*types.Enclosure, error) {
 	rows, err := s.db.Query(`SELECT e."enclosureId", e."enclosureName", e."image", e."Notes", e."habitatId"
 							FROM "enclosures" e JOIN "enclosureUser" ON "enclosureUser"."enclosureId"=e."enclosureId"
-							WHERE "enclosureName" = $1 AND "habitatId" = $2 AND "userID" = $3`, enclosureName, habitatId, userID)
+							WHERE "enclosureName" = $1 AND "habitatId" = $2 AND "userId" = $3`, enclosureName, habitatId, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +174,7 @@ func (s *Store) GetEnclosureByNameAndHabitatWithUserId(enclosureName string, hab
 }
 
 func (s *Store) GetEnclosureUserByIds(enclosureId int, userID int) (*types.EnclosureUser, error) {
-	rows, err := s.db.Query(`SELECT * FROM "enclosureUser" WHERE "enclosureId" = $1 AND "userID" = $2`, enclosureId, userID)
+	rows, err := s.db.Query(`SELECT * FROM "enclosureUser" WHERE "enclosureId" = $1 AND "userId" = $2`, enclosureId, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +218,7 @@ func (s *Store) GetEnclosureUserByEnclosureId(enclosureId int) (*types.Enclosure
 func (s *Store) GetEnclosuresByUserId(userID int) ([]*types.Enclosure, error) {
 	rows, err := s.db.Query(`SELECT e."enclosureId", e."enclosureName", e."image", e."Notes", e."habitatId"
 							FROM "enclosures" e JOIN "enclosureUser" ON "enclosureUser"."enclosureId"=e."enclosureId"
-							WHERE "userID" = $1`, userID)
+							WHERE "userId" = $1`, userID)
 	if err != nil {
 		return nil, err
 	}
