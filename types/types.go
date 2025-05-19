@@ -383,3 +383,28 @@ type SubjectIdsPayload struct {
 	AnimalId    int `json:"animalId" validate:"min=0"`
 	EnclosureId int `json:"enclosureId" validate:"min=0"`
 }
+
+type LoopMessageStore interface {
+	ReceiveLoopMessage(InboundLoopMessagePayload) error
+	SendLoopMessage(SentLoopMessagePayload) error
+}
+
+type InboundLoopMessagePayload struct {
+	AlertType   string `json:"alertType"`
+	Recipient   string `json:"recipient"`
+	Text        string `json:"text"`
+	MessageType string `json:"messageType"`
+	MessageId   string `json:"messageId"`
+	WebhookId   string `json:"webhookId"`
+	ApiVersion  string `json:"apiVersion"`
+}
+
+type SentLoopMessagePayload struct {
+	AlertType  string `json:"alertType"`
+	Success    bool   `json:"success"`
+	Recipient  string `json:"recipient"`
+	Text       string `json:"text"`
+	MessageId  string `json:"messageId"`
+	WebhookId  string `json:"webhookId"`
+	ApiVersion string `json:"apiVersion"`
+}
