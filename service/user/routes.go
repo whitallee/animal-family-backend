@@ -112,7 +112,17 @@ func (h *Handler) handleUserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"token": token,
+		"user": map[string]interface{}{
+			"id":        u.ID,
+			"firstName": u.FirstName,
+			"lastName":  u.LastName,
+			"email":     u.Email,
+			"phone":     u.Phone,
+			"createdAt": u.CreatedAt,
+		},
+	})
 }
 
 func (h *Handler) handleUserDeleteUserById(w http.ResponseWriter, r *http.Request) {
