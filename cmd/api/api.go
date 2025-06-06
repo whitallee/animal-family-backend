@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -61,7 +62,11 @@ func (s *APIServer) Run() error {
 	loopMessageHandler.RegisterRoutes(subrouter)
 
 	var headersOk = handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
-	var originsOk = handlers.AllowedOrigins([]string{"http://localhost:3000"})
+	frontendURL, ok := os.LookupEnv("FRONTEND_URL")
+	if !ok {
+		log.Fatal("FRONTEND_URL is not set")
+	}
+	var originsOk = handlers.AllowedOrigins([]string{frontendURL})
 	var methodsOk = handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"})
 
 	log.Println("Listening on", s.addr)
