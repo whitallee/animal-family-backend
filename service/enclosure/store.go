@@ -216,7 +216,7 @@ func (s *Store) GetEnclosureUserByEnclosureId(enclosureId int) (*types.Enclosure
 }
 
 func (s *Store) GetEnclosuresByUserId(userID int) ([]*types.Enclosure, error) {
-	rows, err := s.db.Query(`SELECT e."enclosureId", e."enclosureName", e."image", e."Notes", e."habitatId"
+	rows, err := s.db.Query(`SELECT e."enclosureId", e."enclosureName", e."image", e."notes", e."habitatId"
 							FROM "enclosures" e JOIN "enclosureUser" ON "enclosureUser"."enclosureId"=e."enclosureId"
 							WHERE "userId" = $1`, userID)
 	if err != nil {
