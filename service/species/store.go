@@ -16,7 +16,7 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) CreateSpecies(species types.Species) error {
-	_, err := s.db.Exec(`INSERT INTO "species" ("comName", "sciName", "speciesDesc", "image", "habitatId", "baskTemp", "diet", "sociality", "extraCare") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`, species.ComName, species.SciName, species.SpeciesDesc, species.Image, species.HabitatId, species.BaskTemp, species.Diet, species.Sociality, species.ExtraCare)
+	_, err := s.db.Exec(`INSERT INTO "species" ("comName", "sciName", "speciesDesc", "image", "habitatId", "baskTemp", "diet", "sociality", "lifespan", "size", "weight", "conservationStatus", "extraCare") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`, species.ComName, species.SciName, species.SpeciesDesc, species.Image, species.HabitatId, species.BaskTemp, species.Diet, species.Sociality, species.Lifespan, species.Size, species.Weight, species.ConservationStatus, species.ExtraCare)
 	if err != nil {
 		return err
 	}
@@ -26,8 +26,8 @@ func (s *Store) CreateSpecies(species types.Species) error {
 
 func (s *Store) UpdateSpecies(species types.Species) error {
 	_, err := s.db.Exec(`UPDATE "species"
-						SET "comName" = $1, "sciName" = $2, "speciesDesc" = $3, "image" = $4, "habitatId" = $5, "baskTemp" = $6, "diet" = $7, "sociality" = $8, "extraCare" = $9
-						WHERE "speciesId" = $10`, species.ComName, species.SciName, species.SpeciesDesc, species.Image, species.HabitatId, species.BaskTemp, species.Diet, species.Sociality, species.ExtraCare, species.SpeciesID)
+						SET "comName" = $1, "sciName" = $2, "speciesDesc" = $3, "image" = $4, "habitatId" = $5, "baskTemp" = $6, "diet" = $7, "sociality" = $8, "lifespan" = $9, "size" = $10, "weight" = $11, "conservationStatus" = $12, "extraCare" = $13
+						WHERE "speciesId" = $14`, species.ComName, species.SciName, species.SpeciesDesc, species.Image, species.HabitatId, species.BaskTemp, species.Diet, species.Sociality, species.Lifespan, species.Size, species.Weight, species.ConservationStatus, species.ExtraCare, species.SpeciesID)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,6 @@ func (s *Store) GetSpecies() ([]*types.Species, error) {
 
 		species = append(species, s)
 	}
-
 	return species, nil
 }
 
@@ -152,12 +151,16 @@ func scanRowsIntoSpecies(rows *sql.Rows) (*types.Species, error) {
 		&species.SpeciesID,
 		&species.ComName,
 		&species.SciName,
-		&species.SpeciesDesc,
 		&species.Image,
+		&species.SpeciesDesc,
 		&species.HabitatId,
 		&species.BaskTemp,
 		&species.Diet,
 		&species.Sociality,
+		&species.Lifespan,
+		&species.Size,
+		&species.Weight,
+		&species.ConservationStatus,
 		&species.ExtraCare,
 	)
 	if err != nil {

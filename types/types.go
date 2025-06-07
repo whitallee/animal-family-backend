@@ -55,41 +55,53 @@ type SpeciesStore interface {
 }
 
 type Species struct {
-	SpeciesID   int    `json:"speciesId"`
-	ComName     string `json:"comName"`
-	SciName     string `json:"sciName"`
-	SpeciesDesc string `json:"speciesDesc"`
-	Image       string `json:"image"`
-	HabitatId   int    `json:"habitatId"`
-	BaskTemp    string `json:"baskTemp"`
-	Diet        string `json:"diet"`
-	Sociality   string `json:"sociality"`
-	ExtraCare   string `json:"extraCare"`
+	SpeciesID          int    `json:"speciesId"`
+	ComName            string `json:"comName"`
+	SciName            string `json:"sciName"`
+	SpeciesDesc        string `json:"speciesDesc"`
+	Image              string `json:"image"`
+	HabitatId          int    `json:"habitatId"`
+	BaskTemp           string `json:"baskTemp"`
+	Diet               string `json:"diet"`
+	Sociality          string `json:"sociality"`
+	Lifespan           string `json:"lifespan"`
+	Size               string `json:"size"`
+	Weight             string `json:"weight"`
+	ConservationStatus string `json:"conservationStatus"`
+	ExtraCare          string `json:"extraCare"`
 }
 
 type CreateSpeciesPayload struct {
-	ComName     string `json:"comName" validate:"required"`
-	SciName     string `json:"sciName" validate:"required"`
-	SpeciesDesc string `json:"speciesDesc" validate:"required"`
-	Image       string `json:"image" validate:"required"`
-	HabitatId   int    `json:"habitatId" validate:"required,min=0"`
-	BaskTemp    string `json:"baskTemp" validate:"required"`
-	Diet        string `json:"diet" validate:"required"`
-	Sociality   string `json:"sociality" validate:"required"`
-	ExtraCare   string `json:"extraCare" validate:"required"`
+	ComName            string `json:"comName" validate:"required"`
+	SciName            string `json:"sciName" validate:"required"`
+	SpeciesDesc        string `json:"speciesDesc" validate:"required"`
+	Image              string `json:"image" validate:"required"`
+	HabitatId          int    `json:"habitatId" validate:"required,min=0"`
+	BaskTemp           string `json:"baskTemp" validate:"required"`
+	Diet               string `json:"diet" validate:"required"`
+	Sociality          string `json:"sociality" validate:"required"`
+	Lifespan           string `json:"lifespan" validate:"required"`
+	Size               string `json:"size" validate:"required"`
+	Weight             string `json:"weight" validate:"required"`
+	ConservationStatus string `json:"conservationStatus" validate:"required"`
+	ExtraCare          string `json:"extraCare" validate:"required"`
 }
 
 type UpdateSpeciesPayload struct {
-	SpeciesID   int    `json:"speciesId" validate:"required"`
-	ComName     string `json:"comName" validate:"required"`
-	SciName     string `json:"sciName" validate:"required"`
-	SpeciesDesc string `json:"speciesDesc" validate:"required"`
-	Image       string `json:"image" validate:"required"`
-	HabitatId   int    `json:"habitatId" validate:"required,min=0"`
-	BaskTemp    string `json:"baskTemp" validate:"required"`
-	Diet        string `json:"diet" validate:"required"`
-	Sociality   string `json:"sociality" validate:"required"`
-	ExtraCare   string `json:"extraCare" validate:"required"`
+	SpeciesID          int    `json:"speciesId" validate:"required"`
+	ComName            string `json:"comName" validate:"required"`
+	SciName            string `json:"sciName" validate:"required"`
+	SpeciesDesc        string `json:"speciesDesc" validate:"required"`
+	Image              string `json:"image" validate:"required"`
+	HabitatId          int    `json:"habitatId" validate:"required,min=0"`
+	BaskTemp           string `json:"baskTemp" validate:"required"`
+	Diet               string `json:"diet" validate:"required"`
+	Sociality          string `json:"sociality" validate:"required"`
+	Lifespan           string `json:"lifespan" validate:"required"`
+	Size               string `json:"size" validate:"required"`
+	Weight             string `json:"weight" validate:"required"`
+	ConservationStatus string `json:"conservationStatus" validate:"required"`
+	ExtraCare          string `json:"extraCare" validate:"required"`
 }
 
 type SpeciesIdPayload struct {
