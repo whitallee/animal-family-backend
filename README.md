@@ -3,6 +3,7 @@ This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha.
 
 ## To-Do List
 - make sure that taskSubject is included when tasks are called
+- consider the possibility of multiple subjects on a task (all 4 ferrets for feeding instead of applying the task to the whole enclosure)
 
 - currently testing all new endpoints
     - user (done)

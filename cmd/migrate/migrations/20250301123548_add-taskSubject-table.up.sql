@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS "taskSubject" (
+    "taskSubjectId" SERIAL PRIMARY KEY,
     "taskId" INTEGER NOT NULL,
-    "animalId" INTEGER NOT NULL,
-    "enclosureId" INTEGER NOT NULL,
+    "animalId" INTEGER,
+    "enclosureId" INTEGER,
     
-    PRIMARY KEY ("taskId", "animalId", "enclosureId"),
     FOREIGN KEY ("taskId") REFERENCES tasks("taskId"),
     FOREIGN KEY ("animalId") REFERENCES animals("animalId"),
     FOREIGN KEY ("enclosureId") REFERENCES enclosures("enclosureId")
