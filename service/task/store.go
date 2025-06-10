@@ -16,6 +16,19 @@ func NewStore(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
+func (s *Store) CheckTaskCompletion() error {
+	// check if any tasks should be reset
+	_, err := s.db.Exec(`
+		UPDATE "tasks" 
+		SET "complete" = false 
+		WHERE "complete" = true 
+		AND "lastCompleted" + ("repeatIntervHours" * interval '1 hour') < NOW()`)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *Store) CreateTask(task types.Task, animalId int, enclosureId int, userId int) error {
 	// start transaction
 	tx, err := s.db.Begin()

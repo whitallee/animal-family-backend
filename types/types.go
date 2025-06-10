@@ -317,6 +317,7 @@ type AnimalIdPayload struct {
 
 // Task-related Types
 type TaskStore interface {
+	CheckTaskCompletion() error
 	CreateTask(task Task, animalId int, enclosureId int, userId int) error
 	UpdateTask(Task) error
 	UpdateTaskOwner(oldTaskUser TaskUser, newUserId int) error

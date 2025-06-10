@@ -24,6 +24,9 @@ func NewHandler(store types.TaskStore, userStore types.UserStore, animalStore ty
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
+	// public routes
+	router.HandleFunc("/task/check-completion", h.handleCheckTaskCompletion).Methods(http.MethodGet)
+
 	// user routes
 	router.HandleFunc("/task", auth.WithJWTAuth(h.handleUserGetTasks, h.userStore)).Methods(http.MethodGet)
 	router.HandleFunc("/task/byid", auth.WithJWTAuth(h.handleUserGetTaskById, h.userStore)).Methods(http.MethodGet)
@@ -42,6 +45,17 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/admin/task/owner", auth.WithJWTAuth(h.handleAdminUpdateTaskOwner, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/task/subject", auth.WithJWTAuth(h.handleAdminUpdateTaskSubject, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/task", auth.WithJWTAuth(h.handleAdminDeleteTask, h.userStore)).Methods(http.MethodDelete)
+}
+
+func (h *Handler) handleCheckTaskCompletion(w http.ResponseWriter, r *http.Request) {
+	err := h.store.CheckTaskCompletion()
+
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, nil)
 }
 
 func (h *Handler) handleAdminCreateTask(w http.ResponseWriter, r *http.Request) {
