@@ -117,6 +117,26 @@ func ScanRowsIntoTask(rows *sql.Rows) (*types.Task, error) {
 	return task, nil
 }
 
+func ScanRowsIntoTaskWithSubject(rows *sql.Rows) (*types.TaskWithSubject, error) {
+	task := new(types.TaskWithSubject)
+
+	err := rows.Scan(
+		&task.TaskId,
+		&task.TaskName,
+		&task.TaskDesc,
+		&task.Complete,
+		&task.LastCompleted,
+		&task.RepeatIntervHours,
+		&task.AnimalId,
+		&task.EnclosureId,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
+
 func ScanRowsIntoTaskUser(rows *sql.Rows) (*types.TaskUser, error) {
 	taskUser := new(types.TaskUser)
 

@@ -356,13 +356,13 @@ func (h *Handler) handleAdminGetTasksByUser(w http.ResponseWriter, r *http.Reque
 	}
 
 	// get tasks
-	task, err := h.store.GetTasksByUserId(userIdPayload.UserID)
+	taskList, err := h.store.GetTasksWithSubjectByUserId(userIdPayload.UserID)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, task)
+	utils.WriteJSON(w, http.StatusOK, taskList)
 
 }
 
@@ -371,7 +371,7 @@ func (h *Handler) handleUserGetTasks(w http.ResponseWriter, r *http.Request) {
 	userId := auth.GetuserIdFromContext(r.Context())
 
 	// get tasks
-	taskList, err := h.store.GetTasksByUserId(userId)
+	taskList, err := h.store.GetTasksWithSubjectByUserId(userId)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return

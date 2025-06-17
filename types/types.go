@@ -325,7 +325,7 @@ type TaskStore interface {
 	GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*Task, error)
 	GetTaskUserByIds(taskId int, userID int) (*TaskUser, error)
 	GetTaskById(int) (*Task, error)
-	GetTasksByUserId(int) ([]*Task, error)
+	GetTasksWithSubjectByUserId(int) ([]*TaskWithSubject, error)
 	GetTasksBySubjectIds(animalId int, enclosureId int) ([]*Task, error)
 	DeleteTaskById(int) error
 }
@@ -337,6 +337,17 @@ type Task struct {
 	Complete          bool      `json:"complete"`
 	LastCompleted     time.Time `json:"lastCompleted"`
 	RepeatIntervHours int       `json:"repeatIntervHours"`
+}
+
+type TaskWithSubject struct {
+	TaskId            int       `json:"taskId"`
+	TaskName          string    `json:"taskName"`
+	TaskDesc          string    `json:"taskDesc"`
+	Complete          bool      `json:"complete"`
+	LastCompleted     time.Time `json:"lastCompleted"`
+	RepeatIntervHours int       `json:"repeatIntervHours"`
+	AnimalId          *int      `json:"animalId"`
+	EnclosureId       *int      `json:"enclosureId"`
 }
 
 type TaskUser struct {

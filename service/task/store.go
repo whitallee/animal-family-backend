@@ -163,18 +163,17 @@ func (s *Store) GetTaskById(taskId int) (*types.Task, error) {
 	return task, nil
 }
 
-func (s *Store) GetTasksByUserId(userID int) ([]*types.Task, error) {
-	rows, err := s.db.Query(`SELECT t."taskId", t."taskName", t."taskDesc", t."complete", t."lastCompleted", t."repeatIntervHours"
-							FROM "tasks" t JOIN "taskUser" ON "taskUser"."taskId"=t."taskId"
+func (s *Store) GetTasksWithSubjectByUserId(userID int) ([]*types.TaskWithSubject, error) {
+	rows, err := s.db.Query(`SELECT t."taskId", t."taskName", t."taskDesc", t."complete", t."lastCompleted", t."repeatIntervHours", ts."animalId", ts."enclosureId"
+							FROM "tasks" t INNER JOIN "taskUser" tu ON tu."taskId"=t."taskId" INNER JOIN "taskSubject" ts ON ts."taskId"=t."taskId"
 							WHERE "userId" = $1`, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	tasks := make([]*types.Task, 0)
+	tasks := make([]*types.TaskWithSubject, 0)
 	for rows.Next() {
-		task := new(types.Task)
-		task, err := utils.ScanRowsIntoTask(rows)
+		task, err := utils.ScanRowsIntoTaskWithSubject(rows)
 		if err != nil {
 			return nil, err
 		}
