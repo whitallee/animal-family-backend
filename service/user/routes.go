@@ -26,6 +26,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 
 	// user routes
 	router.HandleFunc("/user/login", h.handleUserLogin).Methods(http.MethodPost)
+	router.HandleFunc("/user/refresh-token", auth.WithJWTAuth(h.handleUserRefreshToken, h.store)).Methods(http.MethodPost)
 	router.HandleFunc("/user/delete", auth.WithJWTAuth(h.handleUserDeleteUserById, h.store)).Methods(http.MethodDelete)
 
 	// admin routes
@@ -102,6 +103,37 @@ func (h *Handler) handleUserLogin(w http.ResponseWriter, r *http.Request) {
 	// compare password hash
 	if !auth.ComparePasswords(u.Password, []byte(user.Password)) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
+		return
+	}
+
+	secret := []byte(config.Envs.JWTSecret)
+	token, err := auth.CreateJWT(secret, u.ID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"token": token,
+		"user": map[string]interface{}{
+			"id":        u.ID,
+			"firstName": u.FirstName,
+			"lastName":  u.LastName,
+			"email":     u.Email,
+			"phone":     u.Phone,
+			"createdAt": u.CreatedAt,
+		},
+	})
+}
+
+func (h *Handler) handleUserRefreshToken(w http.ResponseWriter, r *http.Request) {
+	// get userId from context
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	// find user
+	u, err := h.store.GetUserById(userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user not found"))
 		return
 	}
 
