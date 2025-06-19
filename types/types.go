@@ -281,14 +281,14 @@ type CreateAnimalWithOwnerPayload struct {
 type CreateAnimalPayload struct {
 	AnimalName      string    `json:"animalName" validate:"required"`
 	SpeciesId       int       `json:"speciesId" validate:"required,min=0"`
-	EnclosureId     *int      `json:"enclosureId" validate:"required,min=0"`
-	Image           string    `json:"image" validate:"required"`
-	Gender          string    `json:"gender" validate:"required"`
-	Dob             time.Time `json:"dob" validate:"required"`
-	PersonalityDesc string    `json:"personalityDesc" validate:"required"`
-	DietDesc        string    `json:"dietDesc" validate:"required"`
-	RoutineDesc     string    `json:"routineDesc" validate:"required"`
-	ExtraNotes      string    `json:"extraNotes" validate:"required"`
+	EnclosureId     *int      `json:"enclosureId" validate:"omitempty,min=0"`
+	Image           string    `json:"image"`
+	Gender          string    `json:"gender"`
+	Dob             time.Time `json:"dob"`
+	PersonalityDesc string    `json:"personalityDesc"`
+	DietDesc        string    `json:"dietDesc"`
+	RoutineDesc     string    `json:"routineDesc"`
+	ExtraNotes      string    `json:"extraNotes"`
 }
 
 type UpdateAnimalPayload struct {
