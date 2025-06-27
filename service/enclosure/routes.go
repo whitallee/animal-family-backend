@@ -227,21 +227,18 @@ func (h *Handler) handleUserCreateEnclosure(w http.ResponseWriter, r *http.Reque
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
-
 	// validate payload done by other package
 	if err := utils.Validate.Struct(enclosure); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
 	}
-
 	// check if enclosure exists
 	_, err := h.store.GetEnclosureByNameAndHabitatWithUserId(enclosure.EnclosureName, enclosure.HabitatId, userID)
 	if err == nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("enclosure with name %s and habitat id %d already exists", enclosure.EnclosureName, enclosure.HabitatId))
 		return
 	}
-
 	// if it doesn't exist, create new enclosure with userID
 	err = h.store.CreateEnclosure(types.Enclosure{
 		EnclosureName: enclosure.EnclosureName,
@@ -253,7 +250,6 @@ func (h *Handler) handleUserCreateEnclosure(w http.ResponseWriter, r *http.Reque
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
-
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 

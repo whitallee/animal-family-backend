@@ -183,31 +183,31 @@ type EnclosureUser struct {
 type CreateEnclosurePayload struct {
 	EnclosureName string `json:"enclosureName" validate:"required"`
 	HabitatId     int    `json:"habitatId" validate:"required,min=0"`
-	Image         string `json:"image" validate:"required"`
-	Notes         string `json:"notes" validate:"required"`
+	Image         string `json:"image" validate:""`
+	Notes         string `json:"notes" validate:""`
 }
 
 type CreateEnclosureWithOwnerPayload struct {
 	EnclosureName string `json:"enclosureName" validate:"required"`
 	HabitatId     int    `json:"habitatId" validate:"required,min=0"`
-	Image         string `json:"image" validate:"required"`
-	Notes         string `json:"notes" validate:"required"`
+	Image         string `json:"image" validate:""`
+	Notes         string `json:"notes" validate:""`
 	UserID        int    `json:"userId" validate:"required,min=0"`
 }
 
 type CreateEnclosureWithAnimalsPayload struct {
 	EnclosureName string `json:"enclosureName" validate:"required"`
 	HabitatId     int    `json:"habitatId" validate:"required,min=0"`
-	Image         string `json:"image" validate:"required"`
-	Notes         string `json:"notes" validate:"required"`
+	Image         string `json:"image" validate:""`
+	Notes         string `json:"notes" validate:""`
 	AnimalIds     []int  `json:"animalIds" validate:"required"`
 }
 
 type CreateEnclosureWithOwnerWithAnimalsPayload struct {
 	EnclosureName string `json:"enclosureName" validate:"required"`
 	HabitatId     int    `json:"habitatId" validate:"required,min=0"`
-	Image         string `json:"image" validate:"required"`
-	Notes         string `json:"notes" validate:"required"`
+	Image         string `json:"image" validate:""`
+	Notes         string `json:"notes" validate:""`
 	AnimalIds     []int  `json:"animalIds" validate:"required"`
 	UserID        int    `json:"userId" validate:"required,min=0"`
 }
@@ -216,8 +216,8 @@ type UpdateEnclosurePayload struct {
 	EnclosureId   int    `json:"enclosureId" validate:"required"`
 	EnclosureName string `json:"enclosureName" validate:"required"`
 	HabitatId     int    `json:"habitatId" validate:"required,min=0"`
-	Image         string `json:"image" validate:"required"`
-	Notes         string `json:"notes" validate:"required"`
+	Image         string `json:"image" validate:""`
+	Notes         string `json:"notes" validate:""`
 }
 
 type UpdateEnclosureOwnerPayload struct {
