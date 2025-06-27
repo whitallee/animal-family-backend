@@ -92,20 +92,15 @@ func (h *Handler) handleAdminCreateAnimal(w http.ResponseWriter, r *http.Request
 }
 
 func (h *Handler) handleUserCreateAnimal(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("handleUserCreateAnimal")
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
-
-	fmt.Println("userID", userID)
 
 	// get JSON payload
 	var animal types.CreateAnimalPayload
 	if err := utils.ParseJSON(r, &animal); err != nil {
-		fmt.Println("err", err)
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
-	fmt.Println("animal", animal)
 
 	// validate payload done by other package
 	if err := utils.Validate.Struct(animal); err != nil {
@@ -113,7 +108,6 @@ func (h *Handler) handleUserCreateAnimal(w http.ResponseWriter, r *http.Request)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
 	}
-	fmt.Println(animal)
 
 	// check if animal exists
 	_, err := h.store.GetAnimalByNameAndSpeciesWithUserId(animal.AnimalName, animal.SpeciesId, userID)

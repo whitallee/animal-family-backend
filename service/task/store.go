@@ -51,9 +51,18 @@ func (s *Store) CreateTask(task types.Task, animalId int, enclosureId int, userI
 	}
 
 	// add subject-task joiner to taskSubject table
-	_, err = tx.Exec(`INSERT INTO "taskSubject" ("taskId", "animalId", "enclosureId") VALUES ($1, $2, $3)`, addedTaskId, animalId, enclosureId)
-	if err != nil {
-		return err
+	if animalId != 0 && enclosureId == 0 {
+		_, err = tx.Exec(`INSERT INTO "taskSubject" ("taskId", "animalId", "enclosureId") VALUES ($1, $2, $3)`, addedTaskId, animalId, nil)
+		if err != nil {
+			return err
+		}
+	} else if enclosureId != 0 && animalId == 0 {
+		_, err = tx.Exec(`INSERT INTO "taskSubject" ("taskId", "animalId", "enclosureId") VALUES ($1, $2, $3)`, addedTaskId, nil, enclosureId)
+		if err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("invalid payload, exclusively either animalId or enclosureId must be nonzero")
 	}
 
 	// commit transation
