@@ -1,45 +1,133 @@
 # Animal Family Backend
-This is very much a work in progress right now. Let's call it a Pre-Alpha-Alpha. If you'd like to collab in any way, please reach out! Find my contact info on [whitcodes.dev/contact](whitcodes.dev/contact). If you'd like to check out my first prototype, I've got it hosted on Vercel currently at [this](animal-family.vercel.app) link. Also the text-notification functionality is down, but I'll be working on that once I have this new backend up and running.
 
-## To-Do List
-- make sure that taskSubject is included when tasks are called
-- consider the possibility of multiple subjects on a task (all 4 ferrets for feeding instead of applying the task to the whole enclosure)
+A Go backend API for managing animal care tasks, enclosures, and related data.
 
-- currently testing all new endpoints
-    - user (done)
-    - habitat (done)
-    - species (done)
-    - enclosure (done)
-    - animal (done)
-    - task (wip)
+> **Note:** This is currently in Pre-Alpha. If you'd like to collaborate, please reach out! Find my contact info on [whitcodes.dev/contact](https://whitcodes.dev/contact).
 
-    - check all admin/auth endpoints for a return
-    - will need to add a dupe check when changing ownership
+## Prerequisites
 
-    - modularize common checks and actions in routes to reduce repitition
+- Go 1.23.4 or later
+- PostgreSQL
+- Make (optional, for using Makefile commands)
 
-- Add CreateAnimalAndEnclosure and/or CreateEnclosureAndAnimalsssss for simultaneous creation
-- Add UpdateUser and UpdateSubject functions and routes to all service
-    - handleUserUpdateAnimalOwner (needs to send a request for another user to accept)
-    - handleUserUpdateEnclosureOwner (needs to send a request for another user to accept)
-    - handleUserUpdateTaskOwner (needs to send a request for another user to accept)
-- Make every transaction function properly i.e. rollback on err
+## Running Locally
 
-- Implement Action History Feature
+### 1. Clone the Repository
 
-- Move to Frontend Development
+```bash
+git clone https://github.com/whitallee/animal-family-backend.git
+cd animal-family-backend
+```
 
-- Use GoRoutines/WaitGroups for concurrent async requests (e.g. DeleteUserById animal and enclosure looped db requests)
-    - Will need to create more modular store functions to implement this
+### 2. Set Up Environment Variables
 
-## Entity Relationship Diagram
-[Here's a diagram](https://docs.google.com/drawings/d/1Vi1yngr4CeXXt-slRGJsLI35_R-y-oIHlZ466be_wx8/edit?usp=sharing) that I made of the DB schema. Feel free to leave comments on the Drawing.
+Create a `.env` file in the root directory with the following variables:
 
-## Plans for Frontend Applications
+```env
+JWT_SECRET
+FRONTEND_URL
+
+# These are the values for running locally
+PUBLIC_HOST=http://localhost
+PORT=8080
+
+# I'm using a railway server for my database, which is where I get these from
+DB_USER
+DB_PASSWORD
+DB_HOST
+DB_PORT
+DB_NAME
+```
+
+### 3. Set Up Database
+
+Ensure PostgreSQL is running and create the database:
+
+```bash
+createdb animal_family
+```
+
+### 4. Run Migrations
+
+Run database migrations and seed data:
+
+```bash
+make migrate-up
+```
+
+### 5. Build and Run
+
+Using Make:
+
+```bash
+make run
+```
+
+Or manually:
+
+```bash
+go build -o bin/animal-family-backend cmd/main.go
+./bin/animal-family-backend
+```
+
+The API server will start on `http://localhost:8080`.
+
+## Available Make Commands
+
+- `make build` - Build the application
+- `make run` - Build and run the application
+- `make test` - Run all tests
+- `make migrate-up` - Run database migrations and seed data
+- `make migrate-down` - Rollback database migrations
+- `make seed` - Seed the database with initial data
+- `make migration <name>` - Create a new migration file
+
+## Project Structure
+
+- `cmd/` - Application entry points (main.go, api/, migrate/)
+- `config/` - Configuration management
+- `db/` - Database connection and setup
+- `service/` - Business logic and route handlers
+- `types/` - Type definitions
+- `utils/` - Utility functions
+
+## Database Schema
+
+[Entity Relationship Diagram](https://docs.google.com/drawings/d/1Vi1yngr4CeXXt-slRGJsLI35_R-y-oIHlZ466be_wx8/edit?usp=sharing)
+
+## Development Status
+
+### Completed Endpoints
+- ✅ User
+- ✅ Habitat
+- ✅ Species
+- ✅ Enclosure
+- ✅ Animal
+- 🔄 Task (in progress)
+
+### To-Do
+
+- [ ] Ensure taskSubject is included when tasks are called
+- [ ] Consider multiple subjects on a task (e.g., all 4 ferrets for feeding instead of applying the task to the whole enclosure)
+- [ ] Check all admin/auth endpoints for proper return values
+- [ ] Add duplicate check when changing ownership
+- [ ] Modularize common checks and actions in routes to reduce repetition
+- [ ] Add CreateAnimalAndEnclosure and/or CreateEnclosureAndAnimals for simultaneous creation
+- [ ] Add UpdateUser and UpdateSubject functions and routes to all services
+  - handleUserUpdateAnimalOwner (needs to send a request for another user to accept)
+  - handleUserUpdateEnclosureOwner (needs to send a request for another user to accept)
+  - handleUserUpdateTaskOwner (needs to send a request for another user to accept)
+- [ ] Make every transaction function properly (i.e., rollback on error)
+- [ ] Implement Action History Feature
+- [ ] Use GoRoutines/WaitGroups for concurrent async requests (e.g., DeleteUserById animal and enclosure looped db requests)
+  - Will need to create more modular store functions to implement this
+
+## Frontend Plans
+
 - Use a cache heavily and store all user animals, enclosures, and tasks
-    - invalidate and refetch cache every 15 minutes
-    - invalidate and refetch cache if user updates any of their animals, enclosures, or tasks
-    - should improve performance massively compared to my v1 Next.js frontend
+  - Invalidate and refetch cache every 15 minutes
+  - Invalidate and refetch cache if user updates any of their animals, enclosures, or tasks
+  - Should improve performance massively compared to v1 Next.js frontend
 
 - Species and Habitat information will be generated by AI, and validated and edited by a real person over time, in order to create a solid ground for the knowledge base
-    - all AI generated inforamtion will have a flag in the app that discloses that it is AI generated and that we are working on the validation and editing process to remove any non-reviewed AI text
+  - All AI generated information will have a flag in the app that discloses that it is AI generated and that we are working on the validation and editing process to remove any non-reviewed AI text
