@@ -29,24 +29,6 @@ func NewAPIServer(addr string, db *sql.DB) *APIServer {
 	}
 }
 
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Allow requests from localhost:3000
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-		// Handle preflight requests
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
 func (s *APIServer) Run() error {
 	router := mux.NewRouter()
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
@@ -89,5 +71,5 @@ func (s *APIServer) Run() error {
 
 	log.Println("Listening on", s.addr)
 
-	return http.ListenAndServe(s.addr, corsMiddleware(handlers.CORS(headersOk, originsOk, methodsOk)(router)))
+	return http.ListenAndServe(s.addr, handlers.CORS(headersOk, originsOk, methodsOk)(router))
 }
