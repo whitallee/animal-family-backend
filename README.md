@@ -2,6 +2,8 @@
 
 A Go backend API for managing animal care tasks, enclosures, and related data.
 
+**Frontend Repository:** [animal-family-web](https://github.com/whitallee/animal-family-web)
+
 > **Note:** This is currently in Pre-Alpha. If you'd like to collaborate, please reach out! Find my contact info on [whitcodes.dev/contact](https://whitcodes.dev/contact).
 
 ## Prerequisites
