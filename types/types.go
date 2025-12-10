@@ -243,6 +243,7 @@ type AnimalStore interface {
 	GetAnimalsByUserId(int) ([]*Animal, error)
 	GetAnimalsByEnclosureId(int) ([]*Animal, error)
 	DeleteAnimalById(int) error
+	DeleteAnimalAndTasksById(int) error
 }
 
 type Animal struct {

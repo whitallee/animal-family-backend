@@ -242,3 +242,66 @@ func (s *Store) DeleteAnimalById(animalId int) error {
 
 	return nil
 }
+
+func (s *Store) DeleteAnimalAndTasksById(animalId int) error {
+	// get all tasks associated with this animal
+	rows, err := s.db.Query(`SELECT "taskId" FROM "taskSubject" WHERE "animalId" = $1`, animalId)
+	if err != nil {
+		return err
+	}
+
+	taskIds := make([]int, 0)
+	for rows.Next() {
+		var taskId int
+		err = rows.Scan(&taskId)
+		if err != nil {
+			return err
+		}
+		taskIds = append(taskIds, taskId)
+	}
+	rows.Close()
+
+	// start deletion transaction
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// delete tasks and their related records
+	for _, taskId := range taskIds {
+		_, err = tx.Exec(`DELETE FROM "taskUser" WHERE "taskId" = $1`, taskId)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		_, err = tx.Exec(`DELETE FROM "taskSubject" WHERE "taskId" = $1`, taskId)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		_, err = tx.Exec(`DELETE FROM "tasks" WHERE "taskId" = $1`, taskId)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// delete from animalUser and animals
+	_, err = tx.Exec(`DELETE FROM "animalUser" WHERE "animalId" = $1`, animalId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(`DELETE FROM "animals" WHERE "animalId" = $1`, animalId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
