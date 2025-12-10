@@ -73,7 +73,7 @@ func (s *Store) CreateEnclosureWithAnimals(enclosure types.Enclosure, animalIds 
 
 func (s *Store) UpdateEnclosure(enclosure types.Enclosure) error {
 	_, err := s.db.Exec(`UPDATE "enclosures"
-						SET "enclosureName" = $1, "image" = $2, "notes" = $3, "habitatID" = $4
+						SET "enclosureName" = $1, "image" = $2, "notes" = $3, "habitatId" = $4
 						WHERE "enclosureId" = $5`, enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId, enclosure.EnclosureId)
 	if err != nil {
 		return err
