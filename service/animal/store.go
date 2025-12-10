@@ -49,7 +49,7 @@ func (s *Store) CreateAnimal(animal types.Animal, userID int) error {
 
 func (s *Store) UpdateAnimal(animal types.Animal) error {
 	_, err := s.db.Exec(`UPDATE "animals"
-						SET "animalName" = $1, "image" = $2, "extraNotes" = $3, "speciesID" = $4, "enclosureID" = $5,
+						SET "animalName" = $1, "image" = $2, "extraNotes" = $3, "speciesId" = $4, "enclosureId" = $5,
 						"gender" = $6, "dob" = $7, "personalityDesc" = $8, "dietDesc" = $9, "routineDesc" = $10
 						WHERE "animalId" = $11`,
 		animal.AnimalName, animal.Image, animal.ExtraNotes, animal.SpeciesId, animal.EnclosureId,
