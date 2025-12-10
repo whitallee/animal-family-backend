@@ -73,7 +73,9 @@ func (s *Store) UpdateAnimalOwner(oldAnimalUser types.AnimalUser, newUserId int)
 }
 
 func (s *Store) GetAnimals() ([]*types.Animal, error) {
-	rows, err := s.db.Query(`SELECT * FROM "animals"`)
+	rows, err := s.db.Query(`SELECT "animalId", "animalName", "image", "extraNotes", "speciesId", "enclosureId",
+							"gender", "dob", "personalityDesc", "dietDesc", "routineDesc"
+							FROM "animals"`)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +160,9 @@ func (s *Store) GetAnimalUserByAnimalId(animalId int) (*types.AnimalUser, error)
 }
 
 func (s *Store) GetAnimalById(animalId int) (*types.Animal, error) {
-	rows, err := s.db.Query(`SELECT * FROM "animals" WHERE "animalId" = $1`, animalId)
+	rows, err := s.db.Query(`SELECT "animalId", "animalName", "image", "extraNotes", "speciesId", "enclosureId",
+							"gender", "dob", "personalityDesc", "dietDesc", "routineDesc"
+							FROM "animals" WHERE "animalId" = $1`, animalId)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +205,9 @@ func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {
 }
 
 func (s *Store) GetAnimalsByEnclosureId(enclosureId int) ([]*types.Animal, error) {
-	rows, err := s.db.Query(`SELECT * FROM "animals" WHERE "enclosureID" = $1`, enclosureId)
+	rows, err := s.db.Query(`SELECT "animalId", "animalName", "image", "extraNotes", "speciesId", "enclosureId",
+							"gender", "dob", "personalityDesc", "dietDesc", "routineDesc"
+							FROM "animals" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
 		return nil, err
 	}
@@ -232,6 +238,69 @@ func (s *Store) DeleteAnimalById(animalId int) error {
 
 	_, err = tx.Exec(`DELETE FROM "animals" WHERE "animalId" = $1`, animalId)
 	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Store) DeleteAnimalAndTasksById(animalId int) error {
+	// get all tasks associated with this animal
+	rows, err := s.db.Query(`SELECT "taskId" FROM "taskSubject" WHERE "animalId" = $1`, animalId)
+	if err != nil {
+		return err
+	}
+
+	taskIds := make([]int, 0)
+	for rows.Next() {
+		var taskId int
+		err = rows.Scan(&taskId)
+		if err != nil {
+			return err
+		}
+		taskIds = append(taskIds, taskId)
+	}
+	rows.Close()
+
+	// start deletion transaction
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// delete tasks and their related records
+	for _, taskId := range taskIds {
+		_, err = tx.Exec(`DELETE FROM "taskUser" WHERE "taskId" = $1`, taskId)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		_, err = tx.Exec(`DELETE FROM "taskSubject" WHERE "taskId" = $1`, taskId)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		_, err = tx.Exec(`DELETE FROM "tasks" WHERE "taskId" = $1`, taskId)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// delete from animalUser and animals
+	_, err = tx.Exec(`DELETE FROM "animalUser" WHERE "animalId" = $1`, animalId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(`DELETE FROM "animals" WHERE "animalId" = $1`, animalId)
+	if err != nil {
+		tx.Rollback()
 		return err
 	}
 

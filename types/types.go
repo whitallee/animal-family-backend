@@ -164,7 +164,8 @@ type EnclosureStore interface {
 	GetEnclosuresByUserId(int) ([]*Enclosure, error)
 	GetEnclosureById(int) (*Enclosure, error)
 	DeleteEnclosureById(enclosureId int) error
-	DeleteEnclosureAndAnimalsById(enclosureId int) error
+	DeleteEnclosureAndTasksById(enclosureId int) error
+	DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error
 }
 
 type Enclosure struct {
@@ -243,6 +244,7 @@ type AnimalStore interface {
 	GetAnimalsByUserId(int) ([]*Animal, error)
 	GetAnimalsByEnclosureId(int) ([]*Animal, error)
 	DeleteAnimalById(int) error
+	DeleteAnimalAndTasksById(int) error
 }
 
 type Animal struct {
