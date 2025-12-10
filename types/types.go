@@ -295,8 +295,8 @@ type UpdateAnimalPayload struct {
 	AnimalId        int       `json:"animalId" validate:"required"`
 	AnimalName      string    `json:"animalName" validate:"required"`
 	SpeciesId       int       `json:"speciesId" validate:"required,min=0"`
-	EnclosureId     *int      `json:"enclosureId" validate:"required,min=0"`
-	Image           string    `json:"image" validate:"required"`
+	EnclosureId     *int      `json:"enclosureId" validate:"omitempty,min=0"`
+	Image           string    `json:"image"`
 	Gender          string    `json:"gender" validate:"required"`
 	Dob             time.Time `json:"dob" validate:"required"`
 	PersonalityDesc string    `json:"personalityDesc" validate:"required"`

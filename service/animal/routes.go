@@ -208,8 +208,8 @@ func (h *Handler) handleUserUpdateAnimal(w http.ResponseWriter, r *http.Request)
 	}
 
 	// check if dupe of animal exists under user
-	_, err = h.store.GetAnimalByNameAndSpeciesWithUserId(animal.AnimalName, animal.SpeciesId, userID)
-	if err == nil {
+	existingAnimal, err := h.store.GetAnimalByNameAndSpeciesWithUserId(animal.AnimalName, animal.SpeciesId, userID)
+	if err == nil && existingAnimal.AnimalId != animal.AnimalId {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("animal with name %s and species id %d already exists", animal.AnimalName, animal.SpeciesId))
 		return
 	}
