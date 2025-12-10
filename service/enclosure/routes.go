@@ -28,7 +28,8 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/enclosure/withanimals", auth.WithJWTAuth(h.handleUserCreateEnclosureWithAnimals, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/enclosure", auth.WithJWTAuth(h.handleUserUpdateEnclosure, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/enclosure/id", auth.WithJWTAuth(h.handleUserDeleteEnclosureById, h.userStore)).Methods(http.MethodDelete)
-	router.HandleFunc("/enclosure/id/withanimals", auth.WithJWTAuth(h.handleUserDeleteEnclosureWithAnimalsById, h.userStore)).Methods(http.MethodDelete)
+	router.HandleFunc("/enclosure/id/withtasks", auth.WithJWTAuth(h.handleUserDeleteEnclosureWithTasksById, h.userStore)).Methods(http.MethodDelete)
+	router.HandleFunc("/enclosure/id/withanimalsandtasks", auth.WithJWTAuth(h.handleUserDeleteEnclosureWithAnimalsAndTasksById, h.userStore)).Methods(http.MethodDelete)
 
 	// admin routes
 	router.HandleFunc("/admin/enclosure", auth.WithJWTAuth(h.handleAdminGetEnclosures, h.userStore)).Methods(http.MethodGet)
@@ -39,7 +40,8 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/admin/enclosure", auth.WithJWTAuth(h.handleAdminUpdateEnclosure, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/enclosure/owner", auth.WithJWTAuth(h.handleAdminUpdateEnclosureOwner, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/enclosure/id", auth.WithJWTAuth(h.handleAdminDeleteEnclosureById, h.userStore)).Methods(http.MethodDelete)
-	router.HandleFunc("/admin/enclosure/id/withanimals", auth.WithJWTAuth(h.handleAdminDeleteEnclosureWithAnimalsById, h.userStore)).Methods(http.MethodDelete)
+	router.HandleFunc("/admin/enclosure/id/withtasks", auth.WithJWTAuth(h.handleAdminDeleteEnclosureWithTasksById, h.userStore)).Methods(http.MethodDelete)
+	router.HandleFunc("/admin/enclosure/id/withanimalsandtasks", auth.WithJWTAuth(h.handleAdminDeleteEnclosureWithAnimalsAndTasksById, h.userStore)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleAdminGetEnclosures(w http.ResponseWriter, r *http.Request) {
@@ -526,7 +528,7 @@ func (h *Handler) handleUserDeleteEnclosureById(w http.ResponseWriter, r *http.R
 	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
-func (h *Handler) handleAdminDeleteEnclosureWithAnimalsById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleAdminDeleteEnclosureWithTasksById(w http.ResponseWriter, r *http.Request) {
 	// get userId and check if admin
 	userID := auth.GetuserIdFromContext(r.Context())
 	if !auth.IsAdmin(userID) {
@@ -548,8 +550,8 @@ func (h *Handler) handleAdminDeleteEnclosureWithAnimalsById(w http.ResponseWrite
 		return
 	}
 
-	// delete enclosure with animals
-	err := h.store.DeleteEnclosureAndAnimalsById(enclosureIdPayload.EnclosureId)
+	// delete enclosure with tasks
+	err := h.store.DeleteEnclosureAndTasksById(enclosureIdPayload.EnclosureId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -558,7 +560,39 @@ func (h *Handler) handleAdminDeleteEnclosureWithAnimalsById(w http.ResponseWrite
 	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
-func (h *Handler) handleUserDeleteEnclosureWithAnimalsById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleAdminDeleteEnclosureWithAnimalsAndTasksById(w http.ResponseWriter, r *http.Request) {
+	// get userId and check if admin
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthoized to access this endpoint"))
+		return
+	}
+
+	// get JSON payload
+	var enclosureIdPayload types.EnclosureIdPayload
+	if err := utils.ParseJSON(r, &enclosureIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(enclosureIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// delete enclosure with animals and tasks
+	err := h.store.DeleteEnclosureAndAnimalsAndTasksById(enclosureIdPayload.EnclosureId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleUserDeleteEnclosureWithTasksById(w http.ResponseWriter, r *http.Request) {
 	// get userId
 	userID := auth.GetuserIdFromContext(r.Context())
 
@@ -583,8 +617,43 @@ func (h *Handler) handleUserDeleteEnclosureWithAnimalsById(w http.ResponseWriter
 		return
 	}
 
-	// if ownership exists, delete enclosure with animals
-	err = h.store.DeleteEnclosureAndAnimalsById(enclosureIdPayload.EnclosureId)
+	// if ownership exists, delete enclosure with tasks
+	err = h.store.DeleteEnclosureAndTasksById(enclosureIdPayload.EnclosureId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleUserDeleteEnclosureWithAnimalsAndTasksById(w http.ResponseWriter, r *http.Request) {
+	// get userId
+	userID := auth.GetuserIdFromContext(r.Context())
+
+	// get JSON payload
+	var enclosureIdPayload types.EnclosureIdPayload
+	if err := utils.ParseJSON(r, &enclosureIdPayload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload done by other package
+	if err := utils.Validate.Struct(enclosureIdPayload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// check for ownership
+	_, err := h.store.GetEnclosureUserByIds(enclosureIdPayload.EnclosureId, userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("error checking ownership: %v", err))
+		return
+	}
+
+	// if ownership exists, delete enclosure with animals and tasks
+	err = h.store.DeleteEnclosureAndAnimalsAndTasksById(enclosureIdPayload.EnclosureId)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return

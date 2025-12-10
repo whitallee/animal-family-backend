@@ -73,7 +73,9 @@ func (s *Store) UpdateAnimalOwner(oldAnimalUser types.AnimalUser, newUserId int)
 }
 
 func (s *Store) GetAnimals() ([]*types.Animal, error) {
-	rows, err := s.db.Query(`SELECT * FROM "animals"`)
+	rows, err := s.db.Query(`SELECT "animalId", "animalName", "image", "extraNotes", "speciesId", "enclosureId",
+							"gender", "dob", "personalityDesc", "dietDesc", "routineDesc"
+							FROM "animals"`)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +160,9 @@ func (s *Store) GetAnimalUserByAnimalId(animalId int) (*types.AnimalUser, error)
 }
 
 func (s *Store) GetAnimalById(animalId int) (*types.Animal, error) {
-	rows, err := s.db.Query(`SELECT * FROM "animals" WHERE "animalId" = $1`, animalId)
+	rows, err := s.db.Query(`SELECT "animalId", "animalName", "image", "extraNotes", "speciesId", "enclosureId",
+							"gender", "dob", "personalityDesc", "dietDesc", "routineDesc"
+							FROM "animals" WHERE "animalId" = $1`, animalId)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +205,9 @@ func (s *Store) GetAnimalsByUserId(userID int) ([]*types.Animal, error) {
 }
 
 func (s *Store) GetAnimalsByEnclosureId(enclosureId int) ([]*types.Animal, error) {
-	rows, err := s.db.Query(`SELECT * FROM "animals" WHERE "enclosureID" = $1`, enclosureId)
+	rows, err := s.db.Query(`SELECT "animalId", "animalName", "image", "extraNotes", "speciesId", "enclosureId",
+							"gender", "dob", "personalityDesc", "dietDesc", "routineDesc"
+							FROM "animals" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
 		return nil, err
 	}
