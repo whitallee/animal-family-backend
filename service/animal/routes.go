@@ -1,8 +1,11 @@
 package animal
 
 import (
+	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
@@ -20,6 +23,65 @@ type Handler struct {
 
 func NewHandler(store types.AnimalStore, userStore types.UserStore, enclosureStore types.EnclosureStore) *Handler {
 	return &Handler{store: store, userStore: userStore, enclosureStore: enclosureStore}
+}
+
+func convertUpdatePayloadToAnimal(payload types.UpdateAnimalPayload, existingAnimal *types.Animal) (types.Animal, error) {
+	animal := types.Animal{
+		AnimalId:        payload.AnimalId,
+		AnimalName:      payload.AnimalName,
+		SpeciesId:       payload.SpeciesId,
+		EnclosureId:     payload.EnclosureId,
+		Image:           payload.Image,
+		Gender:          payload.Gender,
+		Dob:             payload.Dob,
+		PersonalityDesc: payload.PersonalityDesc,
+		DietDesc:        payload.DietDesc,
+		RoutineDesc:     payload.RoutineDesc,
+		ExtraNotes:      payload.ExtraNotes,
+	}
+
+	// Handle IsMemorialized - use provided value or preserve existing
+	if payload.IsMemorialized != nil {
+		animal.IsMemorialized = *payload.IsMemorialized
+	} else if existingAnimal != nil {
+		animal.IsMemorialized = existingAnimal.IsMemorialized
+	} else {
+		animal.IsMemorialized = false
+	}
+
+	// Handle LastMessage - convert *string to sql.NullString or preserve existing
+	if payload.LastMessage != nil {
+		animal.LastMessage = sql.NullString{String: *payload.LastMessage, Valid: true}
+	} else if existingAnimal != nil {
+		animal.LastMessage = existingAnimal.LastMessage
+	} else {
+		animal.LastMessage = sql.NullString{Valid: false}
+	}
+
+	// Handle MemorialPhotos - marshal []string to JSON or preserve existing
+	if payload.MemorialPhotos != nil {
+		memorialPhotosJSON, err := json.Marshal(payload.MemorialPhotos)
+		if err != nil {
+			return animal, fmt.Errorf("failed to marshal memorialPhotos: %w", err)
+		}
+		animal.MemorialPhotos = sql.NullString{String: string(memorialPhotosJSON), Valid: true}
+	} else if existingAnimal != nil {
+		animal.MemorialPhotos = existingAnimal.MemorialPhotos
+	} else {
+		animal.MemorialPhotos = sql.NullString{Valid: false}
+	}
+
+	// Handle MemorialDate - use provided value if not zero, otherwise preserve existing or let DB set default
+	if !payload.MemorialDate.IsZero() {
+		animal.MemorialDate = payload.MemorialDate
+	} else if existingAnimal != nil {
+		animal.MemorialDate = existingAnimal.MemorialDate
+	} else {
+		// Database will set default (CURRENT_DATE) for new records
+		animal.MemorialDate = time.Time{}
+	}
+
+	return animal, nil
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
@@ -84,6 +146,9 @@ func (h *Handler) handleAdminCreateAnimal(w http.ResponseWriter, r *http.Request
 		DietDesc:        animal.DietDesc,
 		RoutineDesc:     animal.RoutineDesc,
 		ExtraNotes:      animal.ExtraNotes,
+		IsMemorialized:  false,
+		LastMessage:     sql.NullString{Valid: false},
+		MemorialPhotos:  sql.NullString{Valid: false},
 	}, animal.UserID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
@@ -130,6 +195,9 @@ func (h *Handler) handleUserCreateAnimal(w http.ResponseWriter, r *http.Request)
 		DietDesc:        animal.DietDesc,
 		RoutineDesc:     animal.RoutineDesc,
 		ExtraNotes:      animal.ExtraNotes,
+		IsMemorialized:  false,
+		LastMessage:     sql.NullString{Valid: false},
+		MemorialPhotos:  sql.NullString{Valid: false},
 	}, userID)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
@@ -174,8 +242,22 @@ func (h *Handler) handleAdminUpdateAnimal(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// get existing animal to preserve values for optional fields
+	existingAnimal, err := h.store.GetAnimalById(animal.AnimalId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// convert payload to Animal type
+	animalToUpdate, err := convertUpdatePayloadToAnimal(animal, existingAnimal)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
 	// update animal if no dupe exists
-	err = h.store.UpdateAnimal(types.Animal(animal))
+	err = h.store.UpdateAnimal(animalToUpdate)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -210,14 +292,28 @@ func (h *Handler) handleUserUpdateAnimal(w http.ResponseWriter, r *http.Request)
 	}
 
 	// check if dupe of animal exists under user
-	existingAnimal, err := h.store.GetAnimalByNameAndSpeciesWithUserId(animal.AnimalName, animal.SpeciesId, userID)
-	if err == nil && existingAnimal.AnimalId != animal.AnimalId {
+	existingAnimalByName, err := h.store.GetAnimalByNameAndSpeciesWithUserId(animal.AnimalName, animal.SpeciesId, userID)
+	if err == nil && existingAnimalByName.AnimalId != animal.AnimalId {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("animal with name %s and species id %d already exists", animal.AnimalName, animal.SpeciesId))
 		return
 	}
 
+	// get existing animal to preserve values for optional fields
+	existingAnimal, err := h.store.GetAnimalById(animal.AnimalId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// convert payload to Animal type
+	animalToUpdate, err := convertUpdatePayloadToAnimal(animal, existingAnimal)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
 	// if ownership exists, update animal
-	err = h.store.UpdateAnimal(types.Animal(animal))
+	err = h.store.UpdateAnimal(animalToUpdate)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return

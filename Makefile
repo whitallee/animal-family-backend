@@ -17,7 +17,7 @@ seed:
 	@PGPASSWORD=${DB_PASSWORD} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -f cmd/migrate/seed/seed.sql
 
 migrate-up:
-	@go run cmd/migrate/main.go up; make seed;
+	@go run cmd/migrate/main.go up
 
 migrate-down:
 	@go run cmd/migrate/main.go down

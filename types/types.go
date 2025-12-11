@@ -2,6 +2,8 @@ package types
 
 import (
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -248,17 +250,53 @@ type AnimalStore interface {
 }
 
 type Animal struct {
-	AnimalId        int       `json:"animalId"`
-	AnimalName      string    `json:"animalName"`
-	SpeciesId       int       `json:"speciesId"`
-	EnclosureId     *int      `json:"enclosureId"`
-	Image           string    `json:"image"`
-	Gender          string    `json:"gender"`
-	Dob             time.Time `json:"dob"`
-	PersonalityDesc string    `json:"personalityDesc"`
-	DietDesc        string    `json:"dietDesc"`
-	RoutineDesc     string    `json:"routineDesc"`
-	ExtraNotes      string    `json:"extraNotes"`
+	AnimalId        int            `json:"animalId"`
+	AnimalName      string         `json:"animalName"`
+	SpeciesId       int            `json:"speciesId"`
+	EnclosureId     *int           `json:"enclosureId"`
+	Image           string         `json:"image"`
+	Gender          string         `json:"gender"`
+	Dob             time.Time      `json:"dob"`
+	PersonalityDesc string         `json:"personalityDesc"`
+	DietDesc        string         `json:"dietDesc"`
+	RoutineDesc     string         `json:"routineDesc"`
+	ExtraNotes      string         `json:"extraNotes"`
+	IsMemorialized  bool           `json:"isMemorialized"`
+	LastMessage     sql.NullString `json:"-"`
+	MemorialPhotos  sql.NullString `json:"-"`
+	MemorialDate    time.Time      `json:"memorialDate"`
+}
+
+// MarshalJSON customizes JSON marshaling to convert fields properly
+func (a Animal) MarshalJSON() ([]byte, error) {
+	type Alias Animal
+	aux := &struct {
+		LastMessage    *string  `json:"lastMessage"`
+		MemorialPhotos []string `json:"memorialPhotos"`
+		*Alias
+	}{
+		Alias: (*Alias)(&a),
+	}
+
+	// Convert LastMessage from sql.NullString to *string
+	if a.LastMessage.Valid {
+		aux.LastMessage = &a.LastMessage.String
+	} else {
+		aux.LastMessage = nil
+	}
+
+	// Convert MemorialPhotos from JSON string to []string
+	if a.MemorialPhotos.Valid {
+		var photos []string
+		if err := json.Unmarshal([]byte(a.MemorialPhotos.String), &photos); err != nil {
+			return nil, err
+		}
+		aux.MemorialPhotos = photos
+	} else {
+		aux.MemorialPhotos = nil
+	}
+
+	return json.Marshal(aux)
 }
 
 type AnimalUser struct {
@@ -305,6 +343,73 @@ type UpdateAnimalPayload struct {
 	DietDesc        string    `json:"dietDesc" validate:"required"`
 	RoutineDesc     string    `json:"routineDesc" validate:"required"`
 	ExtraNotes      string    `json:"extraNotes" validate:"required"`
+	IsMemorialized  *bool     `json:"isMemorialized"`
+	LastMessage     *string   `json:"lastMessage"`
+	MemorialPhotos  []string  `json:"memorialPhotos"`
+	MemorialDate    time.Time `json:"memorialDate"`
+}
+
+// UnmarshalJSON customizes JSON unmarshaling to handle date-only strings for MemorialDate
+func (u *UpdateAnimalPayload) UnmarshalJSON(data []byte) error {
+	// Use a temporary struct with MemorialDate as string to avoid parsing issues
+	type Alias struct {
+		AnimalId        int       `json:"animalId"`
+		AnimalName      string    `json:"animalName"`
+		SpeciesId       int       `json:"speciesId"`
+		EnclosureId     *int      `json:"enclosureId"`
+		Image           string    `json:"image"`
+		Gender          string    `json:"gender"`
+		Dob             time.Time `json:"dob"`
+		PersonalityDesc string    `json:"personalityDesc"`
+		DietDesc        string    `json:"dietDesc"`
+		RoutineDesc     string    `json:"routineDesc"`
+		ExtraNotes      string    `json:"extraNotes"`
+		IsMemorialized  *bool     `json:"isMemorialized"`
+		LastMessage     *string   `json:"lastMessage"`
+		MemorialPhotos  []string  `json:"memorialPhotos"`
+	}
+	aux := &struct {
+		MemorialDate string `json:"memorialDate"`
+		Alias
+	}{}
+
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+
+	// Copy all fields from Alias to u
+	u.AnimalId = aux.Alias.AnimalId
+	u.AnimalName = aux.Alias.AnimalName
+	u.SpeciesId = aux.Alias.SpeciesId
+	u.EnclosureId = aux.Alias.EnclosureId
+	u.Image = aux.Alias.Image
+	u.Gender = aux.Alias.Gender
+	u.Dob = aux.Alias.Dob
+	u.PersonalityDesc = aux.Alias.PersonalityDesc
+	u.DietDesc = aux.Alias.DietDesc
+	u.RoutineDesc = aux.Alias.RoutineDesc
+	u.ExtraNotes = aux.Alias.ExtraNotes
+	u.IsMemorialized = aux.Alias.IsMemorialized
+	u.LastMessage = aux.Alias.LastMessage
+	u.MemorialPhotos = aux.Alias.MemorialPhotos
+
+	// Parse MemorialDate - handle both date-only (YYYY-MM-DD) and full datetime formats
+	if aux.MemorialDate != "" {
+		// Try date-only format first (YYYY-MM-DD)
+		if t, err := time.Parse("2006-01-02", aux.MemorialDate); err == nil {
+			u.MemorialDate = t
+		} else {
+			// Fall back to RFC3339 format
+			if t, err := time.Parse(time.RFC3339, aux.MemorialDate); err == nil {
+				u.MemorialDate = t
+			} else {
+				return fmt.Errorf("invalid date format for memorialDate: %s", aux.MemorialDate)
+			}
+		}
+	}
+	// If MemorialDate is empty string, it will remain as zero time.Time value
+
+	return nil
 }
 
 type UpdateAnimalOwnerPayload struct {
