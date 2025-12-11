@@ -77,6 +77,10 @@ func ScanRowsIntoAnimals(rows *sql.Rows) (*types.Animal, error) {
 		&animal.PersonalityDesc,
 		&animal.DietDesc,
 		&animal.RoutineDesc,
+		&animal.IsMemorialized,
+		&animal.LastMessage,
+		&animal.MemorialPhotos,
+		&animal.MemorialDate,
 	)
 	if err != nil {
 		return nil, err
