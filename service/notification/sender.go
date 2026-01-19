@@ -53,6 +53,58 @@ func (ns *NotificationSender) SendSingleNotification(sub *types.PushSubscription
 	return ns.sendNotification(sub, task)
 }
 
+// SendSingleNotificationWithStatus sends a notification and returns both error and HTTP status code
+func (ns *NotificationSender) SendSingleNotificationWithStatus(sub *types.PushSubscription, task *types.TaskResetNotification) (int, error) {
+	// Build notification payload
+	payload := map[string]interface{}{
+		"title": fmt.Sprintf("%s (%s)", task.TaskName, task.SubjectName),
+		"body":  task.TaskDesc,
+		"data": map[string]interface{}{
+			"taskId": task.TaskId,
+			"url":    fmt.Sprintf("/tasks/%d", task.TaskId),
+		},
+		"tag":                fmt.Sprintf("task-%d", task.TaskId),
+		"requireInteraction": false,
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		return 0, fmt.Errorf("failed to marshal notification payload: %v", err)
+	}
+
+	// Create subscription for webpush
+	subscription := &webpush.Subscription{
+		Endpoint: sub.Endpoint,
+		Keys: webpush.Keys{
+			P256dh: sub.P256dh,
+			Auth:   sub.Auth,
+		},
+	}
+
+	// Send notification
+	resp, err := webpush.SendNotification(payloadBytes, subscription, &webpush.Options{
+		VAPIDPublicKey:  ns.vapidPublicKey,
+		VAPIDPrivateKey: ns.vapidPrivateKey,
+		Subscriber:      ns.vapidSubject,
+		TTL:             60 * 60 * 24, // 24 hours
+		Urgency:         webpush.UrgencyHigh,
+	})
+
+	statusCode := 0
+	if resp != nil {
+		defer resp.Body.Close()
+		statusCode = resp.StatusCode
+
+		// Handle 410 Gone (expired subscription) or 404 Not Found
+		if resp.StatusCode == 410 || resp.StatusCode == 404 {
+			log.Printf("subscription expired, deleting: %d", sub.SubscriptionId)
+			ns.store.DeleteSubscription(sub.SubscriptionId)
+		}
+	}
+
+	return statusCode, err
+}
+
 func (ns *NotificationSender) sendNotification(sub *types.PushSubscription, task *types.TaskResetNotification) error {
 	// Build notification payload
 	payload := map[string]interface{}{
@@ -86,16 +138,29 @@ func (ns *NotificationSender) sendNotification(sub *types.PushSubscription, task
 		VAPIDPrivateKey: ns.vapidPrivateKey,
 		Subscriber:      ns.vapidSubject,
 		TTL:             60 * 60 * 24, // 24 hours
+		Urgency:         webpush.UrgencyHigh,
 	})
 
 	if resp != nil {
 		defer resp.Body.Close()
+
+		// Log response details for debugging
+		log.Printf("Push service response - Status: %d, Endpoint: %s", resp.StatusCode, sub.Endpoint[:50])
 
 		// Handle 410 Gone (expired subscription) or 404 Not Found
 		if resp.StatusCode == 410 || resp.StatusCode == 404 {
 			log.Printf("subscription expired, deleting: %d", sub.SubscriptionId)
 			ns.store.DeleteSubscription(sub.SubscriptionId)
 		}
+
+		// Log non-2xx responses
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			log.Printf("Push service returned non-success status %d for subscription %d", resp.StatusCode, sub.SubscriptionId)
+		}
+	}
+
+	if err != nil {
+		log.Printf("Error sending push notification: %v", err)
 	}
 
 	return err
