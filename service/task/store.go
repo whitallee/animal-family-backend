@@ -19,14 +19,74 @@ func NewStore(db *sql.DB) *Store {
 func (s *Store) CheckTaskCompletion() error {
 	// check if any tasks should be reset
 	_, err := s.db.Exec(`
-		UPDATE "tasks" 
-		SET "complete" = false 
-		WHERE "complete" = true 
+		UPDATE "tasks"
+		SET "complete" = false
+		WHERE "complete" = true
 		AND "lastCompleted" + ("repeatIntervHours" * interval '1 hour') < NOW()`)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (s *Store) CheckAndResetTasks() ([]*types.TaskResetNotification, error) {
+	// Query tasks that need resetting with subject names
+	rows, err := s.db.Query(`
+		SELECT
+			t."taskId",
+			t."taskName",
+			t."taskDesc",
+			tu."userId",
+			COALESCE(a."animalName", e."enclosureName") as subjectName,
+			CASE
+				WHEN ts."animalId" IS NOT NULL THEN 'animal'
+				ELSE 'enclosure'
+			END as subjectType
+		FROM "tasks" t
+		INNER JOIN "taskUser" tu ON tu."taskId" = t."taskId"
+		INNER JOIN "taskSubject" ts ON ts."taskId" = t."taskId"
+		LEFT JOIN "animals" a ON a."animalId" = ts."animalId"
+		LEFT JOIN "enclosures" e ON e."enclosureId" = ts."enclosureId"
+		WHERE t."complete" = true
+		AND t."lastCompleted" + (t."repeatIntervHours" * interval '1 hour') < NOW()
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Collect tasks to reset
+	var tasks []*types.TaskResetNotification
+	for rows.Next() {
+		task := &types.TaskResetNotification{}
+		err := rows.Scan(
+			&task.TaskId,
+			&task.TaskName,
+			&task.TaskDesc,
+			&task.UserID,
+			&task.SubjectName,
+			&task.SubjectType,
+		)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, task)
+	}
+
+	// Bulk update tasks to incomplete
+	if len(tasks) > 0 {
+		_, err = s.db.Exec(`
+			UPDATE "tasks"
+			SET "complete" = false
+			WHERE "complete" = true
+			AND "lastCompleted" + ("repeatIntervHours" * interval '1 hour') < NOW()
+		`)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return tasks, nil
 }
 
 func (s *Store) CreateTask(task types.Task, animalId int, enclosureId int, userId int) error {

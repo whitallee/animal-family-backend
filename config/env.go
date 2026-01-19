@@ -19,6 +19,10 @@ type Config struct {
 	DBName      string
 	JWTExpInSec int64
 	JWTSecret   string
+
+	VAPIDPublicKey  string
+	VAPIDPrivateKey string
+	VAPIDSubject    string
 }
 
 var Envs = initConfig()
@@ -41,6 +45,9 @@ func initConfig() Config {
 		DBName:      getEnv("DB_NAME", "nameNotFound"),
 		JWTExpInSec: getEnvAsInt("JWT_EXP_IN_SEC", 3600*24*7),
 		JWTSecret:   getEnv("JWT_SECRET", "secretNotFoundAndNotSecretAnymore"),
+		VAPIDPublicKey:  getEnv("VAPID_PUBLIC_KEY", ""),
+		VAPIDPrivateKey: getEnv("VAPID_PRIVATE_KEY", ""),
+		VAPIDSubject:    getEnv("VAPID_SUBJECT", "mailto:noreply@animalfamily.app"),
 	}
 }
 

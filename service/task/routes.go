@@ -8,19 +8,21 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"github.com/whitallee/animal-family-backend/service/auth"
+	"github.com/whitallee/animal-family-backend/service/notification"
 	"github.com/whitallee/animal-family-backend/types"
 	"github.com/whitallee/animal-family-backend/utils"
 )
 
 type Handler struct {
-	store          types.TaskStore
-	userStore      types.UserStore
-	animalStore    types.AnimalStore
-	enclosureStore types.EnclosureStore
+	store              types.TaskStore
+	userStore          types.UserStore
+	animalStore        types.AnimalStore
+	enclosureStore     types.EnclosureStore
+	notificationSender *notification.NotificationSender
 }
 
-func NewHandler(store types.TaskStore, userStore types.UserStore, animalStore types.AnimalStore, enclosureStore types.EnclosureStore) *Handler {
-	return &Handler{store: store, userStore: userStore, animalStore: animalStore, enclosureStore: enclosureStore}
+func NewHandler(store types.TaskStore, userStore types.UserStore, animalStore types.AnimalStore, enclosureStore types.EnclosureStore, notificationSender *notification.NotificationSender) *Handler {
+	return &Handler{store: store, userStore: userStore, animalStore: animalStore, enclosureStore: enclosureStore, notificationSender: notificationSender}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
@@ -48,14 +50,22 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) handleCheckTaskCompletion(w http.ResponseWriter, r *http.Request) {
-	err := h.store.CheckTaskCompletion()
-
+	// Get tasks that need resetting
+	resetTasks, err := h.store.CheckAndResetTasks()
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, nil)
+	// Send notifications asynchronously (non-blocking)
+	if len(resetTasks) > 0 && h.notificationSender != nil {
+		go h.notificationSender.SendTaskResetNotifications(resetTasks)
+	}
+
+	// Return immediately
+	utils.WriteJSON(w, http.StatusOK, map[string]int{
+		"tasksReset": len(resetTasks),
+	})
 }
 
 func (h *Handler) handleAdminCreateTask(w http.ResponseWriter, r *http.Request) {

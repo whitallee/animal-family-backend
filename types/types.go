@@ -425,6 +425,7 @@ type AnimalIdPayload struct {
 // Task-related Types
 type TaskStore interface {
 	CheckTaskCompletion() error
+	CheckAndResetTasks() ([]*TaskResetNotification, error)
 	CreateTask(task Task, animalId int, enclosureId int, userId int) error
 	UpdateTask(Task) error
 	UpdateTaskOwner(oldTaskUser TaskUser, newUserId int) error
@@ -538,4 +539,45 @@ type SentLoopMessagePayload struct {
 	MessageId  string `json:"messageId"`
 	WebhookId  string `json:"webhookId"`
 	ApiVersion string `json:"apiVersion"`
+}
+
+// Notification-related types
+type PushSubscriptionStore interface {
+	CreateSubscription(sub PushSubscription) error
+	GetSubscriptionsByUserId(userId int) ([]*PushSubscription, error)
+	DeleteSubscription(subscriptionId int) error
+	DeleteSubscriptionByEndpoint(userId int, endpoint string) error
+	UpdateLastUsed(subscriptionId int) error
+}
+
+type PushSubscription struct {
+	SubscriptionId int       `json:"subscriptionId"`
+	UserID         int       `json:"userId"`
+	Endpoint       string    `json:"endpoint"`
+	P256dh         string    `json:"p256dh"`
+	Auth           string    `json:"auth"`
+	UserAgent      string    `json:"userAgent"`
+	CreatedAt      time.Time `json:"createdAt"`
+	LastUsed       time.Time `json:"lastUsed"`
+}
+
+type SubscribePayload struct {
+	Endpoint string `json:"endpoint" validate:"required"`
+	Keys     struct {
+		P256dh string `json:"p256dh" validate:"required"`
+		Auth   string `json:"auth" validate:"required"`
+	} `json:"keys" validate:"required"`
+}
+
+type UnsubscribePayload struct {
+	Endpoint string `json:"endpoint" validate:"required"`
+}
+
+type TaskResetNotification struct {
+	TaskId      int
+	TaskName    string
+	TaskDesc    string
+	UserID      int
+	SubjectName string
+	SubjectType string
 }

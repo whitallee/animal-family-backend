@@ -21,3 +21,7 @@ migrate-up:
 
 migrate-down:
 	@go run cmd/migrate/main.go down
+
+vapid-keys:
+	@go run cmd/vapidgen/main.go
+	
