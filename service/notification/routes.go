@@ -160,7 +160,9 @@ func (h *Handler) handleTestNotification(w http.ResponseWriter, r *http.Request)
 			"subscriptionId": sub.SubscriptionId,
 			"endpoint":       sub.Endpoint[:50] + "...", // truncate for readability
 		}
-		if err := h.sender.SendSingleNotification(sub, testNotification); err != nil {
+		statusCode, err := h.sender.SendSingleNotificationWithStatus(sub, testNotification)
+		result["httpStatus"] = statusCode
+		if err != nil {
 			result["success"] = false
 			result["error"] = err.Error()
 		} else {
