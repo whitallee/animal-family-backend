@@ -8,10 +8,12 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/whitallee/animal-family-backend/config"
 	"github.com/whitallee/animal-family-backend/service/animal"
 	"github.com/whitallee/animal-family-backend/service/enclosure"
 	"github.com/whitallee/animal-family-backend/service/habitat"
 	"github.com/whitallee/animal-family-backend/service/loopmessage"
+	"github.com/whitallee/animal-family-backend/service/notification"
 	"github.com/whitallee/animal-family-backend/service/species"
 	"github.com/whitallee/animal-family-backend/service/task"
 	"github.com/whitallee/animal-family-backend/service/user"
@@ -53,8 +55,19 @@ func (s *APIServer) Run() error {
 	animalHandler := animal.NewHandler(animalStore, userStore, enclosureStore)
 	animalHandler.RegisterRoutes(subrouter)
 
+	// Create notification store and sender
+	notificationStore := notification.NewStore(s.db)
+	notificationSender := notification.NewNotificationSender(
+		notificationStore,
+		config.Envs.VAPIDPublicKey,
+		config.Envs.VAPIDPrivateKey,
+		config.Envs.VAPIDSubject,
+	)
+	notificationHandler := notification.NewHandler(notificationStore, notificationSender)
+	notificationHandler.RegisterRoutes(subrouter)
+
 	taskStore := task.NewStore(s.db)
-	taskHandler := task.NewHandler(taskStore, userStore, animalStore, enclosureStore)
+	taskHandler := task.NewHandler(taskStore, userStore, animalStore, enclosureStore, notificationSender)
 	taskHandler.RegisterRoutes(subrouter)
 
 	loopMessageStore := loopmessage.NewStore(s.db)
