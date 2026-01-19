@@ -63,7 +63,7 @@ func (s *APIServer) Run() error {
 		config.Envs.VAPIDPrivateKey,
 		config.Envs.VAPIDSubject,
 	)
-	notificationHandler := notification.NewHandler(notificationStore, notificationSender)
+	notificationHandler := notification.NewHandler(notificationStore, userStore, notificationSender)
 	notificationHandler.RegisterRoutes(subrouter)
 
 	taskStore := task.NewStore(s.db)
@@ -79,7 +79,13 @@ func (s *APIServer) Run() error {
 	if !ok {
 		log.Fatal("FRONTEND_URL is not set")
 	}
-	var originsOk = handlers.AllowedOrigins([]string{frontendURL})
+	// Allow both localhost and production frontend
+	allowedOrigins := []string{frontendURL}
+	productionURL, ok := os.LookupEnv("PRODUCTION_FRONTEND_URL")
+	if ok && productionURL != "" {
+		allowedOrigins = append(allowedOrigins, productionURL)
+	}
+	var originsOk = handlers.AllowedOrigins(allowedOrigins)
 	var methodsOk = handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"})
 
 	log.Println("Listening on", s.addr)
