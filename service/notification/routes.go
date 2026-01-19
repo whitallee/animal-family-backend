@@ -13,12 +13,13 @@ import (
 )
 
 type Handler struct {
-	store  types.PushSubscriptionStore
-	sender *NotificationSender
+	store     types.PushSubscriptionStore
+	userStore types.UserStore
+	sender    *NotificationSender
 }
 
-func NewHandler(store types.PushSubscriptionStore, sender *NotificationSender) *Handler {
-	return &Handler{store: store, sender: sender}
+func NewHandler(store types.PushSubscriptionStore, userStore types.UserStore, sender *NotificationSender) *Handler {
+	return &Handler{store: store, userStore: userStore, sender: sender}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
@@ -26,10 +27,10 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/notification/vapid-public-key", h.handleGetVAPIDPublicKey).Methods(http.MethodGet)
 
 	// authenticated routes
-	router.HandleFunc("/notification/subscribe", auth.WithJWTAuth(h.handleSubscribe, nil)).Methods(http.MethodPost)
-	router.HandleFunc("/notification/unsubscribe", auth.WithJWTAuth(h.handleUnsubscribe, nil)).Methods(http.MethodPost)
-	router.HandleFunc("/notification/subscriptions", auth.WithJWTAuth(h.handleGetSubscriptions, nil)).Methods(http.MethodGet)
-	router.HandleFunc("/notification/test", auth.WithJWTAuth(h.handleTestNotification, nil)).Methods(http.MethodPost)
+	router.HandleFunc("/notification/subscribe", auth.WithJWTAuth(h.handleSubscribe, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/notification/unsubscribe", auth.WithJWTAuth(h.handleUnsubscribe, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/notification/subscriptions", auth.WithJWTAuth(h.handleGetSubscriptions, h.userStore)).Methods(http.MethodGet)
+	router.HandleFunc("/notification/test", auth.WithJWTAuth(h.handleTestNotification, h.userStore)).Methods(http.MethodPost)
 }
 
 func (h *Handler) handleGetVAPIDPublicKey(w http.ResponseWriter, r *http.Request) {
