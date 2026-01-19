@@ -3,6 +3,7 @@ package notification
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 
 	webpush "github.com/SherClockHolmes/webpush-go"
@@ -94,6 +95,16 @@ func (ns *NotificationSender) SendSingleNotificationWithStatus(sub *types.PushSu
 	if resp != nil {
 		defer resp.Body.Close()
 		statusCode = resp.StatusCode
+
+		// Read response body for debugging
+		if statusCode >= 400 {
+			bodyBytes, readErr := io.ReadAll(resp.Body)
+			if readErr == nil {
+				log.Printf("Push service error - Status: %d, Body: %s, Endpoint: %s", statusCode, string(bodyBytes), sub.Endpoint[:50])
+			} else {
+				log.Printf("Push service error - Status: %d, Endpoint: %s (couldn't read body: %v)", statusCode, sub.Endpoint[:50], readErr)
+			}
+		}
 
 		// Handle 410 Gone (expired subscription) or 404 Not Found
 		if resp.StatusCode == 410 || resp.StatusCode == 404 {
