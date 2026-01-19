@@ -48,6 +48,11 @@ func (ns *NotificationSender) SendTaskResetNotifications(tasks []*types.TaskRese
 	}
 }
 
+// SendSingleNotification sends a notification to a single subscription (public for testing)
+func (ns *NotificationSender) SendSingleNotification(sub *types.PushSubscription, task *types.TaskResetNotification) error {
+	return ns.sendNotification(sub, task)
+}
+
 func (ns *NotificationSender) sendNotification(sub *types.PushSubscription, task *types.TaskResetNotification) error {
 	// Build notification payload
 	payload := map[string]interface{}{
