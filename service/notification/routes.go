@@ -128,6 +128,21 @@ func (h *Handler) handleTestNotification(w http.ResponseWriter, r *http.Request)
 	// get userId from context
 	userID := auth.GetuserIdFromContext(r.Context())
 
+	// get subscriptions for user
+	subscriptions, err := h.store.GetSubscriptionsByUserId(userID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to get subscriptions: %v", err))
+		return
+	}
+
+	if len(subscriptions) == 0 {
+		utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+			"message":        "no subscriptions found",
+			"subscriptionCount": 0,
+		})
+		return
+	}
+
 	// create a test notification
 	testNotification := &types.TaskResetNotification{
 		TaskId:      0,
@@ -138,10 +153,25 @@ func (h *Handler) handleTestNotification(w http.ResponseWriter, r *http.Request)
 		SubjectType: "test",
 	}
 
-	// send notification asynchronously
-	go h.sender.SendTaskResetNotifications([]*types.TaskResetNotification{testNotification})
+	// send notification synchronously for testing and capture any errors
+	results := []map[string]interface{}{}
+	for _, sub := range subscriptions {
+		result := map[string]interface{}{
+			"subscriptionId": sub.SubscriptionId,
+			"endpoint":       sub.Endpoint[:50] + "...", // truncate for readability
+		}
+		if err := h.sender.SendSingleNotification(sub, testNotification); err != nil {
+			result["success"] = false
+			result["error"] = err.Error()
+		} else {
+			result["success"] = true
+		}
+		results = append(results, result)
+	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]string{
-		"message": "test notification sent",
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"message":          "test notification sent",
+		"subscriptionCount": len(subscriptions),
+		"results":          results,
 	})
 }
