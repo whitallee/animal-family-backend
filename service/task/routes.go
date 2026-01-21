@@ -106,6 +106,7 @@ func (h *Handler) handleAdminCreateTask(w http.ResponseWriter, r *http.Request) 
 	// if it doesn't exist, create new task
 	err = h.store.CreateTask(types.Task{
 		TaskName:          taskPayload.TaskName,
+		TaskDesc:          taskPayload.TaskDesc,
 		RepeatIntervHours: taskPayload.RepeatIntervHours,
 		LastCompleted:     time.Now(),
 	}, taskPayload.AnimalId, taskPayload.EnclosureId, taskPayload.UserId)
@@ -151,6 +152,7 @@ func (h *Handler) handleUserCreateTask(w http.ResponseWriter, r *http.Request) {
 	// if it doesn't exist, create new task
 	err = h.store.CreateTask(types.Task{
 		TaskName:          taskPayload.TaskName,
+		TaskDesc:          taskPayload.TaskDesc,
 		RepeatIntervHours: taskPayload.RepeatIntervHours,
 		LastCompleted:     time.Now(),
 	}, taskPayload.AnimalId, taskPayload.EnclosureId, userId)
