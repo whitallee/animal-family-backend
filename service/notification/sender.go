@@ -62,7 +62,17 @@ func (ns *NotificationSender) SendSingleNotificationWithStatus(sub *types.PushSu
 		"body":  task.TaskDesc,
 		"data": map[string]interface{}{
 			"taskId": task.TaskId,
-			"url":    fmt.Sprintf("/tasks/%d", task.TaskId),
+			"url":    "/",
+		},
+		"actions": []map[string]interface{}{
+			{
+				"action": "complete",
+				"title":  "Mark Complete",
+			},
+			{
+				"action": "view",
+				"title":  "View",
+			},
 		},
 		"tag":                fmt.Sprintf("task-%d", task.TaskId),
 		"requireInteraction": false,
@@ -123,7 +133,17 @@ func (ns *NotificationSender) sendNotification(sub *types.PushSubscription, task
 		"body":  task.TaskDesc,
 		"data": map[string]interface{}{
 			"taskId": task.TaskId,
-			"url":    fmt.Sprintf("/tasks/%d", task.TaskId),
+			"url":    "/",
+		},
+		"actions": []map[string]interface{}{
+			{
+				"action": "complete",
+				"title":  "Mark Complete",
+			},
+			{
+				"action": "view",
+				"title":  "View",
+			},
 		},
 		"tag":                fmt.Sprintf("task-%d", task.TaskId),
 		"requireInteraction": false,
