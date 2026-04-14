@@ -84,21 +84,20 @@ func (s *Store) UpdateEnclosure(enclosure types.Enclosure) error {
 
 func (s *Store) UpdateEnclosureOwnerWithAnimals(oldEnclosureUser types.EnclosureUser, newUserId int) error {
 	// get animals in enclosure
-	rows, err := s.db.Query(`SELECT "animalId", "animalName", "image", "extraNotes", "speciesId", "enclosureId",
-							"gender", "dob", "personalityDesc", "dietDesc", "routineDesc"
-							FROM "animals" WHERE "enclosureId" = $1`, oldEnclosureUser.EnclosureId)
+	rows, err := s.db.Query(`SELECT "animalId" FROM "animals" WHERE "enclosureId" = $1`, oldEnclosureUser.EnclosureId)
 	if err != nil {
 		return err
 	}
-	animals := make([]*types.Animal, 0)
+	animalIds := make([]int, 0)
 	for rows.Next() {
-		animal, err := utils.ScanRowsIntoAnimals(rows)
-		if err != nil {
+		var animalId int
+		if err := rows.Scan(&animalId); err != nil {
+			rows.Close()
 			return err
 		}
-
-		animals = append(animals, animal)
+		animalIds = append(animalIds, animalId)
 	}
+	rows.Close()
 
 	// start update owners transaction
 	tx, err := s.db.Begin()
@@ -107,10 +106,10 @@ func (s *Store) UpdateEnclosureOwnerWithAnimals(oldEnclosureUser types.Enclosure
 	}
 
 	// update all animals' owners
-	for _, animal := range animals {
+	for _, animalId := range animalIds {
 		_, err := tx.Exec(`UPDATE "animalUser"
 							SET "userId" = $1
-							WHERE "animalId" = $2 AND "userId" = $3`, newUserId, animal.AnimalId, oldEnclosureUser.UserID)
+							WHERE "animalId" = $2 AND "userId" = $3`, newUserId, animalId, oldEnclosureUser.UserID)
 		if err != nil {
 			return err
 		}
@@ -281,21 +280,19 @@ func (s *Store) DeleteEnclosureById(enclosureId int) error {
 	taskRows.Close()
 
 	// get animals from enclosure
-	animalRows, err := s.db.Query(`SELECT "animalId", "animalName", "image", "extraNotes", "speciesId", "enclosureId",
-							"gender", "dob", "personalityDesc", "dietDesc", "routineDesc"
-							FROM "animals" WHERE "enclosureId" = $1`, enclosureId)
+	animalRows, err := s.db.Query(`SELECT "animalId" FROM "animals" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
 		return err
 	}
 
-	animals := make([]*types.Animal, 0)
+	enclosureAnimalIds := make([]int, 0)
 	for animalRows.Next() {
-		animal, err := utils.ScanRowsIntoAnimals(animalRows)
-		if err != nil {
+		var animalId int
+		if err := animalRows.Scan(&animalId); err != nil {
 			animalRows.Close()
 			return err
 		}
-		animals = append(animals, animal)
+		enclosureAnimalIds = append(enclosureAnimalIds, animalId)
 	}
 	animalRows.Close()
 
@@ -325,8 +322,8 @@ func (s *Store) DeleteEnclosureById(enclosureId int) error {
 	}
 
 	// update enclosureId for animals
-	for _, animal := range animals {
-		_, err = tx.Exec(`UPDATE "animals" SET "enclosureId" = NULL WHERE "animalId" = $1`, animal.AnimalId)
+	for _, animalId := range enclosureAnimalIds {
+		_, err = tx.Exec(`UPDATE "animals" SET "enclosureId" = NULL WHERE "animalId" = $1`, animalId)
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -373,21 +370,19 @@ func (s *Store) DeleteEnclosureAndTasksById(enclosureId int) error {
 	taskRows.Close()
 
 	// get animals from enclosure
-	animalRows, err := s.db.Query(`SELECT "animalId", "animalName", "image", "extraNotes", "speciesId", "enclosureId",
-							"gender", "dob", "personalityDesc", "dietDesc", "routineDesc"
-							FROM "animals" WHERE "enclosureId" = $1`, enclosureId)
+	animalRows, err := s.db.Query(`SELECT "animalId" FROM "animals" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
 		return err
 	}
 
-	animals := make([]*types.Animal, 0)
+	enclosureAnimalIds := make([]int, 0)
 	for animalRows.Next() {
-		animal, err := utils.ScanRowsIntoAnimals(animalRows)
-		if err != nil {
+		var animalId int
+		if err := animalRows.Scan(&animalId); err != nil {
 			animalRows.Close()
 			return err
 		}
-		animals = append(animals, animal)
+		enclosureAnimalIds = append(enclosureAnimalIds, animalId)
 	}
 	animalRows.Close()
 
@@ -417,8 +412,8 @@ func (s *Store) DeleteEnclosureAndTasksById(enclosureId int) error {
 	}
 
 	// update enclosureId for animals to NULL
-	for _, animal := range animals {
-		_, err = tx.Exec(`UPDATE "animals" SET "enclosureId" = NULL WHERE "animalId" = $1`, animal.AnimalId)
+	for _, animalId := range enclosureAnimalIds {
+		_, err = tx.Exec(`UPDATE "animals" SET "enclosureId" = NULL WHERE "animalId" = $1`, animalId)
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -447,21 +442,19 @@ func (s *Store) DeleteEnclosureAndTasksById(enclosureId int) error {
 
 func (s *Store) DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error {
 	// get animals from enclosure
-	animalRows, err := s.db.Query(`SELECT "animalId", "animalName", "image", "extraNotes", "speciesId", "enclosureId",
-							"gender", "dob", "personalityDesc", "dietDesc", "routineDesc"
-							FROM "animals" WHERE "enclosureId" = $1`, enclosureId)
+	animalRows, err := s.db.Query(`SELECT "animalId" FROM "animals" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
 		return err
 	}
 
-	animals := make([]*types.Animal, 0)
+	enclosureAnimalIds := make([]int, 0)
 	for animalRows.Next() {
-		animal, err := utils.ScanRowsIntoAnimals(animalRows)
-		if err != nil {
+		var animalId int
+		if err := animalRows.Scan(&animalId); err != nil {
 			animalRows.Close()
 			return err
 		}
-		animals = append(animals, animal)
+		enclosureAnimalIds = append(enclosureAnimalIds, animalId)
 	}
 	animalRows.Close()
 
@@ -485,8 +478,8 @@ func (s *Store) DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error {
 
 	// get all animal task IDs before starting transaction
 	allAnimalTaskIds := make([]int, 0)
-	for _, animal := range animals {
-		animalTaskRows, err := s.db.Query(`SELECT "taskId" FROM "taskSubject" WHERE "animalId" = $1`, animal.AnimalId)
+	for _, animalId := range enclosureAnimalIds {
+		animalTaskRows, err := s.db.Query(`SELECT "taskId" FROM "taskSubject" WHERE "animalId" = $1`, animalId)
 		if err != nil {
 			return err
 		}
@@ -529,13 +522,13 @@ func (s *Store) DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error {
 	}
 
 	// delete animals
-	for _, animal := range animals {
-		_, err = tx.Exec(`DELETE FROM "animalUser" WHERE "animalId" = $1`, animal.AnimalId)
+	for _, animalId := range enclosureAnimalIds {
+		_, err = tx.Exec(`DELETE FROM "animalUser" WHERE "animalId" = $1`, animalId)
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
-		_, err = tx.Exec(`DELETE FROM "animals" WHERE "animalId" = $1`, animal.AnimalId)
+		_, err = tx.Exec(`DELETE FROM "animals" WHERE "animalId" = $1`, animalId)
 		if err != nil {
 			tx.Rollback()
 			return err
