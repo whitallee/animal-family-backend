@@ -16,7 +16,7 @@ func main() {
 		User:     config.Envs.DBUser,
 		Password: config.Envs.DBPassword,
 		DBName:   config.Envs.DBName,
-		SSLMode:  "disable", // or "require" for production
+		SSLMode:  config.Envs.DBSSLMode,
 	}
 	db, err := db.NewPostgresStorage(cfg)
 	if err != nil {

@@ -18,7 +18,7 @@ func main() {
 		User:     config.Envs.DBUser,
 		Password: config.Envs.DBPassword,
 		DBName:   config.Envs.DBName,
-		SSLMode:  "disable",
+		SSLMode:  config.Envs.DBSSLMode,
 	})
 	if err != nil {
 		println("error in main.go NewPostgresStorage method")

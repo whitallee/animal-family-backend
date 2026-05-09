@@ -17,6 +17,7 @@ type Config struct {
 	DBUser      string
 	DBPassword  string
 	DBName      string
+	DBSSLMode   string
 	JWTExpInSec int64
 	JWTSecret   string
 
@@ -43,6 +44,7 @@ func initConfig() Config {
 		DBUser:      getEnv("DB_USER", "postgres"),
 		DBPassword:  getEnv("DB_PASSWORD", "passwordNotFound"),
 		DBName:      getEnv("DB_NAME", "nameNotFound"),
+		DBSSLMode:   getEnv("DB_SSL_MODE", "disable"),
 		JWTExpInSec: getEnvAsInt("JWT_EXP_IN_SEC", 3600*24*7),
 		JWTSecret:   getEnv("JWT_SECRET", "secretNotFoundAndNotSecretAnymore"),
 		VAPIDPublicKey:  getEnv("VAPID_PUBLIC_KEY", ""),
