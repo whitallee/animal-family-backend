@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -25,6 +26,10 @@ func NewPostgresStorage(cfg PostgresConfig) (*sql.DB, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(25)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	return db, nil
 }
