@@ -24,6 +24,10 @@ type Config struct {
 	VAPIDPublicKey  string
 	VAPIDPrivateKey string
 	VAPIDSubject    string
+
+	OpenAIAPIKey   string
+	S3AssetsBucket string
+	AWSRegion      string
 }
 
 var Envs = initConfig()
@@ -50,6 +54,10 @@ func initConfig() Config {
 		VAPIDPublicKey:  getEnv("VAPID_PUBLIC_KEY", ""),
 		VAPIDPrivateKey: getEnv("VAPID_PRIVATE_KEY", ""),
 		VAPIDSubject:    getEnv("VAPID_SUBJECT", "mailto:noreply@animalfamily.app"),
+
+		OpenAIAPIKey:   getEnv("OPENAI_API_KEY", ""),
+		S3AssetsBucket: getEnv("S3_ASSETS_BUCKET", "brindl-assets"),
+		AWSRegion:      getEnv("AWS_REGION", "us-east-1"),
 	}
 }
 
