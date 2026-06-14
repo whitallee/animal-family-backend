@@ -39,7 +39,7 @@ func (s *APIServer) Run() error {
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(subrouter)
 
-	speciesStore := species.NewStore(s.db)
+	speciesStore := species.NewStore(s.db, config.Envs.OpenAIAPIKey, config.Envs.S3AssetsBucket, config.Envs.AWSRegion)
 	speciesHandler := species.NewHandler(speciesStore, userStore)
 	speciesHandler.RegisterRoutes(subrouter)
 

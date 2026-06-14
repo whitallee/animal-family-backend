@@ -26,6 +26,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 
 	// admin routes
 	router.HandleFunc("/admin/species", auth.WithJWTAuth(h.handleAdminCreateSpecies, h.userStore)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/species/generate", auth.WithJWTAuth(h.handleAdminGenerateSpecies, h.userStore)).Methods(http.MethodPost)
 	router.HandleFunc("/admin/species", auth.WithJWTAuth(h.handleAdminUpdateSpecies, h.userStore)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/species", auth.WithJWTAuth(h.handleAdminDeleteSpeciesById, h.userStore)).Methods(http.MethodDelete)
 }
@@ -130,6 +131,41 @@ func (h *Handler) handleAdminUpdateSpecies(w http.ResponseWriter, r *http.Reques
 	}
 
 	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) handleAdminGenerateSpecies(w http.ResponseWriter, r *http.Request) {
+	userID := auth.GetuserIdFromContext(r.Context())
+	if !auth.IsAdmin(userID) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized to access this endpoint"))
+		return
+	}
+
+	var payload types.GenerateSpeciesPayload
+	if err := utils.ParseJSON(r, &payload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := utils.Validate.Struct(payload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// Check if species already exists (case insensitive) before invoking LLM
+	_, err := h.store.GetSpeciesByNameCaseInsensitive(payload.Name)
+	if err == nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("species with name '%s' already exists", payload.Name))
+		return
+	}
+
+	species, err := h.store.GenerateSpeciesFromName(payload.Name)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusCreated, species)
 }
 
 func (h *Handler) handleAdminDeleteSpeciesById(w http.ResponseWriter, r *http.Request) {
