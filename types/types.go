@@ -53,7 +53,10 @@ type SpeciesStore interface {
 	GetSpeciesByComName(string) (*Species, error)
 	GetSpeciesBySciName(string) (*Species, error)
 	GetSpeciesById(int) (*Species, error) // not used in any handler yet
+	GetSpeciesByNameCaseInsensitive(string) (*Species, error)
 	DeleteSpeciesById(int) error
+	GenerateSpeciesFromName(name string) (*Species, error)
+	UpdateSpeciesImage(speciesId int, imageURL string) error
 }
 
 type Species struct {
@@ -108,6 +111,10 @@ type UpdateSpeciesPayload struct {
 
 type SpeciesIdPayload struct {
 	SpeciesId int `json:"speciesId" validate:"required,min=0"`
+}
+
+type GenerateSpeciesPayload struct {
+	Name string `json:"name" validate:"required"`
 }
 
 // Habitat-related types

@@ -3,3 +3,7 @@ bin/animal-family-backend
 CLAUDE.md
 *.dump
 tmp/*
+
+.harlequin.toml
+postman
+.postman
