@@ -3,6 +3,7 @@ package species
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -53,7 +54,7 @@ Composition:
 - Animal centered in frame
 - Occupies roughly 60–70% of the canvas
 - Entire animal visible
-- Side profile or slight 3/4 angle
+- Facing left at a slight 3/4 angle
 - Consistent composition with a species icon library
 - Generous negative space around the animal
 
@@ -151,7 +152,7 @@ type openAIImageReq struct {
 
 type openAIImageResp struct {
 	Data []struct {
-		URL string `json:"url"`
+		B64JSON string `json:"b64_json"`
 	} `json:"data"`
 }
 
@@ -260,22 +261,9 @@ func generateAndUploadSpeciesImage(store *Store, speciesId int, comName, imageFi
 	prompt := strings.ReplaceAll(dalleBasePrompt, "{ANIMAL_NAME}", comName)
 	prompt = strings.ReplaceAll(prompt, "{BACKGROUND_DESCRIPTION}", theme.backgroundPrompt())
 
-	imageURL, err := callOpenAIImageGen(store.openAIKey, prompt)
+	imageBytes, err := callOpenAIImageGen(store.openAIKey, prompt)
 	if err != nil {
-		log.Printf("failed to generate DALL-E image for %s: %v", comName, err)
-		return
-	}
-
-	resp, err := http.Get(imageURL)
-	if err != nil {
-		log.Printf("failed to download generated image for %s: %v", comName, err)
-		return
-	}
-	defer resp.Body.Close()
-
-	imageBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Printf("failed to read generated image for %s: %v", comName, err)
+		log.Printf("failed to generate image for %s: %v", comName, err)
 		return
 	}
 
@@ -294,48 +282,53 @@ func generateAndUploadSpeciesImage(store *Store, speciesId int, comName, imageFi
 	log.Printf("image generated and uploaded for %s: %s", comName, s3URL)
 }
 
-// callOpenAIImageGen calls DALL-E 3 and returns the temporary image URL
-func callOpenAIImageGen(apiKey, prompt string) (string, error) {
+// callOpenAIImageGen calls gpt-image-2 and returns the decoded image bytes
+func callOpenAIImageGen(apiKey, prompt string) ([]byte, error) {
 	reqBody := openAIImageReq{
-		Model:   "dall-e-3",
+		Model:   "gpt-image-2",
 		Prompt:  prompt,
 		N:       1,
 		Size:    "1024x1024",
-		Quality: "standard",
+		Quality: "medium",
 	}
 
 	body, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, "https://api.openai.com/v1/images/generations", bytes.NewReader(body))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("openai image error %d: %s", resp.StatusCode, string(bodyBytes))
+		return nil, fmt.Errorf("openai image error %d: %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	var result openAIImageResp
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", err
+		return nil, err
 	}
 	if len(result.Data) == 0 {
-		return "", fmt.Errorf("openai returned no image data")
+		return nil, fmt.Errorf("openai returned no image data")
 	}
 
-	return result.Data[0].URL, nil
+	imageBytes, err := base64.StdEncoding.DecodeString(result.Data[0].B64JSON)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode base64 image: %w", err)
+	}
+
+	return imageBytes, nil
 }
 
 // uploadToS3 uploads bytes to the given S3 bucket and key
