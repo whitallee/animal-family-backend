@@ -8,9 +8,29 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// ENVIRONMENT must be set explicitly to one of these values - there is no
+// default. Only EnvDevelopment loads .env from disk via godotenv; EnvTest and
+// EnvProduction assume the process environment is already fully populated
+// (by the Makefile's shell-sourcing for test, or by ECS for production).
+const (
+	EnvDevelopment = "development"
+	EnvTest        = "test"
+	EnvProduction  = "production"
+)
+
+func isValidEnvironment(env string) bool {
+	switch env {
+	case EnvDevelopment, EnvTest, EnvProduction:
+		return true
+	default:
+		return false
+	}
+}
+
 type Config struct {
-	PublicHost string
-	Port       string
+	Environment string
+	PublicHost  string
+	Port        string
 
 	DBHost      string
 	DBPort      string
@@ -33,14 +53,20 @@ type Config struct {
 var Envs = initConfig()
 
 func initConfig() Config {
-	if os.Getenv("ENVIRONMENT") == "" {
-		err := godotenv.Load()
-		if err != nil {
+	environment := os.Getenv("ENVIRONMENT")
+	if !isValidEnvironment(environment) {
+		log.Fatalf("ENVIRONMENT must be set explicitly to %q, %q, or %q (got %q)",
+			EnvDevelopment, EnvTest, EnvProduction, environment)
+	}
+
+	if environment == EnvDevelopment {
+		if err := godotenv.Load(); err != nil {
 			log.Fatal("Error loading .env file")
 		}
 	}
 
 	return Config{
+		Environment: environment,
 		PublicHost:  getEnv("PUBLIC_HOST", "http://localhost"),
 		Port:        getEnv("PORT", "8080"),
 		DBHost:      getEnv("DB_HOST", "localhost"),
@@ -48,9 +74,10 @@ func initConfig() Config {
 		DBUser:      getEnv("DB_USER", "postgres"),
 		DBPassword:  getEnv("DB_PASSWORD", "passwordNotFound"),
 		DBName:      getEnv("DB_NAME", "nameNotFound"),
-		DBSSLMode:   getEnv("DB_SSL_MODE", "disable"),
+		DBSSLMode:   getEnv("DB_SSL_MODE", defaultDBSSLMode(environment)),
 		JWTExpInSec: getEnvAsInt("JWT_EXP_IN_SEC", 3600*24*7),
 		JWTSecret:   getEnv("JWT_SECRET", "secretNotFoundAndNotSecretAnymore"),
+
 		VAPIDPublicKey:  getEnv("VAPID_PUBLIC_KEY", ""),
 		VAPIDPrivateKey: getEnv("VAPID_PRIVATE_KEY", ""),
 		VAPIDSubject:    getEnv("VAPID_SUBJECT", "mailto:noreply@animalfamily.app"),
@@ -59,6 +86,21 @@ func initConfig() Config {
 		S3AssetsBucket: getEnv("S3_ASSETS_BUCKET", "brindl-assets"),
 		AWSRegion:      getEnv("AWS_REGION", "us-east-1"),
 	}
+}
+
+// defaultDBSSLMode is the DB_SSL_MODE fallback when it isn't set explicitly:
+// RDS requires SSL, so production defaults to requiring it; a local Postgres
+// typically isn't configured for SSL at all.
+func defaultDBSSLMode(environment string) string {
+	if environment == EnvProduction {
+		return "require"
+	}
+
+	return "disable"
+}
+
+func (c Config) IsProduction() bool {
+	return c.Environment == EnvProduction
 }
 
 func getEnv(key, fallback string) string {

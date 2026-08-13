@@ -21,7 +21,7 @@
 
 ## Infra / DevOps
 
-- [ ] Verify `OPENAI_API_KEY` has been added to the live ECS task definition (`brindl-backend`) — added to local `.env` and tested locally on 2026-07-27 but not yet confirmed deployed
+- [x] Verify `OPENAI_API_KEY` has been added to the live ECS task definition (`brindl-backend`) — confirmed present in revision 7 (2026-07-31)
 - [ ] When setting up Terraform/IaC for ECS (see CLAUDE.md "Deployment"): move secrets out of the task definition's plaintext `environment` block into AWS Secrets Manager/SSM, referenced via the task def's `secrets` field. Terraform should declare the full set of secret references as code so a re-render can't silently drop one, and so secrets aren't readable in plaintext via `describe-task-definition`
 
 ## Features
