@@ -17,6 +17,7 @@ import (
 	"github.com/whitallee/animal-family-backend/service/species"
 	"github.com/whitallee/animal-family-backend/service/task"
 	"github.com/whitallee/animal-family-backend/service/user"
+	"github.com/whitallee/animal-family-backend/utils"
 )
 
 type APIServer struct {
@@ -33,6 +34,7 @@ func NewAPIServer(addr string, db *sql.DB) *APIServer {
 
 func (s *APIServer) Run() error {
 	router := mux.NewRouter()
+	router.HandleFunc("/health", s.handleHealth).Methods("GET")
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
 
 	userStore := user.NewStore(s.db)
@@ -91,4 +93,13 @@ func (s *APIServer) Run() error {
 	log.Println("Listening on", s.addr)
 
 	return http.ListenAndServe(s.addr, handlers.CORS(headersOk, originsOk, methodsOk)(router))
+}
+
+func (s *APIServer) handleHealth(w http.ResponseWriter, r *http.Request) {
+	if err := s.db.Ping(); err != nil {
+		utils.WriteError(w, http.StatusServiceUnavailable, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }

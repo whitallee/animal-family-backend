@@ -8,7 +8,7 @@ A Go backend API for managing animal care tasks, enclosures, and related data.
 
 ## Prerequisites
 
-- Go 1.23.4 or later
+- Go 1.24 or later
 - PostgreSQL
 - Make (optional, for using Makefile commands)
 
@@ -23,23 +23,13 @@ cd animal-family-backend
 
 ### 2. Set Up Environment Variables
 
-Create a `.env` file in the root directory with the following variables:
+Copy `.env.example` to `.env` and fill in real values:
 
-```env
-JWT_SECRET
-FRONTEND_URL
-
-# These are the values for running locally
-PUBLIC_HOST=http://localhost
-PORT=8080
-
-# I'm using a railway server for my database, which is where I get these from
-DB_USER
-DB_PASSWORD
-DB_HOST
-DB_PORT
-DB_NAME
+```bash
+cp .env.example .env
 ```
+
+See `.env.example` for the full list of variables and their defaults.
 
 ### 3. Set Up Database
 
