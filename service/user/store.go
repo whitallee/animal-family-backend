@@ -92,7 +92,6 @@ func (s *Store) DeleteUserById(userID int) error {
 
 	tasks := make([]*types.Task, 0)
 	for tRows.Next() {
-		task := new(types.Task)
 		task, err := utils.ScanRowsIntoTask(tRows)
 		if err != nil {
 			return err

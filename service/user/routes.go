@@ -75,7 +75,7 @@ func (h *Handler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	_ = utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 func (h *Handler) handleUserLogin(w http.ResponseWriter, r *http.Request) {
@@ -113,7 +113,7 @@ func (h *Handler) handleUserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+	_ = utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"token": token,
 		"user": map[string]interface{}{
 			"id":        u.ID,
@@ -144,7 +144,7 @@ func (h *Handler) handleUserRefreshToken(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+	_ = utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"token": token,
 		"user": map[string]interface{}{
 			"id":        u.ID,
@@ -168,7 +168,7 @@ func (h *Handler) handleUserDeleteUserById(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminDeleteUserById(w http.ResponseWriter, r *http.Request) {
@@ -200,7 +200,7 @@ func (h *Handler) handleAdminDeleteUserById(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminDeleteUserByEmail(w http.ResponseWriter, r *http.Request) {
@@ -238,5 +238,5 @@ func (h *Handler) handleAdminDeleteUserByEmail(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }

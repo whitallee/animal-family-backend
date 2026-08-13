@@ -63,7 +63,7 @@ func (h *Handler) handleCheckTaskCompletion(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Return immediately
-	utils.WriteJSON(w, http.StatusOK, map[string]int{
+	_ = utils.WriteJSON(w, http.StatusOK, map[string]int{
 		"tasksReset": len(resetTasks),
 	})
 }
@@ -115,7 +115,7 @@ func (h *Handler) handleAdminCreateTask(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	_ = utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 func (h *Handler) handleUserCreateTask(w http.ResponseWriter, r *http.Request) {
@@ -161,7 +161,7 @@ func (h *Handler) handleUserCreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	_ = utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 func (h *Handler) handleAdminUpdateTask(w http.ResponseWriter, r *http.Request) {
@@ -193,7 +193,7 @@ func (h *Handler) handleAdminUpdateTask(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminUpdateTaskOwner(w http.ResponseWriter, r *http.Request) {
@@ -228,7 +228,7 @@ func (h *Handler) handleAdminUpdateTaskOwner(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleUserUpdateTask(w http.ResponseWriter, r *http.Request) {
@@ -263,7 +263,7 @@ func (h *Handler) handleUserUpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminUpdateTaskSubject(w http.ResponseWriter, r *http.Request) {
@@ -301,7 +301,7 @@ func (h *Handler) handleAdminUpdateTaskSubject(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleUserUpdateTaskSubject(w http.ResponseWriter, r *http.Request) {
@@ -342,7 +342,7 @@ func (h *Handler) handleUserUpdateTaskSubject(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminGetTasksByUser(w http.ResponseWriter, r *http.Request) {
@@ -374,7 +374,7 @@ func (h *Handler) handleAdminGetTasksByUser(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, taskList)
+	_ = utils.WriteJSON(w, http.StatusOK, taskList)
 
 }
 
@@ -389,7 +389,7 @@ func (h *Handler) handleUserGetTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, taskList)
+	_ = utils.WriteJSON(w, http.StatusOK, taskList)
 
 }
 
@@ -422,7 +422,7 @@ func (h *Handler) handleAdminGetTaskById(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, task)
+	_ = utils.WriteJSON(w, http.StatusOK, task)
 
 }
 
@@ -458,7 +458,7 @@ func (h *Handler) handleUserGetTaskById(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, task)
+	_ = utils.WriteJSON(w, http.StatusOK, task)
 
 }
 
@@ -491,7 +491,7 @@ func (h *Handler) handleAdminGetTasksBySubject(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, taskList)
+	_ = utils.WriteJSON(w, http.StatusOK, taskList)
 
 }
 
@@ -535,7 +535,7 @@ func (h *Handler) handleUserGetTasksBySubject(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, taskList)
+	_ = utils.WriteJSON(w, http.StatusOK, taskList)
 
 }
 
@@ -568,7 +568,7 @@ func (h *Handler) handleAdminDeleteTask(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleUserDeleteTask(w http.ResponseWriter, r *http.Request) {
@@ -603,5 +603,5 @@ func (h *Handler) handleUserDeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }

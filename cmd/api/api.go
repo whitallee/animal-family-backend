@@ -120,5 +120,5 @@ func (s *APIServer) handleHealth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	_ = utils.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }

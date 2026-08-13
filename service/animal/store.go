@@ -267,7 +267,7 @@ func (s *Store) DeleteAnimalAndTasksById(animalId int) error {
 		}
 		taskIds = append(taskIds, taskId)
 	}
-	rows.Close()
+	_ = rows.Close()
 
 	// start deletion transaction
 	tx, err := s.db.Begin()
@@ -279,17 +279,17 @@ func (s *Store) DeleteAnimalAndTasksById(animalId int) error {
 	for _, taskId := range taskIds {
 		_, err = tx.Exec(`DELETE FROM "taskUser" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "taskSubject" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "tasks" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 	}
@@ -297,12 +297,12 @@ func (s *Store) DeleteAnimalAndTasksById(animalId int) error {
 	// delete from animalUser and animals
 	_, err = tx.Exec(`DELETE FROM "animalUser" WHERE "animalId" = $1`, animalId)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 	_, err = tx.Exec(`DELETE FROM "animals" WHERE "animalId" = $1`, animalId)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 

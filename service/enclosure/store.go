@@ -92,12 +92,12 @@ func (s *Store) UpdateEnclosureOwnerWithAnimals(oldEnclosureUser types.Enclosure
 	for rows.Next() {
 		var animalId int
 		if err := rows.Scan(&animalId); err != nil {
-			rows.Close()
+			_ = rows.Close()
 			return err
 		}
 		animalIds = append(animalIds, animalId)
 	}
-	rows.Close()
+	_ = rows.Close()
 
 	// start update owners transaction
 	tx, err := s.db.Begin()
@@ -272,12 +272,12 @@ func (s *Store) DeleteEnclosureById(enclosureId int) error {
 		var taskId int
 		err = taskRows.Scan(&taskId)
 		if err != nil {
-			taskRows.Close()
+			_ = taskRows.Close()
 			return err
 		}
 		taskIds = append(taskIds, taskId)
 	}
-	taskRows.Close()
+	_ = taskRows.Close()
 
 	// get animals from enclosure
 	animalRows, err := s.db.Query(`SELECT "animalId" FROM "animals" WHERE "enclosureId" = $1`, enclosureId)
@@ -289,12 +289,12 @@ func (s *Store) DeleteEnclosureById(enclosureId int) error {
 	for animalRows.Next() {
 		var animalId int
 		if err := animalRows.Scan(&animalId); err != nil {
-			animalRows.Close()
+			_ = animalRows.Close()
 			return err
 		}
 		enclosureAnimalIds = append(enclosureAnimalIds, animalId)
 	}
-	animalRows.Close()
+	_ = animalRows.Close()
 
 	// start enclosureId updates on animals and deletion transaction
 	tx, err := s.db.Begin()
@@ -306,17 +306,17 @@ func (s *Store) DeleteEnclosureById(enclosureId int) error {
 	for _, taskId := range taskIds {
 		_, err = tx.Exec(`DELETE FROM "taskUser" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "taskSubject" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "tasks" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 	}
@@ -325,7 +325,7 @@ func (s *Store) DeleteEnclosureById(enclosureId int) error {
 	for _, animalId := range enclosureAnimalIds {
 		_, err = tx.Exec(`UPDATE "animals" SET "enclosureId" = NULL WHERE "animalId" = $1`, animalId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 	}
@@ -333,12 +333,12 @@ func (s *Store) DeleteEnclosureById(enclosureId int) error {
 	// delete from enclosureUser and enclosures
 	_, err = tx.Exec(`DELETE FROM "enclosureUser" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 	_, err = tx.Exec(`DELETE FROM "enclosures" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 
@@ -362,12 +362,12 @@ func (s *Store) DeleteEnclosureAndTasksById(enclosureId int) error {
 		var taskId int
 		err = taskRows.Scan(&taskId)
 		if err != nil {
-			taskRows.Close()
+			_ = taskRows.Close()
 			return err
 		}
 		taskIds = append(taskIds, taskId)
 	}
-	taskRows.Close()
+	_ = taskRows.Close()
 
 	// get animals from enclosure
 	animalRows, err := s.db.Query(`SELECT "animalId" FROM "animals" WHERE "enclosureId" = $1`, enclosureId)
@@ -379,12 +379,12 @@ func (s *Store) DeleteEnclosureAndTasksById(enclosureId int) error {
 	for animalRows.Next() {
 		var animalId int
 		if err := animalRows.Scan(&animalId); err != nil {
-			animalRows.Close()
+			_ = animalRows.Close()
 			return err
 		}
 		enclosureAnimalIds = append(enclosureAnimalIds, animalId)
 	}
-	animalRows.Close()
+	_ = animalRows.Close()
 
 	// start deletion transaction
 	tx, err := s.db.Begin()
@@ -396,17 +396,17 @@ func (s *Store) DeleteEnclosureAndTasksById(enclosureId int) error {
 	for _, taskId := range taskIds {
 		_, err = tx.Exec(`DELETE FROM "taskUser" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "taskSubject" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "tasks" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 	}
@@ -415,7 +415,7 @@ func (s *Store) DeleteEnclosureAndTasksById(enclosureId int) error {
 	for _, animalId := range enclosureAnimalIds {
 		_, err = tx.Exec(`UPDATE "animals" SET "enclosureId" = NULL WHERE "animalId" = $1`, animalId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 	}
@@ -423,12 +423,12 @@ func (s *Store) DeleteEnclosureAndTasksById(enclosureId int) error {
 	// delete from enclosureUser and enclosures
 	_, err = tx.Exec(`DELETE FROM "enclosureUser" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 	_, err = tx.Exec(`DELETE FROM "enclosures" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 
@@ -451,12 +451,12 @@ func (s *Store) DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error {
 	for animalRows.Next() {
 		var animalId int
 		if err := animalRows.Scan(&animalId); err != nil {
-			animalRows.Close()
+			_ = animalRows.Close()
 			return err
 		}
 		enclosureAnimalIds = append(enclosureAnimalIds, animalId)
 	}
-	animalRows.Close()
+	_ = animalRows.Close()
 
 	// get tasks associated with this enclosure
 	enclosureTaskRows, err := s.db.Query(`SELECT "taskId" FROM "taskSubject" WHERE "enclosureId" = $1`, enclosureId)
@@ -469,12 +469,12 @@ func (s *Store) DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error {
 		var taskId int
 		err = enclosureTaskRows.Scan(&taskId)
 		if err != nil {
-			enclosureTaskRows.Close()
+			_ = enclosureTaskRows.Close()
 			return err
 		}
 		enclosureTaskIds = append(enclosureTaskIds, taskId)
 	}
-	enclosureTaskRows.Close()
+	_ = enclosureTaskRows.Close()
 
 	// get all animal task IDs before starting transaction
 	allAnimalTaskIds := make([]int, 0)
@@ -488,12 +488,12 @@ func (s *Store) DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error {
 			var taskId int
 			err = animalTaskRows.Scan(&taskId)
 			if err != nil {
-				animalTaskRows.Close()
+				_ = animalTaskRows.Close()
 				return err
 			}
 			allAnimalTaskIds = append(allAnimalTaskIds, taskId)
 		}
-		animalTaskRows.Close()
+		_ = animalTaskRows.Close()
 	}
 
 	// start deletion transaction
@@ -506,17 +506,17 @@ func (s *Store) DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error {
 	for _, taskId := range allAnimalTaskIds {
 		_, err = tx.Exec(`DELETE FROM "taskUser" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "taskSubject" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "tasks" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 	}
@@ -525,12 +525,12 @@ func (s *Store) DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error {
 	for _, animalId := range enclosureAnimalIds {
 		_, err = tx.Exec(`DELETE FROM "animalUser" WHERE "animalId" = $1`, animalId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "animals" WHERE "animalId" = $1`, animalId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 	}
@@ -539,17 +539,17 @@ func (s *Store) DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error {
 	for _, taskId := range enclosureTaskIds {
 		_, err = tx.Exec(`DELETE FROM "taskUser" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "taskSubject" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "tasks" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 	}
@@ -557,12 +557,12 @@ func (s *Store) DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error {
 	// delete from enclosureUser and enclosures
 	_, err = tx.Exec(`DELETE FROM "enclosureUser" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 	_, err = tx.Exec(`DELETE FROM "enclosures" WHERE "enclosureId" = $1`, enclosureId)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 

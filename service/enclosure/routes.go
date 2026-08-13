@@ -59,7 +59,7 @@ func (h *Handler) handleAdminGetEnclosures(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, enclosureList)
+	_ = utils.WriteJSON(w, http.StatusOK, enclosureList)
 }
 
 func (h *Handler) handleAdminGetEnclosuresByUser(w http.ResponseWriter, r *http.Request) {
@@ -91,7 +91,7 @@ func (h *Handler) handleAdminGetEnclosuresByUser(w http.ResponseWriter, r *http.
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, enclosureList)
+	_ = utils.WriteJSON(w, http.StatusOK, enclosureList)
 }
 
 func (h *Handler) handleUserGetEnclosures(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +105,7 @@ func (h *Handler) handleUserGetEnclosures(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, enclosureList)
+	_ = utils.WriteJSON(w, http.StatusOK, enclosureList)
 }
 
 func (h *Handler) handleAdminGetEnclosureById(w http.ResponseWriter, r *http.Request) {
@@ -137,7 +137,7 @@ func (h *Handler) handleAdminGetEnclosureById(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, enclosure)
+	_ = utils.WriteJSON(w, http.StatusOK, enclosure)
 }
 
 func (h *Handler) handleUserGetEnclosureById(w http.ResponseWriter, r *http.Request) {
@@ -172,7 +172,7 @@ func (h *Handler) handleUserGetEnclosureById(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, enclosure)
+	_ = utils.WriteJSON(w, http.StatusOK, enclosure)
 }
 
 func (h *Handler) handleAdminCreateEnclosure(w http.ResponseWriter, r *http.Request) {
@@ -216,7 +216,7 @@ func (h *Handler) handleAdminCreateEnclosure(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	_ = utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 func (h *Handler) handleUserCreateEnclosure(w http.ResponseWriter, r *http.Request) {
@@ -252,7 +252,7 @@ func (h *Handler) handleUserCreateEnclosure(w http.ResponseWriter, r *http.Reque
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	_ = utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 func (h *Handler) handleAdminCreateEnclosureWithAnimals(w http.ResponseWriter, r *http.Request) {
@@ -296,7 +296,7 @@ func (h *Handler) handleAdminCreateEnclosureWithAnimals(w http.ResponseWriter, r
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	_ = utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 func (h *Handler) handleUserCreateEnclosureWithAnimals(w http.ResponseWriter, r *http.Request) {
@@ -336,7 +336,7 @@ func (h *Handler) handleUserCreateEnclosureWithAnimals(w http.ResponseWriter, r 
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	_ = utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 func (h *Handler) handleAdminUpdateEnclosure(w http.ResponseWriter, r *http.Request) {
@@ -382,7 +382,7 @@ func (h *Handler) handleAdminUpdateEnclosure(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminUpdateEnclosureOwner(w http.ResponseWriter, r *http.Request) {
@@ -416,7 +416,7 @@ func (h *Handler) handleAdminUpdateEnclosureOwner(w http.ResponseWriter, r *http
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleUserUpdateEnclosure(w http.ResponseWriter, r *http.Request) {
@@ -458,7 +458,7 @@ func (h *Handler) handleUserUpdateEnclosure(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminDeleteEnclosureById(w http.ResponseWriter, r *http.Request) {
@@ -490,7 +490,7 @@ func (h *Handler) handleAdminDeleteEnclosureById(w http.ResponseWriter, r *http.
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleUserDeleteEnclosureById(w http.ResponseWriter, r *http.Request) {
@@ -525,7 +525,7 @@ func (h *Handler) handleUserDeleteEnclosureById(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminDeleteEnclosureWithTasksById(w http.ResponseWriter, r *http.Request) {
@@ -557,7 +557,7 @@ func (h *Handler) handleAdminDeleteEnclosureWithTasksById(w http.ResponseWriter,
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminDeleteEnclosureWithAnimalsAndTasksById(w http.ResponseWriter, r *http.Request) {
@@ -589,7 +589,7 @@ func (h *Handler) handleAdminDeleteEnclosureWithAnimalsAndTasksById(w http.Respo
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleUserDeleteEnclosureWithTasksById(w http.ResponseWriter, r *http.Request) {
@@ -624,7 +624,7 @@ func (h *Handler) handleUserDeleteEnclosureWithTasksById(w http.ResponseWriter, 
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleUserDeleteEnclosureWithAnimalsAndTasksById(w http.ResponseWriter, r *http.Request) {
@@ -659,5 +659,5 @@ func (h *Handler) handleUserDeleteEnclosureWithAnimalsAndTasksById(w http.Respon
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }

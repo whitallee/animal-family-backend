@@ -42,7 +42,7 @@ func (h *Handler) handleListSpecies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, speciesList)
+	_ = utils.WriteJSON(w, http.StatusOK, speciesList)
 }
 
 // handleCreateSpecies godoc
@@ -105,7 +105,7 @@ func (h *Handler) handleCreateSpecies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	_ = utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 // handleGenerateSpecies godoc
@@ -147,7 +147,7 @@ func (h *Handler) handleGenerateSpecies(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, species)
+	_ = utils.WriteJSON(w, http.StatusCreated, species)
 }
 
 // handleUpdateSpecies godoc
@@ -212,7 +212,7 @@ func (h *Handler) handleUpdateSpecies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 // handleDeleteSpecies godoc
@@ -247,5 +247,5 @@ func (h *Handler) handleDeleteSpecies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }

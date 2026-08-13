@@ -37,7 +37,7 @@ func (h *Handler) handleGetHabitats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, habitatsList)
+	_ = utils.WriteJSON(w, http.StatusOK, habitatsList)
 
 }
 
@@ -83,7 +83,7 @@ func (h *Handler) handleAdminCreateHabitat(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	_ = utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 func (h *Handler) handleAdminUpdateHabitat(w http.ResponseWriter, r *http.Request) {
@@ -121,7 +121,7 @@ func (h *Handler) handleAdminUpdateHabitat(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminDeleteHabitatById(w http.ResponseWriter, r *http.Request) {
@@ -159,5 +159,5 @@ func (h *Handler) handleAdminDeleteHabitatById(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }

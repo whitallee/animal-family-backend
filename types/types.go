@@ -387,20 +387,20 @@ func (u *UpdateAnimalPayload) UnmarshalJSON(data []byte) error {
 	}
 
 	// Copy all fields from Alias to u
-	u.AnimalId = aux.Alias.AnimalId
-	u.AnimalName = aux.Alias.AnimalName
-	u.SpeciesId = aux.Alias.SpeciesId
-	u.EnclosureId = aux.Alias.EnclosureId
-	u.Image = aux.Alias.Image
-	u.Gender = aux.Alias.Gender
-	u.Dob = aux.Alias.Dob
-	u.PersonalityDesc = aux.Alias.PersonalityDesc
-	u.DietDesc = aux.Alias.DietDesc
-	u.RoutineDesc = aux.Alias.RoutineDesc
-	u.ExtraNotes = aux.Alias.ExtraNotes
-	u.IsMemorialized = aux.Alias.IsMemorialized
-	u.LastMessage = aux.Alias.LastMessage
-	u.MemorialPhotos = aux.Alias.MemorialPhotos
+	u.AnimalId = aux.AnimalId
+	u.AnimalName = aux.AnimalName
+	u.SpeciesId = aux.SpeciesId
+	u.EnclosureId = aux.EnclosureId
+	u.Image = aux.Image
+	u.Gender = aux.Gender
+	u.Dob = aux.Dob
+	u.PersonalityDesc = aux.PersonalityDesc
+	u.DietDesc = aux.DietDesc
+	u.RoutineDesc = aux.RoutineDesc
+	u.ExtraNotes = aux.ExtraNotes
+	u.IsMemorialized = aux.IsMemorialized
+	u.LastMessage = aux.LastMessage
+	u.MemorialPhotos = aux.MemorialPhotos
 
 	// Parse MemorialDate - handle both date-only (YYYY-MM-DD) and full datetime formats
 	if aux.MemorialDate != "" {

@@ -38,7 +38,7 @@ func (h *Handler) handleGetSpecies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, speciesList)
+	_ = utils.WriteJSON(w, http.StatusOK, speciesList)
 
 }
 
@@ -92,7 +92,7 @@ func (h *Handler) handleAdminCreateSpecies(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	_ = utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 func (h *Handler) handleAdminUpdateSpecies(w http.ResponseWriter, r *http.Request) {
@@ -130,7 +130,7 @@ func (h *Handler) handleAdminUpdateSpecies(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminGenerateSpecies(w http.ResponseWriter, r *http.Request) {
@@ -165,7 +165,7 @@ func (h *Handler) handleAdminGenerateSpecies(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, species)
+	_ = utils.WriteJSON(w, http.StatusCreated, species)
 }
 
 func (h *Handler) handleAdminDeleteSpeciesById(w http.ResponseWriter, r *http.Request) {
@@ -203,5 +203,5 @@ func (h *Handler) handleAdminDeleteSpeciesById(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
 }

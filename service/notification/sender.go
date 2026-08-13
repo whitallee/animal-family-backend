@@ -103,7 +103,7 @@ func (ns *NotificationSender) SendSingleNotificationWithStatus(sub *types.PushSu
 
 	statusCode := 0
 	if resp != nil {
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 		statusCode = resp.StatusCode
 
 		// Read response body for debugging
@@ -119,7 +119,7 @@ func (ns *NotificationSender) SendSingleNotificationWithStatus(sub *types.PushSu
 		// Handle 410 Gone (expired subscription) or 404 Not Found
 		if resp.StatusCode == 410 || resp.StatusCode == 404 {
 			log.Printf("subscription expired, deleting: %d", sub.SubscriptionId)
-			ns.store.DeleteSubscription(sub.SubscriptionId)
+			_ = ns.store.DeleteSubscription(sub.SubscriptionId)
 		}
 	}
 
@@ -173,7 +173,7 @@ func (ns *NotificationSender) sendNotification(sub *types.PushSubscription, task
 	})
 
 	if resp != nil {
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		// Log response details for debugging
 		log.Printf("Push service response - Status: %d, Endpoint: %s", resp.StatusCode, sub.Endpoint[:50])
@@ -181,7 +181,7 @@ func (ns *NotificationSender) sendNotification(sub *types.PushSubscription, task
 		// Handle 410 Gone (expired subscription) or 404 Not Found
 		if resp.StatusCode == 410 || resp.StatusCode == 404 {
 			log.Printf("subscription expired, deleting: %d", sub.SubscriptionId)
-			ns.store.DeleteSubscription(sub.SubscriptionId)
+			_ = ns.store.DeleteSubscription(sub.SubscriptionId)
 		}
 
 		// Log non-2xx responses

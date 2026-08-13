@@ -53,7 +53,7 @@ func (s *Store) CheckAndResetTasks() ([]*types.TaskResetNotification, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	// Collect tasks to reset
 	var tasks []*types.TaskResetNotification
@@ -263,7 +263,6 @@ func (s *Store) GetTasksBySubjectIds(animalId int, enclosureId int) ([]*types.Ta
 
 	tasks := make([]*types.Task, 0)
 	for rows.Next() {
-		task := new(types.Task)
 		task, err := utils.ScanRowsIntoTask(rows)
 		if err != nil {
 			return nil, err
