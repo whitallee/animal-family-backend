@@ -1,0 +1,895 @@
+{
+  "components": {
+    "schemas": {
+      "CreateHabitatPayload": {
+        "properties": {
+          "dayTempRange": {
+            "type": "string"
+          },
+          "habitatDesc": {
+            "type": "string"
+          },
+          "habitatName": {
+            "type": "string"
+          },
+          "humidity": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "nightTempRange": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dayTempRange",
+          "habitatDesc",
+          "habitatName",
+          "humidity",
+          "image",
+          "nightTempRange"
+        ],
+        "type": "object"
+      },
+      "CreateSpeciesPayload": {
+        "properties": {
+          "baskTemp": {
+            "type": "string"
+          },
+          "comName": {
+            "type": "string"
+          },
+          "conservationStatus": {
+            "type": "string"
+          },
+          "diet": {
+            "type": "string"
+          },
+          "extraCare": {
+            "type": "string"
+          },
+          "habitatId": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "lifespan": {
+            "type": "string"
+          },
+          "sciName": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "sociality": {
+            "type": "string"
+          },
+          "speciesDesc": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "baskTemp",
+          "comName",
+          "conservationStatus",
+          "diet",
+          "extraCare",
+          "habitatId",
+          "image",
+          "lifespan",
+          "sciName",
+          "size",
+          "sociality",
+          "speciesDesc",
+          "weight"
+        ],
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "example": "admin access required",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "type": "object"
+      },
+      "GenerateSpeciesPayload": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "Habitat": {
+        "properties": {
+          "dayTempRange": {
+            "type": "string"
+          },
+          "habitatDesc": {
+            "type": "string"
+          },
+          "habitatId": {
+            "type": "integer"
+          },
+          "habitatName": {
+            "type": "string"
+          },
+          "humidity": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "nightTempRange": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dayTempRange",
+          "habitatDesc",
+          "habitatId",
+          "habitatName",
+          "humidity",
+          "image",
+          "nightTempRange"
+        ],
+        "type": "object"
+      },
+      "Species": {
+        "properties": {
+          "baskTemp": {
+            "type": "string"
+          },
+          "comName": {
+            "type": "string"
+          },
+          "conservationStatus": {
+            "type": "string"
+          },
+          "diet": {
+            "type": "string"
+          },
+          "extraCare": {
+            "type": "string"
+          },
+          "habitatId": {
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "lifespan": {
+            "type": "string"
+          },
+          "sciName": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "sociality": {
+            "type": "string"
+          },
+          "speciesDesc": {
+            "type": "string"
+          },
+          "speciesId": {
+            "type": "integer"
+          },
+          "weight": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "baskTemp",
+          "comName",
+          "conservationStatus",
+          "diet",
+          "extraCare",
+          "habitatId",
+          "image",
+          "lifespan",
+          "sciName",
+          "size",
+          "sociality",
+          "speciesDesc",
+          "speciesId",
+          "weight"
+        ],
+        "type": "object"
+      },
+      "UpdateHabitatV2Payload": {
+        "properties": {
+          "dayTempRange": {
+            "type": "string"
+          },
+          "habitatDesc": {
+            "type": "string"
+          },
+          "habitatName": {
+            "type": "string"
+          },
+          "humidity": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "nightTempRange": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dayTempRange",
+          "habitatDesc",
+          "habitatName",
+          "humidity",
+          "image",
+          "nightTempRange"
+        ],
+        "type": "object"
+      },
+      "UpdateSpeciesV2Payload": {
+        "properties": {
+          "baskTemp": {
+            "type": "string"
+          },
+          "comName": {
+            "type": "string"
+          },
+          "conservationStatus": {
+            "type": "string"
+          },
+          "diet": {
+            "type": "string"
+          },
+          "extraCare": {
+            "type": "string"
+          },
+          "habitatId": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "lifespan": {
+            "type": "string"
+          },
+          "sciName": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "sociality": {
+            "type": "string"
+          },
+          "speciesDesc": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "baskTemp",
+          "comName",
+          "conservationStatus",
+          "diet",
+          "extraCare",
+          "habitatId",
+          "image",
+          "lifespan",
+          "sciName",
+          "size",
+          "sociality",
+          "speciesDesc",
+          "weight"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "description": "Raw JWT token from POST /users/login. Sent verbatim with no \"Bearer \" prefix.",
+        "in": "header",
+        "name": "Authorization",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "contact": {},
+    "description": "REST API for managing animals, enclosures and care tasks.\n\nOnly v2 routes are documented here. v1 remains served at /api/v1 for\nbackwards compatibility but is not part of this contract.",
+    "title": "Animal Family API",
+    "version": "2.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/habitats": {
+      "get": {
+        "description": "Returns every habitat. Habitats are global reference data, not user-owned, so this endpoint is public.",
+        "operationId": "listHabitats",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Habitat"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "List all habitats",
+        "tags": [
+          "habitats"
+        ]
+      },
+      "post": {
+        "description": "Admin only. Fails if a habitat with the same name already exists.",
+        "operationId": "createHabitat",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHabitatPayload"
+              }
+            }
+          },
+          "description": "Habitat to create",
+          "required": true,
+          "x-originalParamName": "habitat"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create a habitat",
+        "tags": [
+          "habitats"
+        ]
+      }
+    },
+    "/habitats/{id}": {
+      "delete": {
+        "description": "Admin only.",
+        "operationId": "deleteHabitat",
+        "parameters": [
+          {
+            "description": "Habitat ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete a habitat",
+        "tags": [
+          "habitats"
+        ]
+      },
+      "put": {
+        "description": "Admin only. Replaces all fields of the habitat identified by the path parameter.",
+        "operationId": "updateHabitat",
+        "parameters": [
+          {
+            "description": "Habitat ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateHabitatV2Payload"
+              }
+            }
+          },
+          "description": "Updated habitat fields",
+          "required": true,
+          "x-originalParamName": "habitat"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Update a habitat",
+        "tags": [
+          "habitats"
+        ]
+      }
+    },
+    "/species": {
+      "get": {
+        "description": "Returns every species. Species are global reference data, not user-owned, so this endpoint is public.",
+        "operationId": "listSpecies",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Species"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "List all species",
+        "tags": [
+          "species"
+        ]
+      },
+      "post": {
+        "description": "Admin only. Fails if a species with the same common or scientific name already exists.",
+        "operationId": "createSpecies",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSpeciesPayload"
+              }
+            }
+          },
+          "description": "Species to create",
+          "required": true,
+          "x-originalParamName": "species"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create a species",
+        "tags": [
+          "species"
+        ]
+      }
+    },
+    "/species/generate": {
+      "post": {
+        "description": "Admin only. Uses an LLM to populate species details and generates an image, uploading it to S3. Fails if a species with that name already exists (case insensitive).",
+        "operationId": "generateSpecies",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateSpeciesPayload"
+              }
+            }
+          },
+          "description": "Common name of the species to generate",
+          "required": true,
+          "x-originalParamName": "species"
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Species"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Generate a species from a name",
+        "tags": [
+          "species"
+        ]
+      }
+    },
+    "/species/{id}": {
+      "delete": {
+        "description": "Admin only.",
+        "operationId": "deleteSpecies",
+        "parameters": [
+          {
+            "description": "Species ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete a species",
+        "tags": [
+          "species"
+        ]
+      },
+      "put": {
+        "description": "Admin only. Replaces all fields of the species identified by the path parameter.",
+        "operationId": "updateSpecies",
+        "parameters": [
+          {
+            "description": "Species ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSpeciesV2Payload"
+              }
+            }
+          },
+          "description": "Updated species fields",
+          "required": true,
+          "x-originalParamName": "species"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Update a species",
+        "tags": [
+          "species"
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Relative to the API host, configured per environment.",
+      "url": "/api/v2"
+    }
+  ]
+}

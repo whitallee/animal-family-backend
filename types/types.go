@@ -59,6 +59,7 @@ type SpeciesStore interface {
 	UpdateSpeciesImage(speciesId int, imageURL string) error
 }
 
+// Species is a global reference record describing an animal type.
 type Species struct {
 	SpeciesID          int    `json:"speciesId"`
 	ComName            string `json:"comName"`
@@ -127,6 +128,7 @@ type HabitatStore interface {
 	DeleteHabitatById(int) error
 }
 
+// Habitat is a global reference record describing an environment type.
 type Habitat struct {
 	HabitatId      int    `json:"habitatId"`
 	HabitatName    string `json:"habitatName"`

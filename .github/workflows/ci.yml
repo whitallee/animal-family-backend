@@ -54,6 +54,12 @@ jobs:
       - name: Test
         run: ENVIRONMENT=test go test -v ./...
 
+      # Catches a v2 handler whose annotations changed without docs/openapi.json
+      # being regenerated, which would leave the frontend's generated client
+      # built from a stale contract.
+      - name: API spec is up to date
+        run: make spec-check
+
       - name: Vulnerability check
         uses: golang/govulncheck-action@v1
         with:
