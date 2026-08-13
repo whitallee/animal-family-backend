@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_call:
+
+# github.event_name differs between a standalone trigger (push/pull_request)
+# and this workflow being invoked by deploy.yml (workflow_call), so the two
+# never share a group and cancel each other out.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so golangci-lint's only-new-issues has a base to diff
+          # against (a shallow clone would have nothing to compare).
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Check formatting (gofmt)
+        run: |
+          fmt_out="$(gofmt -l .)"
+          if [ -n "$fmt_out" ]; then
+            echo "::error::The following files are not gofmt'd:"
+            echo "$fmt_out"
+            exit 1
+          fi
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.12
+          only-new-issues: true
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test
+        run: ENVIRONMENT=test go test -v ./...
+
+      - name: Vulnerability check
+        uses: golang/govulncheck-action@v1
+        with:
+          go-version-file: go.mod

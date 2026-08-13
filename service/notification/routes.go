@@ -137,7 +137,7 @@ func (h *Handler) handleTestNotification(w http.ResponseWriter, r *http.Request)
 
 	if len(subscriptions) == 0 {
 		utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"message":        "no subscriptions found",
+			"message":           "no subscriptions found",
 			"subscriptionCount": 0,
 		})
 		return
@@ -172,8 +172,8 @@ func (h *Handler) handleTestNotification(w http.ResponseWriter, r *http.Request)
 	}
 
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message":          "test notification sent",
+		"message":           "test notification sent",
 		"subscriptionCount": len(subscriptions),
-		"results":          results,
+		"results":           results,
 	})
 }

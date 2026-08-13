@@ -31,4 +31,8 @@ migrate-down:
 
 vapid-keys:
 	@go run cmd/vapidgen/main.go
-	
+
+install-hooks:
+	@git config core.hooksPath .githooks
+	@chmod +x .githooks/*
+	@echo "Git hooks installed (gofmt + go vet will run before each commit)"
