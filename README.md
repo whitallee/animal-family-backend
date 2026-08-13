@@ -64,6 +64,14 @@ go build -o bin/animal-family-backend cmd/main.go
 
 The API server will start on `http://localhost:8080`.
 
+### 6. Install Git Hooks (one-time)
+
+```bash
+make install-hooks
+```
+
+Runs `gofmt` + `go vet` before each commit.
+
 ## Available Make Commands
 
 - `make build` - Build the application
@@ -73,6 +81,7 @@ The API server will start on `http://localhost:8080`.
 - `make migrate-down` - Rollback database migrations
 - `make seed` - Seed the database with initial data
 - `make migration <name>` - Create a new migration file
+- `make install-hooks` - Install git hooks (gofmt + go vet before each commit)
 
 ## Project Structure
 
