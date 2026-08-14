@@ -148,7 +148,7 @@ func (h *Handler) handleUpdateHabitat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteStatus(w, http.StatusNoContent)
 }
 
 // handleDeleteHabitat godoc
@@ -183,5 +183,5 @@ func (h *Handler) handleDeleteHabitat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteStatus(w, http.StatusNoContent)
 }

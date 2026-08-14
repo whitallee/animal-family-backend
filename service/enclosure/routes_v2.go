@@ -189,7 +189,7 @@ func (h *Handler) handleUpdateEnclosure(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteStatus(w, http.StatusNoContent)
 }
 
 // handleDeleteEnclosure godoc
@@ -230,7 +230,7 @@ func (h *Handler) handleDeleteEnclosure(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteStatus(w, http.StatusNoContent)
 }
 
 type cascadeMode int

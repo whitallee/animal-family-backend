@@ -266,7 +266,7 @@ func (h *Handler) handleUpdateAnimal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteStatus(w, http.StatusNoContent)
 }
 
 // mergeAnimalUpdate applies the payload over the stored animal, preserving
@@ -349,5 +349,5 @@ func (h *Handler) handleDeleteAnimal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteStatus(w, http.StatusNoContent)
 }

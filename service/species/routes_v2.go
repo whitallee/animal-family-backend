@@ -212,7 +212,7 @@ func (h *Handler) handleUpdateSpecies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteStatus(w, http.StatusNoContent)
 }
 
 // handleDeleteSpecies godoc
@@ -247,5 +247,5 @@ func (h *Handler) handleDeleteSpecies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteStatus(w, http.StatusNoContent)
 }
