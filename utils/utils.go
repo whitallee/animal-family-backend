@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -20,15 +21,33 @@ func ParseJSON(r *http.Request, payload any) error {
 	return json.NewDecoder(r.Body).Decode(payload)
 }
 
-func WriteJSON(w http.ResponseWriter, status int, v any) error {
-	w.Header().Add("Content-Type", "application/json")
+// WriteJSON writes v as the response body.
+//
+// It deliberately returns nothing. By the time it is called the status line has
+// already been committed to the wire, so a caller could not act on a failure
+// even if it received one — it cannot switch to a 500. Logging is the only
+// meaningful response, so it happens here rather than being repeated (or, as
+// errcheck otherwise pushes you toward, discarded with `_ =`) at every handler
+// exit. WriteError has always worked this way; this matches it.
+func WriteJSON(w http.ResponseWriter, status int, v any) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
-	return json.NewEncoder(w).Encode(v)
+	// 204 must not carry a body (RFC 9110 §15.3.5) and net/http refuses to
+	// write one, returning "request method or response status code does not
+	// allow body". That error was being produced on every successful update and
+	// delete, so encoding here at all is what created the noise.
+	if status == http.StatusNoContent {
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		log.Printf("failed to write %d response: %v", status, err)
+	}
 }
 
 func WriteError(w http.ResponseWriter, status int, err error) {
-	_ = WriteJSON(w, status, map[string]string{"error": err.Error()})
+	WriteJSON(w, status, map[string]string{"error": err.Error()})
 }
 
 func ScanRowsIntoEnclosures(rows *sql.Rows) (*types.Enclosure, error) {

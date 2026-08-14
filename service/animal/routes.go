@@ -155,7 +155,7 @@ func (h *Handler) handleAdminCreateAnimal(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusCreated, nil)
+	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 func (h *Handler) handleUserCreateAnimal(w http.ResponseWriter, r *http.Request) {
@@ -204,7 +204,7 @@ func (h *Handler) handleUserCreateAnimal(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusCreated, nil)
+	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 func (h *Handler) handleAdminUpdateAnimal(w http.ResponseWriter, r *http.Request) {
@@ -263,7 +263,7 @@ func (h *Handler) handleAdminUpdateAnimal(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleUserUpdateAnimal(w http.ResponseWriter, r *http.Request) {
@@ -319,7 +319,7 @@ func (h *Handler) handleUserUpdateAnimal(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminUpdateAnimalOwner(w http.ResponseWriter, r *http.Request) {
@@ -352,7 +352,7 @@ func (h *Handler) handleAdminUpdateAnimalOwner(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminGetAnimals(w http.ResponseWriter, r *http.Request) {
@@ -369,7 +369,7 @@ func (h *Handler) handleAdminGetAnimals(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, animalList)
+	utils.WriteJSON(w, http.StatusOK, animalList)
 
 }
 
@@ -401,7 +401,7 @@ func (h *Handler) handleAdminGetAnimalsByUser(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, animalList)
+	utils.WriteJSON(w, http.StatusOK, animalList)
 
 }
 
@@ -416,7 +416,7 @@ func (h *Handler) handleUserGetAnimals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, animalList)
+	utils.WriteJSON(w, http.StatusOK, animalList)
 
 }
 
@@ -448,7 +448,7 @@ func (h *Handler) handleAdminGetAnimalById(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, animal)
+	utils.WriteJSON(w, http.StatusOK, animal)
 }
 
 func (h *Handler) handleUserGetAnimalById(w http.ResponseWriter, r *http.Request) {
@@ -483,7 +483,7 @@ func (h *Handler) handleUserGetAnimalById(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, animal)
+	utils.WriteJSON(w, http.StatusOK, animal)
 }
 
 func (h *Handler) handleAdminGetAnimalsByEnclosure(w http.ResponseWriter, r *http.Request) {
@@ -514,7 +514,7 @@ func (h *Handler) handleAdminGetAnimalsByEnclosure(w http.ResponseWriter, r *htt
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, animalList)
+	utils.WriteJSON(w, http.StatusOK, animalList)
 
 }
 
@@ -550,7 +550,7 @@ func (h *Handler) handleUserGetAnimalsByEnclosure(w http.ResponseWriter, r *http
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, animalList)
+	utils.WriteJSON(w, http.StatusOK, animalList)
 }
 
 func (h *Handler) handleAdminDeleteAnimal(w http.ResponseWriter, r *http.Request) {
@@ -581,7 +581,7 @@ func (h *Handler) handleAdminDeleteAnimal(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleUserDeleteAnimal(w http.ResponseWriter, r *http.Request) {
@@ -616,7 +616,7 @@ func (h *Handler) handleUserDeleteAnimal(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleUserDeleteAnimalWithTasks(w http.ResponseWriter, r *http.Request) {
@@ -651,7 +651,7 @@ func (h *Handler) handleUserDeleteAnimalWithTasks(w http.ResponseWriter, r *http
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) handleAdminDeleteAnimalWithTasks(w http.ResponseWriter, r *http.Request) {
@@ -683,5 +683,5 @@ func (h *Handler) handleAdminDeleteAnimalWithTasks(w http.ResponseWriter, r *htt
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }

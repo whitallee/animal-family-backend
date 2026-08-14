@@ -34,7 +34,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) handleGetVAPIDPublicKey(w http.ResponseWriter, r *http.Request) {
-	_ = utils.WriteJSON(w, http.StatusOK, map[string]string{
+	utils.WriteJSON(w, http.StatusOK, map[string]string{
 		"publicKey": config.Envs.VAPIDPublicKey,
 	})
 }
@@ -75,7 +75,7 @@ func (h *Handler) handleSubscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusCreated, map[string]string{
+	utils.WriteJSON(w, http.StatusCreated, map[string]string{
 		"message": "subscription created successfully",
 	})
 }
@@ -105,7 +105,7 @@ func (h *Handler) handleUnsubscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, map[string]string{
+	utils.WriteJSON(w, http.StatusOK, map[string]string{
 		"message": "subscription deleted successfully",
 	})
 }
@@ -121,7 +121,7 @@ func (h *Handler) handleGetSubscriptions(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, subscriptions)
+	utils.WriteJSON(w, http.StatusOK, subscriptions)
 }
 
 func (h *Handler) handleTestNotification(w http.ResponseWriter, r *http.Request) {
@@ -136,7 +136,7 @@ func (h *Handler) handleTestNotification(w http.ResponseWriter, r *http.Request)
 	}
 
 	if len(subscriptions) == 0 {
-		_ = utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 			"message":           "no subscriptions found",
 			"subscriptionCount": 0,
 		})
@@ -171,7 +171,7 @@ func (h *Handler) handleTestNotification(w http.ResponseWriter, r *http.Request)
 		results = append(results, result)
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"message":           "test notification sent",
 		"subscriptionCount": len(subscriptions),
 		"results":           results,

@@ -41,7 +41,7 @@ func (h *Handler) handleListHabitats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, habitatsList)
+	utils.WriteJSON(w, http.StatusOK, habitatsList)
 }
 
 // handleCreateHabitat godoc
@@ -90,7 +90,7 @@ func (h *Handler) handleCreateHabitat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusCreated, nil)
+	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
 // handleUpdateHabitat godoc
@@ -148,7 +148,7 @@ func (h *Handler) handleUpdateHabitat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 // handleDeleteHabitat godoc
@@ -183,5 +183,5 @@ func (h *Handler) handleDeleteHabitat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusNoContent, nil)
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }

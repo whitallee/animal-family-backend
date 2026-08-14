@@ -42,6 +42,24 @@ jobs:
       - name: Vet
         run: go vet ./...
 
+      # CI resolves Go from go.mod, so a Dockerfile pinned to an older image
+      # still passes every check here and only fails during the deploy build.
+      - name: Dockerfile Go version covers go.mod
+        run: |
+          required="$(go mod edit -json | sed -n 's/.*"Go": "\([0-9]*\.[0-9]*\).*/\1/p' | head -1)"
+          image="$(sed -n 's/^FROM golang:\([0-9]*\.[0-9]*\).*/\1/p' Dockerfile | head -1)"
+          echo "go.mod needs $required, Dockerfile provides $image"
+          if [ -z "$required" ] || [ -z "$image" ]; then
+            echo "::error::could not parse a Go version from go.mod or Dockerfile"
+            exit 1
+          fi
+          # Sorts both and checks the required version is not the strictly higher one.
+          if [ "$(printf '%s\n%s\n' "$required" "$image" | sort -V | tail -1)" != "$image" ] \
+             && [ "$required" != "$image" ]; then
+            echo "::error::Dockerfile golang:$image is older than go.mod's $required; the deploy build will fail"
+            exit 1
+          fi
+
       - name: Lint
         uses: golangci/golangci-lint-action@v9
         with:

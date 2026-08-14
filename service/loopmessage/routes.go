@@ -38,7 +38,7 @@ func (h *Handler) handleInboundLoopMessage(w http.ResponseWriter, r *http.Reques
 	}
 
 	// send response before processing
-	_ = utils.WriteJSON(w, http.StatusOK, nil)
+	utils.WriteJSON(w, http.StatusOK, nil)
 
 	// process inbound loop message
 	err := h.store.ReceiveLoopMessage(inboundLoopMessagePayload)
