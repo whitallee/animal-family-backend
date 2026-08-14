@@ -2,11 +2,18 @@ package enclosure
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
+	"github.com/lib/pq"
 	"github.com/whitallee/animal-family-backend/types"
 	"github.com/whitallee/animal-family-backend/utils"
 )
+
+// ErrAnimalNotOwned is returned by CreateEnclosureWithAnimals when animalIds
+// names an animal the caller does not own. Handlers map it to 403 so it is not
+// reported as a server fault.
+var ErrAnimalNotOwned = errors.New("animal does not exist or does not belong to you")
 
 type Store struct {
 	db *sql.DB
@@ -46,6 +53,8 @@ func (s *Store) CreateEnclosureWithAnimals(enclosure types.Enclosure, animalIds 
 	if err != nil {
 		return err
 	}
+	// Rolls back every early return below. A no-op once Commit has succeeded.
+	defer func() { _ = tx.Rollback() }()
 
 	var addedEnclosureId int
 	err = tx.QueryRow(`INSERT INTO "enclosures" ("enclosureName", "image", "notes", "habitatId") VALUES ($1,$2,$3,$4) RETURNING "enclosureId"`, enclosure.EnclosureName, enclosure.Image, enclosure.Notes, enclosure.HabitatId).Scan(&addedEnclosureId)
@@ -57,18 +66,115 @@ func (s *Store) CreateEnclosureWithAnimals(enclosure types.Enclosure, animalIds 
 		return err
 	}
 
-	for _, animalId := range animalIds {
-		if _, err := tx.Exec(`UPDATE "animals" SET "enclosureId" = $1 WHERE "animalId" = $2`, addedEnclosureId, animalId); err != nil {
-			return err
-		}
+	if err := assignAnimalsToEnclosure(tx, addedEnclosureId, animalIds, userID); err != nil {
+		return err
 	}
 
-	err = tx.Commit()
+	return tx.Commit()
+}
+
+// assignAnimalsToEnclosure moves the caller's animals into the enclosure.
+//
+// The EXISTS clause is what stops a caller moving somebody else's animal into
+// their own enclosure. Without it any animalId was accepted, which both exposed
+// the victim's animal through the enclosure's animal list and let it be
+// destroyed via a cascading enclosure delete.
+//
+// The check lives inside the UPDATE rather than in a preceding SELECT so that
+// it is atomic: under READ COMMITTED another session could otherwise change
+// ownership between a separate check and the write.
+//
+// One statement covers every animal. The previous loop issued a round trip per
+// animal and stopped at the first bad one, so a caller correcting a bulk
+// request learned about their mistakes one at a time.
+func assignAnimalsToEnclosure(tx *sql.Tx, enclosureId int, animalIds []int, userID int) error {
+	wanted := dedupe(animalIds)
+	if len(wanted) == 0 {
+		return nil
+	}
+
+	result, err := tx.Exec(
+		`UPDATE "animals" SET "enclosureId" = $1
+		 WHERE "animalId" = ANY($2)
+		   AND EXISTS (SELECT 1 FROM "animalUser"
+		               WHERE "animalUser"."animalId" = "animals"."animalId"
+		                 AND "animalUser"."userId" = $3)`,
+		enclosureId, pq.Array(wanted), userID,
+	)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	// Deduplicating above is what makes this comparison meaningful: it counts
+	// distinct rows, so it no longer depends on how a driver reports an update
+	// that writes a value a row already holds.
+	if affected == int64(len(wanted)) {
+		return nil
+	}
+
+	// Only reached when something is already wrong, so the extra query costs
+	// nothing on the happy path and buys an error naming every offending id.
+	unowned, err := findUnownedAnimals(tx, wanted, userID)
+	if err != nil {
+		return err
+	}
+
+	return fmt.Errorf("animals %v: %w", unowned, ErrAnimalNotOwned)
+}
+
+// findUnownedAnimals returns the requested ids that do not belong to the user,
+// including ids that do not exist at all.
+func findUnownedAnimals(tx *sql.Tx, wanted []int, userID int) ([]int, error) {
+	rows, err := tx.Query(
+		`SELECT "animalId" FROM "animalUser" WHERE "userId" = $1 AND "animalId" = ANY($2)`,
+		userID, pq.Array(wanted),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	owned := make(map[int]bool, len(wanted))
+	for rows.Next() {
+		var animalId int
+		if err := rows.Scan(&animalId); err != nil {
+			return nil, err
+		}
+		owned[animalId] = true
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	unowned := make([]int, 0, len(wanted))
+	for _, animalId := range wanted {
+		if !owned[animalId] {
+			unowned = append(unowned, animalId)
+		}
+	}
+
+	return unowned, nil
+}
+
+// dedupe preserves order so error messages list ids as the caller sent them.
+func dedupe(ids []int) []int {
+	seen := make(map[int]bool, len(ids))
+	unique := make([]int, 0, len(ids))
+
+	for _, id := range ids {
+		if seen[id] {
+			continue
+		}
+		seen[id] = true
+		unique = append(unique, id)
+	}
+
+	return unique
 }
 
 func (s *Store) UpdateEnclosure(enclosure types.Enclosure) error {

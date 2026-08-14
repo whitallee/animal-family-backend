@@ -1,6 +1,35 @@
 package enclosure
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
+
+// dedupe is what makes comparing RowsAffected against len(wanted) meaningful.
+// Without it, a repeated id inflates the expected count and a valid request
+// would be rejected as unowned.
+func TestDedupe(t *testing.T) {
+	cases := []struct {
+		name string
+		in   []int
+		want []int
+	}{
+		{"already unique", []int{3, 1, 2}, []int{3, 1, 2}},
+		{"repeats collapse", []int{5, 5, 5}, []int{5}},
+		{"keeps first-seen order", []int{4, 2, 4, 9, 2}, []int{4, 2, 9}},
+		{"empty", []int{}, []int{}},
+		{"nil", nil, []int{}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := dedupe(tc.in)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("dedupe(%v) = %v, want %v", tc.in, got, tc.want)
+			}
+		})
+	}
+}
 
 // parseCascade replaces v1's separate /withtasks and /withanimalsandtasks
 // delete routes. Getting it wrong silently deletes the wrong amount of data, so

@@ -163,8 +163,8 @@ func (h *Handler) handleCreateAnimal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := utils.Validate.Struct(payload); err != nil {
-		errors := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		validationErrors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validationErrors))
 		return
 	}
 
@@ -202,7 +202,7 @@ func (h *Handler) handleCreateAnimal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	utils.WriteStatus(w, http.StatusCreated)
 }
 
 // handleUpdateAnimal godoc
@@ -232,8 +232,8 @@ func (h *Handler) handleUpdateAnimal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := utils.Validate.Struct(payload); err != nil {
-		errors := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		validationErrors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validationErrors))
 		return
 	}
 

@@ -1,6 +1,7 @@
 package enclosure
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -105,8 +106,8 @@ func (h *Handler) handleCreateEnclosure(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := utils.Validate.Struct(payload); err != nil {
-		errors := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		validationErrors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validationErrors))
 		return
 	}
 
@@ -128,16 +129,22 @@ func (h *Handler) handleCreateEnclosure(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		utils.WriteJSON(w, http.StatusCreated, nil)
+		utils.WriteStatus(w, http.StatusCreated)
 		return
 	}
 
 	if err := h.store.CreateEnclosureWithAnimals(enclosure, payload.AnimalIds, userID); err != nil {
+		// Naming an animal you do not own is a permission problem, not a fault.
+		if errors.Is(err, ErrAnimalNotOwned) {
+			utils.WriteError(w, http.StatusForbidden, err)
+			return
+		}
+
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	utils.WriteStatus(w, http.StatusCreated)
 }
 
 // handleUpdateEnclosure godoc
@@ -165,8 +172,8 @@ func (h *Handler) handleUpdateEnclosure(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := utils.Validate.Struct(payload); err != nil {
-		errors := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		validationErrors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validationErrors))
 		return
 	}
 

@@ -84,6 +84,21 @@ func TestWriteJSONCreatedKeepsNullBodyForV1Clients(t *testing.T) {
 	}
 }
 
+// v2 creates document a 201 with no content, so the generated client types the
+// body as void. WriteStatus is what makes that true on the wire.
+func TestWriteStatusSendsNoBody(t *testing.T) {
+	response, body := serve(t, func(w http.ResponseWriter, r *http.Request) {
+		WriteStatus(w, http.StatusCreated)
+	})
+
+	if response.StatusCode != http.StatusCreated {
+		t.Errorf("expected 201, got %d", response.StatusCode)
+	}
+	if body != "" {
+		t.Errorf("expected an empty body, got %q", body)
+	}
+}
+
 func TestWriteErrorUsesErrorEnvelope(t *testing.T) {
 	response, body := serve(t, func(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, http.StatusForbidden, fmt.Errorf("admin access required"))

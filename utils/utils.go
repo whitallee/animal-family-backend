@@ -46,6 +46,17 @@ func WriteJSON(w http.ResponseWriter, status int, v any) {
 	}
 }
 
+// WriteStatus sends a status line and no body.
+//
+// v2 handlers use this where the contract documents a response as having no
+// content. WriteJSON(w, 201, nil) writes the four bytes "null" instead, which
+// v1 clients depend on (they call res.json() on creates without checking the
+// status) but which contradicts what the spec — and therefore the generated
+// client's types — say a 201 contains.
+func WriteStatus(w http.ResponseWriter, status int) {
+	w.WriteHeader(status)
+}
+
 func WriteError(w http.ResponseWriter, status int, err error) {
 	WriteJSON(w, status, map[string]string{"error": err.Error()})
 }
