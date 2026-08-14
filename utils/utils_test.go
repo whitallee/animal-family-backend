@@ -21,7 +21,11 @@ func serve(t *testing.T, handler http.HandlerFunc) (*http.Response, string) {
 	if err != nil {
 		t.Fatalf("request failed: %v", err)
 	}
-	t.Cleanup(func() { response.Body.Close() })
+	t.Cleanup(func() {
+		if err := response.Body.Close(); err != nil {
+			t.Errorf("close body: %v", err)
+		}
+	})
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
