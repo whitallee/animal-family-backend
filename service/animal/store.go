@@ -313,3 +313,22 @@ func (s *Store) DeleteAnimalAndTasksById(animalId int) error {
 
 	return nil
 }
+
+// UserOwnsAnimal reports whether the user owns the animal.
+//
+// Unlike GetAnimalUserByIds it distinguishes "not owned" (false, nil) from a
+// failed lookup (false, err), so callers can answer 403 and 500 correctly
+// instead of collapsing both into one status. It also uses EXISTS rather than
+// selecting and scanning the row, since only the answer is needed.
+func (s *Store) UserOwnsAnimal(animalId int, userID int) (bool, error) {
+	var owned bool
+	err := s.db.QueryRow(
+		`SELECT EXISTS(SELECT 1 FROM "animalUser" WHERE "animalId" = $1 AND "userId" = $2)`,
+		animalId, userID,
+	).Scan(&owned)
+	if err != nil {
+		return false, err
+	}
+
+	return owned, nil
+}

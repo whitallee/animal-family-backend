@@ -1,6 +1,149 @@
 {
   "components": {
     "schemas": {
+      "AnimalResponse": {
+        "properties": {
+          "animalId": {
+            "type": "integer"
+          },
+          "animalName": {
+            "type": "string"
+          },
+          "dietDesc": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "enclosureId": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "extraNotes": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "isMemorialized": {
+            "type": "boolean"
+          },
+          "lastMessage": {
+            "nullable": true,
+            "type": "string"
+          },
+          "memorialDate": {
+            "type": "string"
+          },
+          "memorialPhotos": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "personalityDesc": {
+            "type": "string"
+          },
+          "routineDesc": {
+            "type": "string"
+          },
+          "speciesId": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "animalId",
+          "animalName",
+          "dietDesc",
+          "dob",
+          "enclosureId",
+          "extraNotes",
+          "gender",
+          "image",
+          "isMemorialized",
+          "lastMessage",
+          "memorialDate",
+          "memorialPhotos",
+          "personalityDesc",
+          "routineDesc",
+          "speciesId"
+        ],
+        "type": "object"
+      },
+      "CreateAnimalV2Payload": {
+        "properties": {
+          "animalName": {
+            "type": "string"
+          },
+          "dietDesc": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "enclosureId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "extraNotes": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "personalityDesc": {
+            "type": "string"
+          },
+          "routineDesc": {
+            "type": "string"
+          },
+          "speciesId": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "animalName",
+          "speciesId"
+        ],
+        "type": "object"
+      },
+      "CreateEnclosureV2Payload": {
+        "properties": {
+          "animalIds": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "enclosureName": {
+            "type": "string"
+          },
+          "habitatId": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enclosureName",
+          "habitatId"
+        ],
+        "type": "object"
+      },
       "CreateHabitatPayload": {
         "properties": {
           "dayTempRange": {
@@ -89,6 +232,33 @@
           "sociality",
           "speciesDesc",
           "weight"
+        ],
+        "type": "object"
+      },
+      "Enclosure": {
+        "properties": {
+          "enclosureId": {
+            "type": "integer"
+          },
+          "enclosureName": {
+            "type": "string"
+          },
+          "habitatId": {
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enclosureId",
+          "enclosureName",
+          "habitatId",
+          "image",
+          "notes"
         ],
         "type": "object"
       },
@@ -213,6 +383,94 @@
         ],
         "type": "object"
       },
+      "UpdateAnimalV2Payload": {
+        "properties": {
+          "animalName": {
+            "type": "string"
+          },
+          "dietDesc": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "enclosureId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "extraNotes": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "isMemorialized": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "lastMessage": {
+            "nullable": true,
+            "type": "string"
+          },
+          "memorialDate": {
+            "type": "string"
+          },
+          "memorialPhotos": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "personalityDesc": {
+            "type": "string"
+          },
+          "routineDesc": {
+            "type": "string"
+          },
+          "speciesId": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "animalName",
+          "dietDesc",
+          "dob",
+          "extraNotes",
+          "gender",
+          "personalityDesc",
+          "routineDesc",
+          "speciesId"
+        ],
+        "type": "object"
+      },
+      "UpdateEnclosureV2Payload": {
+        "properties": {
+          "enclosureName": {
+            "type": "string"
+          },
+          "habitatId": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enclosureName",
+          "habitatId"
+        ],
+        "type": "object"
+      },
       "UpdateHabitatV2Payload": {
         "properties": {
           "dayTempRange": {
@@ -322,6 +580,661 @@
   },
   "openapi": "3.0.3",
   "paths": {
+    "/animals": {
+      "get": {
+        "description": "Pass enclosureId to return only the animals in that enclosure. The enclosure must belong to the caller.",
+        "operationId": "listAnimals",
+        "parameters": [
+          {
+            "description": "Only return animals in this enclosure",
+            "in": "query",
+            "name": "enclosureId",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AnimalResponse"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "List the caller's animals",
+        "tags": [
+          "animals"
+        ]
+      },
+      "post": {
+        "operationId": "createAnimal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAnimalV2Payload"
+              }
+            }
+          },
+          "description": "Animal to create",
+          "required": true,
+          "x-originalParamName": "animal"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create an animal",
+        "tags": [
+          "animals"
+        ]
+      }
+    },
+    "/animals/{id}": {
+      "delete": {
+        "description": "Pass cascade=tasks to also delete the animal's tasks, replacing v1's separate /animal/withtasks route.",
+        "operationId": "deleteAnimal",
+        "parameters": [
+          {
+            "description": "Animal ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "What else to delete",
+            "in": "query",
+            "name": "cascade",
+            "schema": {
+              "enum": [
+                "tasks"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete one of the caller's animals",
+        "tags": [
+          "animals"
+        ]
+      },
+      "get": {
+        "operationId": "getAnimal",
+        "parameters": [
+          {
+            "description": "Animal ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnimalResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Get one of the caller's animals",
+        "tags": [
+          "animals"
+        ]
+      },
+      "put": {
+        "description": "Memorial fields left out of the request keep their stored values. This is also how an animal is memorialised.",
+        "operationId": "updateAnimal",
+        "parameters": [
+          {
+            "description": "Animal ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAnimalV2Payload"
+              }
+            }
+          },
+          "description": "Updated animal fields",
+          "required": true,
+          "x-originalParamName": "animal"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Update one of the caller's animals",
+        "tags": [
+          "animals"
+        ]
+      }
+    },
+    "/enclosures": {
+      "get": {
+        "operationId": "listEnclosures",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Enclosure"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "List the caller's enclosures",
+        "tags": [
+          "enclosures"
+        ]
+      },
+      "post": {
+        "description": "Supply animalIds to move existing animals into the new enclosure as it is created. Every animal listed must belong to the caller.",
+        "operationId": "createEnclosure",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEnclosureV2Payload"
+              }
+            }
+          },
+          "description": "Enclosure to create",
+          "required": true,
+          "x-originalParamName": "enclosure"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create an enclosure",
+        "tags": [
+          "enclosures"
+        ]
+      }
+    },
+    "/enclosures/{id}": {
+      "delete": {
+        "description": "By default only the enclosure is removed and its animals are left without one. Pass cascade=tasks to also delete the enclosure's tasks, or cascade=animals,tasks to delete its animals and their tasks as well.",
+        "operationId": "deleteEnclosure",
+        "parameters": [
+          {
+            "description": "Enclosure ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "What else to delete",
+            "in": "query",
+            "name": "cascade",
+            "schema": {
+              "enum": [
+                "tasks",
+                "animals",
+                "tasks"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete one of the caller's enclosures",
+        "tags": [
+          "enclosures"
+        ]
+      },
+      "get": {
+        "operationId": "getEnclosure",
+        "parameters": [
+          {
+            "description": "Enclosure ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Enclosure"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Get one of the caller's enclosures",
+        "tags": [
+          "enclosures"
+        ]
+      },
+      "put": {
+        "operationId": "updateEnclosure",
+        "parameters": [
+          {
+            "description": "Enclosure ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEnclosureV2Payload"
+              }
+            }
+          },
+          "description": "Updated enclosure fields",
+          "required": true,
+          "x-originalParamName": "enclosure"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Update one of the caller's enclosures",
+        "tags": [
+          "enclosures"
+        ]
+      }
+    },
     "/habitats": {
       "get": {
         "description": "Returns every habitat. Habitats are global reference data, not user-owned, so this endpoint is public.",

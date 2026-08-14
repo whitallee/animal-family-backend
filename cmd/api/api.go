@@ -61,10 +61,12 @@ func (s *APIServer) Run() error {
 	enclosureStore := enclosure.NewStore(s.db)
 	enclosureHandler := enclosure.NewHandler(enclosureStore, userStore)
 	enclosureHandler.RegisterRoutes(subrouter)
+	enclosureHandler.RegisterV2Routes(v2)
 
 	animalStore := animal.NewStore(s.db)
 	animalHandler := animal.NewHandler(animalStore, userStore, enclosureStore)
 	animalHandler.RegisterRoutes(subrouter)
+	animalHandler.RegisterV2Routes(v2)
 
 	// Create notification store and sender
 	notificationStore := notification.NewStore(s.db)

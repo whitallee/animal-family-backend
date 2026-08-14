@@ -2,9 +2,12 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gorilla/mux"
 )
 
 // adminUserID must match an entry in the admins slice in admin.go.
@@ -55,6 +58,103 @@ func TestRequireAdminBlocksNonAdmin(t *testing.T) {
 	}
 	if rr.Code != http.StatusForbidden {
 		t.Errorf("expected status %d, got %d", http.StatusForbidden, rr.Code)
+	}
+}
+
+// ownedRequest routes through mux so mux.Vars is populated as in production,
+// and injects the user ID the way WithJWTAuth does.
+func runOwnership(t *testing.T, url string, userID int, check OwnershipChecker) (*httptest.ResponseRecorder, bool, int) {
+	t.Helper()
+
+	var (
+		handlerRan bool
+		seenID     int
+	)
+
+	router := mux.NewRouter()
+	router.HandleFunc("/animals/{id}", RequireOwnership("id", check, func(w http.ResponseWriter, r *http.Request) {
+		handlerRan = true
+		seenID = ResourceIDFromContext(r.Context())
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request = request.WithContext(context.WithValue(request.Context(), UserKey, userID))
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+
+	return recorder, handlerRan, seenID
+}
+
+func ownedBy(owner int) OwnershipChecker {
+	return func(resourceID int, userID int) (bool, error) {
+		return userID == owner, nil
+	}
+}
+
+func TestRequireOwnershipAllowsOwner(t *testing.T) {
+	recorder, handlerRan, seenID := runOwnership(t, "/animals/42", 7, ownedBy(7))
+
+	if !handlerRan {
+		t.Error("expected the handler to run for the owner")
+	}
+	if recorder.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", recorder.Code)
+	}
+	// The handler must be able to read the ID without re-parsing it.
+	if seenID != 42 {
+		t.Errorf("expected the validated id 42 in context, got %d", seenID)
+	}
+}
+
+func TestRequireOwnershipBlocksNonOwner(t *testing.T) {
+	recorder, handlerRan, _ := runOwnership(t, "/animals/42", 7, ownedBy(999))
+
+	if handlerRan {
+		t.Error("handler ran for a non-owner; the request must be stopped")
+	}
+	if recorder.Code != http.StatusForbidden {
+		t.Errorf("expected 403, got %d", recorder.Code)
+	}
+}
+
+// A failed lookup must not read as a permission decision: answering 403 would
+// tell the caller the resource is not theirs when the truth is the database
+// could not be reached. v1 could not tell these apart at all.
+func TestRequireOwnershipReportsLookupFailureAsServerError(t *testing.T) {
+	failing := func(resourceID int, userID int) (bool, error) {
+		return false, fmt.Errorf("connection refused")
+	}
+
+	recorder, handlerRan, _ := runOwnership(t, "/animals/42", 7, failing)
+
+	if handlerRan {
+		t.Error("handler ran despite the ownership check failing")
+	}
+	if recorder.Code != http.StatusInternalServerError {
+		t.Errorf("expected 500, got %d", recorder.Code)
+	}
+}
+
+func TestRequireOwnershipRejectsInvalidID(t *testing.T) {
+	checkCalls := 0
+	counting := func(resourceID int, userID int) (bool, error) {
+		checkCalls++
+		return true, nil
+	}
+
+	recorder, handlerRan, _ := runOwnership(t, "/animals/0", 7, counting)
+
+	if handlerRan {
+		t.Error("handler ran for an invalid id")
+	}
+	if recorder.Code != http.StatusBadRequest {
+		t.Errorf("expected 400, got %d", recorder.Code)
+	}
+	// The ID is validated before any lookup, so a bad ID never reaches the store.
+	if checkCalls != 0 {
+		t.Errorf("expected no ownership lookups for an invalid id, got %d", checkCalls)
 	}
 }
 

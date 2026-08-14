@@ -573,3 +573,19 @@ func (s *Store) DeleteEnclosureAndAnimalsAndTasksById(enclosureId int) error {
 
 	return nil
 }
+
+// UserOwnsEnclosure reports whether the user owns the enclosure. See the note
+// on animal.Store.UserOwnsAnimal for why this exists alongside
+// GetEnclosureUserByIds.
+func (s *Store) UserOwnsEnclosure(enclosureId int, userID int) (bool, error) {
+	var owned bool
+	err := s.db.QueryRow(
+		`SELECT EXISTS(SELECT 1 FROM "enclosureUser" WHERE "enclosureId" = $1 AND "userId" = $2)`,
+		enclosureId, userID,
+	).Scan(&owned)
+	if err != nil {
+		return false, err
+	}
+
+	return owned, nil
+}

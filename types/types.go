@@ -172,6 +172,9 @@ type EnclosureStore interface {
 	GetEnclosureByNameAndHabitatWithUserId(enclosureName string, habitatId int, userID int) (*Enclosure, error)
 	GetEnclosureUserByIds(enclosureId int, userID int) (*EnclosureUser, error)
 	GetEnclosureUserByEnclosureId(enclosureId int) (*EnclosureUser, error)
+	// UserOwnsEnclosure separates "not owned" from "lookup failed" — see the
+	// note on AnimalStore.UserOwnsAnimal.
+	UserOwnsEnclosure(enclosureId int, userID int) (bool, error)
 	GetEnclosuresByUserId(int) ([]*Enclosure, error)
 	GetEnclosureById(int) (*Enclosure, error)
 	DeleteEnclosureById(enclosureId int) error
@@ -251,6 +254,10 @@ type AnimalStore interface {
 	GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*Animal, error)
 	GetAnimalUserByIds(animalId int, userID int) (*AnimalUser, error)
 	GetAnimalUserByAnimalId(animalId int) (*AnimalUser, error)
+	// UserOwnsAnimal separates "not owned" from "lookup failed", which
+	// GetAnimalUserByIds cannot: it returns a plain error for both, so callers
+	// cannot tell a permission problem from a database outage.
+	UserOwnsAnimal(animalId int, userID int) (bool, error)
 	GetAnimalById(int) (*Animal, error)
 	GetAnimalsByUserId(int) ([]*Animal, error)
 	GetAnimalsByEnclosureId(int) ([]*Animal, error)

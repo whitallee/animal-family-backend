@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 // Request payloads for the v2 API.
 //
 // v2 takes resource IDs from the URL path, so these mirror their v1
@@ -15,6 +17,62 @@ type UpdateHabitatV2Payload struct {
 	Humidity       string `json:"humidity" validate:"required"`
 	DayTempRange   string `json:"dayTempRange" validate:"required"`
 	NightTempRange string `json:"nightTempRange" validate:"required"`
+}
+
+// CreateEnclosureV2Payload is the body of POST /enclosures.
+//
+// AnimalIds folds v1's separate /enclosure/withanimals route into this one:
+// omit it to create an empty enclosure, supply it to populate the enclosure at
+// the same time.
+type CreateEnclosureV2Payload struct {
+	EnclosureName string `json:"enclosureName" validate:"required"`
+	HabitatId     int    `json:"habitatId" validate:"required,min=1"`
+	Image         string `json:"image"`
+	Notes         string `json:"notes"`
+	AnimalIds     []int  `json:"animalIds" validate:"omitempty,dive,min=1"`
+}
+
+// UpdateEnclosureV2Payload is the body of PUT /enclosures/{id}.
+type UpdateEnclosureV2Payload struct {
+	EnclosureName string `json:"enclosureName" validate:"required"`
+	HabitatId     int    `json:"habitatId" validate:"required,min=1"`
+	Image         string `json:"image"`
+	Notes         string `json:"notes"`
+}
+
+// CreateAnimalV2Payload is the body of POST /animals.
+type CreateAnimalV2Payload struct {
+	AnimalName      string    `json:"animalName" validate:"required"`
+	SpeciesId       int       `json:"speciesId" validate:"required,min=1"`
+	EnclosureId     *int      `json:"enclosureId" validate:"omitempty,min=1" extensions:"x-nullable"`
+	Image           string    `json:"image"`
+	Gender          string    `json:"gender"`
+	Dob             time.Time `json:"dob"`
+	PersonalityDesc string    `json:"personalityDesc"`
+	DietDesc        string    `json:"dietDesc"`
+	RoutineDesc     string    `json:"routineDesc"`
+	ExtraNotes      string    `json:"extraNotes"`
+}
+
+// UpdateAnimalV2Payload is the body of PUT /animals/{id}.
+//
+// The memorial fields are pointers so that omitting them leaves the stored
+// values untouched, matching v1's UpdateAnimalPayload behaviour.
+type UpdateAnimalV2Payload struct {
+	AnimalName      string    `json:"animalName" validate:"required"`
+	SpeciesId       int       `json:"speciesId" validate:"required,min=1"`
+	EnclosureId     *int      `json:"enclosureId" validate:"omitempty,min=1" extensions:"x-nullable"`
+	Image           string    `json:"image"`
+	Gender          string    `json:"gender" validate:"required"`
+	Dob             time.Time `json:"dob" validate:"required"`
+	PersonalityDesc string    `json:"personalityDesc" validate:"required"`
+	DietDesc        string    `json:"dietDesc" validate:"required"`
+	RoutineDesc     string    `json:"routineDesc" validate:"required"`
+	ExtraNotes      string    `json:"extraNotes" validate:"required"`
+	IsMemorialized  *bool     `json:"isMemorialized" extensions:"x-nullable"`
+	LastMessage     *string   `json:"lastMessage" extensions:"x-nullable"`
+	MemorialPhotos  []string  `json:"memorialPhotos" extensions:"x-nullable"`
+	MemorialDate    time.Time `json:"memorialDate"`
 }
 
 // UpdateSpeciesV2Payload is the body of PUT /species/{id}.
