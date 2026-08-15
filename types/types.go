@@ -446,8 +446,15 @@ type TaskStore interface {
 	UpdateTask(Task) error
 	UpdateTaskOwner(oldTaskUser TaskUser, newUserId int) error
 	UpdateTaskSubject(TaskSubject) error
+	// SetTaskSubject writes the unset side as SQL NULL. UpdateTaskSubject
+	// writes the zero int instead, which can never satisfy the nullable
+	// foreign keys on "taskSubject" and so always fails.
+	SetTaskSubject(taskId int, animalId *int, enclosureId *int) error
 	GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*Task, error)
 	GetTaskUserByIds(taskId int, userID int) (*TaskUser, error)
+	// UserOwnsTask separates "not owned" from "lookup failed" — see the note on
+	// AnimalStore.UserOwnsAnimal.
+	UserOwnsTask(taskId int, userID int) (bool, error)
 	GetTaskById(int) (*Task, error)
 	GetTasksWithSubjectByUserId(int) ([]*TaskWithSubject, error)
 	GetTasksBySubjectIds(animalId int, enclosureId int) ([]*Task, error)
@@ -463,6 +470,9 @@ type Task struct {
 	RepeatIntervHours int       `json:"repeatIntervHours"`
 }
 
+// TaskWithSubject is a task together with whichever subject it belongs to.
+// Exactly one of AnimalId and EnclosureId is set; the x-nullable extensions are
+// read only by the spec generator and do not affect encoding.
 type TaskWithSubject struct {
 	TaskId            int       `json:"taskId"`
 	TaskName          string    `json:"taskName"`
@@ -470,8 +480,8 @@ type TaskWithSubject struct {
 	Complete          bool      `json:"complete"`
 	LastCompleted     time.Time `json:"lastCompleted"`
 	RepeatIntervHours int       `json:"repeatIntervHours"`
-	AnimalId          *int      `json:"animalId"`
-	EnclosureId       *int      `json:"enclosureId"`
+	AnimalId          *int      `json:"animalId" extensions:"x-nullable"`
+	EnclosureId       *int      `json:"enclosureId" extensions:"x-nullable"`
 }
 
 type TaskUser struct {

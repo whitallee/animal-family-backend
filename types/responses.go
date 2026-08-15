@@ -19,6 +19,113 @@ type ErrorResponse struct {
 	Error string `json:"error" example:"admin access required"`
 }
 
+// UserResponse is the wire representation of a user.
+//
+// User cannot be used directly: its Phone field is a sql.NullString carrying a
+// live `json:"phone"` tag and no custom marshaller, so it serialises as
+// {"String":"...","Valid":true} rather than a string. v1 shipped that shape
+// while the frontend declared `phone: string`, a mismatch nothing caught
+// because the types were maintained by hand on both sides.
+//
+// Password is absent by construction rather than by relying on a `json:"-"`
+// tag, so a field added to User later cannot leak into a response by accident.
+type UserResponse struct {
+	Id        int       `json:"id"`
+	FirstName string    `json:"firstName"`
+	LastName  string    `json:"lastName"`
+	Email     string    `json:"email"`
+	Phone     *string   `json:"phone" extensions:"x-nullable"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+func NewUserResponse(u *User) UserResponse {
+	response := UserResponse{
+		Id:        u.ID,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+		CreatedAt: u.CreatedAt,
+	}
+
+	if u.Phone.Valid {
+		phone := u.Phone.String
+		response.Phone = &phone
+	}
+
+	return response
+}
+
+// AuthResponse is returned by login and token refresh.
+type AuthResponse struct {
+	Token string       `json:"token"`
+	User  UserResponse `json:"user"`
+}
+
+// MessageResponse is a bare acknowledgement for endpoints that have nothing
+// else to report.
+type MessageResponse struct {
+	Message string `json:"message" example:"subscription created successfully"`
+}
+
+// TaskCompletionResponse reports how many repeating tasks were reset.
+type TaskCompletionResponse struct {
+	TasksReset int `json:"tasksReset"`
+}
+
+// PushSubscriptionResponse describes a registered push subscription.
+//
+// It deliberately omits the p256dh and auth keys that PushSubscription carries.
+// Those exist to encrypt payloads for the endpoint and nothing outside the
+// sender needs them, so listing them would widen their exposure for no benefit.
+type PushSubscriptionResponse struct {
+	SubscriptionId int       `json:"subscriptionId"`
+	Endpoint       string    `json:"endpoint"`
+	UserAgent      string    `json:"userAgent"`
+	CreatedAt      time.Time `json:"createdAt"`
+	LastUsed       time.Time `json:"lastUsed"`
+}
+
+func NewPushSubscriptionResponse(s *PushSubscription) PushSubscriptionResponse {
+	return PushSubscriptionResponse{
+		SubscriptionId: s.SubscriptionId,
+		Endpoint:       s.Endpoint,
+		UserAgent:      s.UserAgent,
+		CreatedAt:      s.CreatedAt,
+		LastUsed:       s.LastUsed,
+	}
+}
+
+func NewPushSubscriptionResponses(subscriptions []*PushSubscription) []PushSubscriptionResponse {
+	responses := make([]PushSubscriptionResponse, 0, len(subscriptions))
+	for _, s := range subscriptions {
+		responses = append(responses, NewPushSubscriptionResponse(s))
+	}
+
+	return responses
+}
+
+// VAPIDKeyResponse carries the public key browsers need to subscribe to push.
+type VAPIDKeyResponse struct {
+	PublicKey string `json:"publicKey"`
+}
+
+// TestNotificationResult is the per-subscription outcome of a test send.
+type TestNotificationResult struct {
+	SubscriptionId int    `json:"subscriptionId"`
+	Endpoint       string `json:"endpoint"`
+	HttpStatus     int    `json:"httpStatus"`
+	Success        bool   `json:"success"`
+	Error          string `json:"error,omitempty"`
+}
+
+// TestNotificationResponse reports what happened when a test notification was
+// sent to each of the caller's subscriptions.
+type TestNotificationResponse struct {
+	Message           string                   `json:"message"`
+	SubscriptionCount int                      `json:"subscriptionCount"`
+	Results           []TestNotificationResult `json:"results"`
+}
+
 // AnimalResponse is the wire representation of an animal.
 //
 // Animal itself cannot be used here. Its LastMessage and MemorialPhotos fields

@@ -4,9 +4,110 @@ import (
 	"database/sql"
 	"encoding/json"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
+
+// User.Phone is a sql.NullString with a live `json:"phone"` tag, so encoding a
+// User directly puts {"String":...,"Valid":...} on the wire where the frontend
+// declared a plain string. UserResponse is what makes the contract honest.
+func TestUserResponseEncodesPhoneAsNullableString(t *testing.T) {
+	created := time.Date(2026, 5, 1, 12, 0, 0, 0, time.UTC)
+
+	t.Run("phone present", func(t *testing.T) {
+		user := User{
+			ID: 1, FirstName: "Ada", LastName: "Lovelace", Email: "ada@example.test",
+			Phone: sql.NullString{String: "555-0100", Valid: true}, CreatedAt: created,
+		}
+
+		encoded, err := json.Marshal(NewUserResponse(&user))
+		if err != nil {
+			t.Fatalf("marshal: %v", err)
+		}
+
+		var decoded map[string]any
+		if err := json.Unmarshal(encoded, &decoded); err != nil {
+			t.Fatalf("decode: %v", err)
+		}
+
+		if decoded["phone"] != "555-0100" {
+			t.Errorf("expected phone to be a plain string, got %#v", decoded["phone"])
+		}
+	})
+
+	t.Run("phone absent encodes as null", func(t *testing.T) {
+		user := User{ID: 2, Email: "b@example.test", Phone: sql.NullString{Valid: false}, CreatedAt: created}
+
+		encoded, err := json.Marshal(NewUserResponse(&user))
+		if err != nil {
+			t.Fatalf("marshal: %v", err)
+		}
+
+		var decoded map[string]any
+		if err := json.Unmarshal(encoded, &decoded); err != nil {
+			t.Fatalf("decode: %v", err)
+		}
+
+		value, present := decoded["phone"]
+		if !present {
+			t.Error("phone key should still be present, as the schema marks it required")
+		}
+		if value != nil {
+			t.Errorf("expected null, got %#v", value)
+		}
+	})
+}
+
+// A password must never appear in a response. UserResponse has no such field,
+// so this guards against one being added later.
+func TestUserResponseNeverIncludesPassword(t *testing.T) {
+	user := User{ID: 3, Email: "c@example.test", Password: "super-secret-hash"}
+
+	encoded, err := json.Marshal(NewUserResponse(&user))
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+
+	if strings.Contains(string(encoded), "super-secret-hash") || strings.Contains(string(encoded), "password") {
+		t.Errorf("password material leaked into the response: %s", encoded)
+	}
+}
+
+// The stored subscription carries the p256dh and auth encryption keys; the
+// response type deliberately omits them.
+func TestPushSubscriptionResponseOmitsEncryptionKeys(t *testing.T) {
+	subscription := PushSubscription{
+		SubscriptionId: 1,
+		UserID:         4,
+		Endpoint:       "https://push.example/abc",
+		P256dh:         "p256dh-secret-material",
+		Auth:           "auth-secret-material",
+		UserAgent:      "test-agent",
+	}
+
+	encoded, err := json.Marshal(NewPushSubscriptionResponse(&subscription))
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+
+	for _, secret := range []string{"p256dh-secret-material", "auth-secret-material"} {
+		if strings.Contains(string(encoded), secret) {
+			t.Errorf("encryption key material leaked: %s", encoded)
+		}
+	}
+}
+
+func TestNewPushSubscriptionResponsesEncodesEmptyListAsArray(t *testing.T) {
+	encoded, err := json.Marshal(NewPushSubscriptionResponses(nil))
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+
+	if string(encoded) != "[]" {
+		t.Errorf("expected [], got %s", encoded)
+	}
+}
 
 // AnimalResponse exists to describe the wire format that Animal.MarshalJSON
 // already produces, so the two must encode identically. If they diverge, the

@@ -75,6 +75,36 @@ type UpdateAnimalV2Payload struct {
 	MemorialDate    time.Time `json:"memorialDate"`
 }
 
+// CreateTaskV2Payload is the body of POST /tasks.
+//
+// A task belongs to exactly one subject. v1 encoded "not this one" as the
+// integer 0, which the store then translated to SQL NULL; v2 uses null
+// directly, matching how the subject already comes back on TaskWithSubject.
+// Supplying both or neither is rejected.
+type CreateTaskV2Payload struct {
+	TaskName          string `json:"taskName" validate:"required"`
+	TaskDesc          string `json:"taskDesc" validate:"required"`
+	RepeatIntervHours int    `json:"repeatIntervHours" validate:"required,min=1"`
+	AnimalId          *int   `json:"animalId" validate:"omitempty,min=1" extensions:"x-nullable"`
+	EnclosureId       *int   `json:"enclosureId" validate:"omitempty,min=1" extensions:"x-nullable"`
+}
+
+// UpdateTaskV2Payload is the body of PUT /tasks/{id}.
+//
+// This subsumes three v1 routes: the general update, the separate
+// mark-complete/mark-incomplete calls (set `complete`), and PUT /task/subject
+// (set animalId or enclosureId). Leaving both subject fields null keeps the
+// task's current subject.
+type UpdateTaskV2Payload struct {
+	TaskName          string    `json:"taskName" validate:"required"`
+	TaskDesc          string    `json:"taskDesc" validate:"required"`
+	Complete          bool      `json:"complete"`
+	LastCompleted     time.Time `json:"lastCompleted" validate:"required"`
+	RepeatIntervHours int       `json:"repeatIntervHours" validate:"required,min=1"`
+	AnimalId          *int      `json:"animalId" validate:"omitempty,min=1" extensions:"x-nullable"`
+	EnclosureId       *int      `json:"enclosureId" validate:"omitempty,min=1" extensions:"x-nullable"`
+}
+
 // UpdateSpeciesV2Payload is the body of PUT /species/{id}.
 type UpdateSpeciesV2Payload struct {
 	ComName            string `json:"comName" validate:"required"`

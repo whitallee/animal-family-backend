@@ -74,6 +74,21 @@
         ],
         "type": "object"
       },
+      "AuthResponse": {
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "required": [
+          "token",
+          "user"
+        ],
+        "type": "object"
+      },
       "CreateAnimalV2Payload": {
         "properties": {
           "animalName": {
@@ -235,6 +250,36 @@
         ],
         "type": "object"
       },
+      "CreateTaskV2Payload": {
+        "properties": {
+          "animalId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "enclosureId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "repeatIntervHours": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "taskDesc": {
+            "type": "string"
+          },
+          "taskName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "repeatIntervHours",
+          "taskDesc",
+          "taskName"
+        ],
+        "type": "object"
+      },
       "Enclosure": {
         "properties": {
           "enclosureId": {
@@ -320,6 +365,85 @@
         ],
         "type": "object"
       },
+      "LoginUserPayload": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object"
+      },
+      "MessageResponse": {
+        "properties": {
+          "message": {
+            "example": "subscription created successfully",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "type": "object"
+      },
+      "PushSubscriptionResponse": {
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "endpoint": {
+            "type": "string"
+          },
+          "lastUsed": {
+            "type": "string"
+          },
+          "subscriptionId": {
+            "type": "integer"
+          },
+          "userAgent": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "endpoint",
+          "lastUsed",
+          "subscriptionId",
+          "userAgent"
+        ],
+        "type": "object"
+      },
+      "RegisterUserPayload": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 130,
+            "minLength": 3,
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "password"
+        ],
+        "type": "object"
+      },
       "Species": {
         "properties": {
           "baskTemp": {
@@ -380,6 +504,176 @@
           "speciesDesc",
           "speciesId",
           "weight"
+        ],
+        "type": "object"
+      },
+      "SubscribePayload": {
+        "properties": {
+          "endpoint": {
+            "type": "string"
+          },
+          "keys": {
+            "properties": {
+              "auth": {
+                "type": "string"
+              },
+              "p256dh": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth",
+              "p256dh"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "endpoint",
+          "keys"
+        ],
+        "type": "object"
+      },
+      "Task": {
+        "properties": {
+          "complete": {
+            "type": "boolean"
+          },
+          "lastCompleted": {
+            "type": "string"
+          },
+          "repeatIntervHours": {
+            "type": "integer"
+          },
+          "taskDesc": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "integer"
+          },
+          "taskName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "complete",
+          "lastCompleted",
+          "repeatIntervHours",
+          "taskDesc",
+          "taskId",
+          "taskName"
+        ],
+        "type": "object"
+      },
+      "TaskCompletionResponse": {
+        "properties": {
+          "tasksReset": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tasksReset"
+        ],
+        "type": "object"
+      },
+      "TaskWithSubject": {
+        "properties": {
+          "animalId": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "enclosureId": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "lastCompleted": {
+            "type": "string"
+          },
+          "repeatIntervHours": {
+            "type": "integer"
+          },
+          "taskDesc": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "integer"
+          },
+          "taskName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "animalId",
+          "complete",
+          "enclosureId",
+          "lastCompleted",
+          "repeatIntervHours",
+          "taskDesc",
+          "taskId",
+          "taskName"
+        ],
+        "type": "object"
+      },
+      "TestNotificationResponse": {
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/TestNotificationResult"
+            },
+            "type": "array"
+          },
+          "subscriptionCount": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "message",
+          "results",
+          "subscriptionCount"
+        ],
+        "type": "object"
+      },
+      "TestNotificationResult": {
+        "properties": {
+          "endpoint": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "httpStatus": {
+            "type": "integer"
+          },
+          "subscriptionId": {
+            "type": "integer"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "endpoint",
+          "error",
+          "httpStatus",
+          "subscriptionId",
+          "success"
+        ],
+        "type": "object"
+      },
+      "UnsubscribePayload": {
+        "properties": {
+          "endpoint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "endpoint"
         ],
         "type": "object"
       },
@@ -559,6 +853,86 @@
           "sociality",
           "speciesDesc",
           "weight"
+        ],
+        "type": "object"
+      },
+      "UpdateTaskV2Payload": {
+        "properties": {
+          "animalId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "enclosureId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "lastCompleted": {
+            "type": "string"
+          },
+          "repeatIntervHours": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "taskDesc": {
+            "type": "string"
+          },
+          "taskName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "lastCompleted",
+          "repeatIntervHours",
+          "taskDesc",
+          "taskName"
+        ],
+        "type": "object"
+      },
+      "UserResponse": {
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "email",
+          "firstName",
+          "id",
+          "lastName",
+          "phone"
+        ],
+        "type": "object"
+      },
+      "VAPIDKeyResponse": {
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "publicKey"
         ],
         "type": "object"
       }
@@ -1482,6 +1856,260 @@
         ]
       }
     },
+    "/notifications/subscribe": {
+      "post": {
+        "operationId": "subscribeToPush",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscribePayload"
+              }
+            }
+          },
+          "description": "Browser push subscription",
+          "required": true,
+          "x-originalParamName": "subscription"
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Register a push subscription",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/subscriptions": {
+      "get": {
+        "operationId": "listPushSubscriptions",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PushSubscriptionResponse"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "List the caller's push subscriptions",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/test": {
+      "post": {
+        "description": "Delivers a test message to every subscription the caller has registered, reporting the outcome for each.",
+        "operationId": "sendTestNotification",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestNotificationResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Send a test push notification",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/unsubscribe": {
+      "post": {
+        "operationId": "unsubscribeFromPush",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnsubscribePayload"
+              }
+            }
+          },
+          "description": "Endpoint to remove",
+          "required": true,
+          "x-originalParamName": "subscription"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Remove a push subscription",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/vapid-public-key": {
+      "get": {
+        "description": "Browsers need this key to create a push subscription. It is public by design.",
+        "operationId": "getVapidPublicKey",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VAPIDKeyResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Get the VAPID public key",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/species": {
       "get": {
         "description": "Returns every species. Species are global reference data, not user-owned, so this endpoint is public.",
@@ -1795,6 +2423,601 @@
         "summary": "Update a species",
         "tags": [
           "species"
+        ]
+      }
+    },
+    "/tasks": {
+      "get": {
+        "description": "Pass animalId or enclosureId to return only the tasks attached to that subject. Supplying both is rejected.",
+        "operationId": "listTasks",
+        "parameters": [
+          {
+            "description": "Only tasks attached to this animal",
+            "in": "query",
+            "name": "animalId",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Only tasks attached to this enclosure",
+            "in": "query",
+            "name": "enclosureId",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaskWithSubject"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "List the caller's tasks",
+        "tags": [
+          "tasks"
+        ]
+      },
+      "post": {
+        "description": "A task belongs to exactly one subject, so supply either animalId or enclosureId. The subject must belong to the caller.",
+        "operationId": "createTask",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskV2Payload"
+              }
+            }
+          },
+          "description": "Task to create",
+          "required": true,
+          "x-originalParamName": "task"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create a task",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/tasks/check-completion": {
+      "get": {
+        "description": "Intended for a scheduler. Resets tasks whose repeat interval has elapsed and sends their notifications in the background.",
+        "operationId": "checkTaskCompletion",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskCompletionResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Reset repeating tasks that are due",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/tasks/{id}": {
+      "delete": {
+        "operationId": "deleteTask",
+        "parameters": [
+          {
+            "description": "Task ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete one of the caller's tasks",
+        "tags": [
+          "tasks"
+        ]
+      },
+      "get": {
+        "operationId": "getTask",
+        "parameters": [
+          {
+            "description": "Task ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Get one of the caller's tasks",
+        "tags": [
+          "tasks"
+        ]
+      },
+      "put": {
+        "description": "Also used to mark a task complete or incomplete, and to move it to a different subject. Leaving both subject fields null keeps the current subject.",
+        "operationId": "updateTask",
+        "parameters": [
+          {
+            "description": "Task ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskV2Payload"
+              }
+            }
+          },
+          "description": "Updated task fields",
+          "required": true,
+          "x-originalParamName": "task"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Update one of the caller's tasks",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/users/login": {
+      "post": {
+        "description": "The returned token is sent verbatim in the Authorization header, with no \"Bearer \" prefix.",
+        "operationId": "loginUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginUserPayload"
+              }
+            }
+          },
+          "description": "Email and password",
+          "required": true,
+          "x-originalParamName": "credentials"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Exchange credentials for a token",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/me": {
+      "delete": {
+        "operationId": "deleteCurrentUser",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete the authenticated user's account",
+        "tags": [
+          "users"
+        ]
+      },
+      "get": {
+        "operationId": "getCurrentUser",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Get the authenticated user",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/refresh-token": {
+      "post": {
+        "operationId": "refreshToken",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Issue a fresh token for the current session",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/register": {
+      "post": {
+        "operationId": "registerUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserPayload"
+              }
+            }
+          },
+          "description": "Account details",
+          "required": true,
+          "x-originalParamName": "user"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Create an account",
+        "tags": [
+          "users"
         ]
       }
     }

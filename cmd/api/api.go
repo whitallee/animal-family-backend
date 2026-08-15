@@ -47,6 +47,7 @@ func (s *APIServer) Run() error {
 	userStore := user.NewStore(s.db)
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(subrouter)
+	userHandler.RegisterV2Routes(v2)
 
 	speciesStore := species.NewStore(s.db, config.Envs.OpenAIAPIKey, config.Envs.S3AssetsBucket, config.Envs.AWSRegion)
 	speciesHandler := species.NewHandler(speciesStore, userStore)
@@ -78,10 +79,12 @@ func (s *APIServer) Run() error {
 	)
 	notificationHandler := notification.NewHandler(notificationStore, userStore, notificationSender)
 	notificationHandler.RegisterRoutes(subrouter)
+	notificationHandler.RegisterV2Routes(v2)
 
 	taskStore := task.NewStore(s.db)
 	taskHandler := task.NewHandler(taskStore, userStore, animalStore, enclosureStore, notificationSender)
 	taskHandler.RegisterRoutes(subrouter)
+	taskHandler.RegisterV2Routes(v2)
 
 	loopMessageStore := loopmessage.NewStore(s.db)
 	loopMessageHandler := loopmessage.NewHandler(loopMessageStore)

@@ -302,3 +302,34 @@ func (s *Store) DeleteTaskById(taskId int) error {
 
 	return nil
 }
+
+// UserOwnsTask reports whether the user owns the task. See the note on
+// animal.Store.UserOwnsAnimal for why this exists alongside GetTaskUserByIds.
+func (s *Store) UserOwnsTask(taskId int, userID int) (bool, error) {
+	var owned bool
+	err := s.db.QueryRow(
+		`SELECT EXISTS(SELECT 1 FROM "taskUser" WHERE "taskId" = $1 AND "userId" = $2)`,
+		taskId, userID,
+	).Scan(&owned)
+	if err != nil {
+		return false, err
+	}
+
+	return owned, nil
+}
+
+// SetTaskSubject points a task at exactly one subject, writing the other side
+// as SQL NULL.
+//
+// UpdateTaskSubject takes plain ints and writes 0 for whichever subject is
+// unset. "taskSubject"."animalId" and "enclosureId" are nullable foreign keys,
+// and no animal or enclosure has id 0, so that write always violates the
+// constraint. Passing pointers lets the nil side become a real NULL.
+func (s *Store) SetTaskSubject(taskId int, animalId *int, enclosureId *int) error {
+	_, err := s.db.Exec(
+		`UPDATE "taskSubject" SET "animalId" = $1, "enclosureId" = $2 WHERE "taskId" = $3`,
+		animalId, enclosureId, taskId,
+	)
+
+	return err
+}
