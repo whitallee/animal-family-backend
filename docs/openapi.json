@@ -733,12 +733,6 @@
         },
         "required": [
           "animalName",
-          "dietDesc",
-          "dob",
-          "extraNotes",
-          "gender",
-          "personalityDesc",
-          "routineDesc",
           "speciesId"
         ],
         "type": "object"

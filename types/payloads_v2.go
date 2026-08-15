@@ -56,19 +56,26 @@ type CreateAnimalV2Payload struct {
 
 // UpdateAnimalV2Payload is the body of PUT /animals/{id}.
 //
+// Its validation deliberately mirrors CreateAnimalV2Payload: anything that can
+// be created must remain editable. v1 required gender, dob and the four
+// description fields on update while leaving them optional on create, so an
+// animal saved without them could never be updated again — every attempt failed
+// validation with a 400. The create form happens to demand all of them except
+// extraNotes, which is what made the gap reachable.
+//
 // The memorial fields are pointers so that omitting them leaves the stored
-// values untouched, matching v1's UpdateAnimalPayload behaviour.
+// values untouched.
 type UpdateAnimalV2Payload struct {
 	AnimalName      string    `json:"animalName" validate:"required"`
 	SpeciesId       int       `json:"speciesId" validate:"required,min=1"`
 	EnclosureId     *int      `json:"enclosureId" validate:"omitempty,min=1" extensions:"x-nullable"`
 	Image           string    `json:"image"`
-	Gender          string    `json:"gender" validate:"required"`
-	Dob             time.Time `json:"dob" validate:"required"`
-	PersonalityDesc string    `json:"personalityDesc" validate:"required"`
-	DietDesc        string    `json:"dietDesc" validate:"required"`
-	RoutineDesc     string    `json:"routineDesc" validate:"required"`
-	ExtraNotes      string    `json:"extraNotes" validate:"required"`
+	Gender          string    `json:"gender"`
+	Dob             time.Time `json:"dob"`
+	PersonalityDesc string    `json:"personalityDesc"`
+	DietDesc        string    `json:"dietDesc"`
+	RoutineDesc     string    `json:"routineDesc"`
+	ExtraNotes      string    `json:"extraNotes"`
 	IsMemorialized  *bool     `json:"isMemorialized" extensions:"x-nullable"`
 	LastMessage     *string   `json:"lastMessage" extensions:"x-nullable"`
 	MemorialPhotos  []string  `json:"memorialPhotos" extensions:"x-nullable"`
