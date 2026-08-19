@@ -1,7 +1,6 @@
 package animal
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -30,6 +29,11 @@ func (h *Handler) RegisterV2Routes(router *mux.Router) {
 	router.HandleFunc("/animals/{id}", owned(h.handleGetAnimal)).Methods(http.MethodGet)
 	router.HandleFunc("/animals/{id}", owned(h.handleUpdateAnimal)).Methods(http.MethodPut)
 	router.HandleFunc("/animals/{id}", owned(h.handleDeleteAnimal)).Methods(http.MethodDelete)
+
+	// Memorial state is a sub-resource rather than fields on the animal, so an
+	// ordinary edit cannot clear it by omission.
+	router.HandleFunc("/animals/{id}/memorial", owned(h.handleSetAnimalMemorial)).Methods(http.MethodPut)
+	router.HandleFunc("/animals/{id}/memorial", owned(h.handleClearAnimalMemorial)).Methods(http.MethodDelete)
 }
 
 // handleListAnimals godoc
@@ -209,7 +213,7 @@ func (h *Handler) handleCreateAnimal(w http.ResponseWriter, r *http.Request) {
 //
 //	@Id				updateAnimal
 //	@Summary		Update one of the caller's animals
-//	@Description	Memorial fields left out of the request keep their stored values. This is also how an animal is memorialised.
+//	@Description	A full replace: every field is set to the value sent, and an omitted field is reset rather than left alone. Memorial state is not affected — use /animals/{id}/memorial for that.
 //	@Tags			animals
 //	@Accept			json
 //	@Produce		json
@@ -249,19 +253,10 @@ func (h *Handler) handleUpdateAnimal(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	existing, err := h.store.GetAnimalById(id)
+	// UpdateAnimalDetails leaves the memorial columns alone, so no read of the
+	// stored animal is needed to carry them across.
+	err := h.store.UpdateAnimalDetails(animalFromUpdate(payload, id))
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	animal, err := mergeAnimalUpdate(payload, existing, id)
-	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
-		return
-	}
-
-	if err := h.store.UpdateAnimal(animal); err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -269,10 +264,13 @@ func (h *Handler) handleUpdateAnimal(w http.ResponseWriter, r *http.Request) {
 	utils.WriteStatus(w, http.StatusNoContent)
 }
 
-// mergeAnimalUpdate applies the payload over the stored animal, preserving
-// memorial fields that the request omitted.
-func mergeAnimalUpdate(payload types.UpdateAnimalV2Payload, existing *types.Animal, id int) (types.Animal, error) {
-	animal := types.Animal{
+// animalFromUpdate converts the payload into the record to store.
+//
+// It is a plain field-for-field copy: PUT replaces the animal's details, so
+// every value comes from the request and nothing is merged with what was there
+// before. Memorial fields are absent by design — see UpdateAnimalV2Payload.
+func animalFromUpdate(payload types.UpdateAnimalV2Payload, id int) types.Animal {
+	return types.Animal{
 		AnimalId:        id,
 		AnimalName:      payload.AnimalName,
 		SpeciesId:       payload.SpeciesId,
@@ -284,33 +282,85 @@ func mergeAnimalUpdate(payload types.UpdateAnimalV2Payload, existing *types.Anim
 		DietDesc:        payload.DietDesc,
 		RoutineDesc:     payload.RoutineDesc,
 		ExtraNotes:      payload.ExtraNotes,
-		IsMemorialized:  existing.IsMemorialized,
-		LastMessage:     existing.LastMessage,
-		MemorialPhotos:  existing.MemorialPhotos,
-		MemorialDate:    existing.MemorialDate,
+	}
+}
+
+// handleSetAnimalMemorial godoc
+//
+//	@Id				setAnimalMemorial
+//	@Summary		Memorialise one of the caller's animals
+//	@Description	Records that an animal has died, along with a message, any photos, and the date. Memorialised animals are filtered out of the main views. Sending this again replaces the stored memorial.
+//	@Tags			animals
+//	@Accept			json
+//	@Produce		json
+//	@Param			id			path	int								true	"Animal ID"
+//	@Param			memorial	body	types.SetAnimalMemorialPayload	true	"Memorial details"
+//	@Success		204
+//	@Failure		400	{object}	types.ErrorResponse
+//	@Failure		403	{object}	types.ErrorResponse
+//	@Failure		500	{object}	types.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/animals/{id}/memorial [put]
+func (h *Handler) handleSetAnimalMemorial(w http.ResponseWriter, r *http.Request) {
+	id := auth.ResourceIDFromContext(r.Context())
+
+	var payload types.SetAnimalMemorialPayload
+	if err := utils.ParseJSON(r, &payload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
 	}
 
-	if payload.IsMemorialized != nil {
-		animal.IsMemorialized = *payload.IsMemorialized
+	if err := utils.Validate.Struct(payload); err != nil {
+		validationErrors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validationErrors))
+		return
 	}
 
-	if payload.LastMessage != nil {
-		animal.LastMessage = sql.NullString{String: *payload.LastMessage, Valid: true}
+	// Stored as a JSON array so it reads back the same way whether or not any
+	// photos were supplied; a nil slice would encode as "null".
+	photos := payload.MemorialPhotos
+	if photos == nil {
+		photos = []string{}
 	}
 
-	if payload.MemorialPhotos != nil {
-		encoded, err := json.Marshal(payload.MemorialPhotos)
-		if err != nil {
-			return types.Animal{}, fmt.Errorf("could not encode memorialPhotos: %w", err)
-		}
-		animal.MemorialPhotos = sql.NullString{String: string(encoded), Valid: true}
+	encoded, err := json.Marshal(photos)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("could not encode memorialPhotos: %w", err))
+		return
 	}
 
-	if !payload.MemorialDate.IsZero() {
-		animal.MemorialDate = payload.MemorialDate
+	err = h.store.SetAnimalMemorial(id, payload.LastMessage, string(encoded), payload.MemorialDate)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
 	}
 
-	return animal, nil
+	utils.WriteStatus(w, http.StatusNoContent)
+}
+
+// handleClearAnimalMemorial godoc
+//
+//	@Id				clearAnimalMemorial
+//	@Summary		Remove an animal's memorial
+//	@Description	Returns a memorialised animal to the living roster, discarding its message and photos.
+//	@Tags			animals
+//	@Produce		json
+//	@Param			id	path	int	true	"Animal ID"
+//	@Success		204
+//	@Failure		400	{object}	types.ErrorResponse
+//	@Failure		403	{object}	types.ErrorResponse
+//	@Failure		500	{object}	types.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/animals/{id}/memorial [delete]
+func (h *Handler) handleClearAnimalMemorial(w http.ResponseWriter, r *http.Request) {
+	id := auth.ResourceIDFromContext(r.Context())
+
+	if err := h.store.ClearAnimalMemorial(id); err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteStatus(w, http.StatusNoContent)
 }
 
 // handleDeleteAnimal godoc

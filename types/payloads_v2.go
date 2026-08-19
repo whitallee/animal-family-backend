@@ -56,15 +56,20 @@ type CreateAnimalV2Payload struct {
 
 // UpdateAnimalV2Payload is the body of PUT /animals/{id}.
 //
-// Its validation deliberately mirrors CreateAnimalV2Payload: anything that can
-// be created must remain editable. v1 required gender, dob and the four
-// description fields on update while leaving them optional on create, so an
-// animal saved without them could never be updated again — every attempt failed
-// validation with a 400. The create form happens to demand all of them except
-// extraNotes, which is what made the gap reachable.
+// PUT is a full replace: every field here is the animal's new value, and an
+// omitted field is set to its zero value rather than left alone. Nothing is
+// preserved implicitly.
 //
-// The memorial fields are pointers so that omitting them leaves the stored
-// values untouched.
+// That is only safe because memorial state is not in this payload. It lives
+// behind /animals/{id}/memorial, so an ordinary edit cannot clear a memorial
+// message or its photos by leaving them out — the update SQL does not touch
+// those columns at all. v1 mixed the two, and the edit form sends no memorial
+// fields, so a true full replace there would have destroyed them.
+//
+// Validation deliberately mirrors CreateAnimalV2Payload: anything that can be
+// created must remain editable. v1 required gender, dob and the four
+// description fields on update while leaving them optional on create, so an
+// animal saved without them could never be updated again.
 type UpdateAnimalV2Payload struct {
 	AnimalName      string    `json:"animalName" validate:"required"`
 	SpeciesId       int       `json:"speciesId" validate:"required,min=1"`
@@ -76,10 +81,21 @@ type UpdateAnimalV2Payload struct {
 	DietDesc        string    `json:"dietDesc"`
 	RoutineDesc     string    `json:"routineDesc"`
 	ExtraNotes      string    `json:"extraNotes"`
-	IsMemorialized  *bool     `json:"isMemorialized" extensions:"x-nullable"`
-	LastMessage     *string   `json:"lastMessage" extensions:"x-nullable"`
-	MemorialPhotos  []string  `json:"memorialPhotos" extensions:"x-nullable"`
-	MemorialDate    time.Time `json:"memorialDate"`
+}
+
+// SetAnimalMemorialPayload is the body of PUT /animals/{id}/memorial.
+//
+// Memorialising is a state change, not a field edit, so it has its own route
+// rather than riding along on the general update. That keeps the irreplaceable
+// part of the record — a message and photos about an animal that has died —
+// away from a payload where forgetting a field means deleting it.
+//
+// It also removes the frontend's need to re-fetch every animal just to rebuild
+// a complete update payload before memorialising one.
+type SetAnimalMemorialPayload struct {
+	LastMessage    string    `json:"lastMessage" validate:"required"`
+	MemorialPhotos []string  `json:"memorialPhotos"`
+	MemorialDate   time.Time `json:"memorialDate" validate:"required"`
 }
 
 // CreateTaskV2Payload is the body of POST /tasks.
@@ -100,8 +116,12 @@ type CreateTaskV2Payload struct {
 //
 // This subsumes three v1 routes: the general update, the separate
 // mark-complete/mark-incomplete calls (set `complete`), and PUT /task/subject
-// (set animalId or enclosureId). Leaving both subject fields null keeps the
-// task's current subject.
+// (set animalId or enclosureId).
+//
+// PUT is a full replace, so exactly one subject must be supplied on every
+// update rather than only when moving the task. Omitting it is rejected, which
+// is a loud failure rather than the silent "leave it alone" that would
+// otherwise reintroduce implicit preservation.
 type UpdateTaskV2Payload struct {
 	TaskName          string    `json:"taskName" validate:"required"`
 	TaskDesc          string    `json:"taskDesc" validate:"required"`

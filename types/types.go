@@ -249,6 +249,16 @@ type EnclosureIdPayload struct {
 type AnimalStore interface {
 	CreateAnimal(Animal, int) error
 	UpdateAnimal(Animal) error
+	// UpdateAnimalDetails writes only the editable detail columns, leaving
+	// memorial state untouched. UpdateAnimal writes all fourteen columns, so
+	// using it for an edit whose payload carries no memorial data would erase
+	// that data.
+	UpdateAnimalDetails(Animal) error
+	// SetAnimalMemorial marks an animal memorialised. photosJSON must be a JSON
+	// array, matching how the column is read back.
+	SetAnimalMemorial(animalId int, lastMessage string, photosJSON string, memorialDate time.Time) error
+	// ClearAnimalMemorial reverses SetAnimalMemorial.
+	ClearAnimalMemorial(animalId int) error
 	UpdateAnimalOwner(oldAnimalUser AnimalUser, newUserId int) error
 	GetAnimals() ([]*Animal, error)
 	GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*Animal, error)

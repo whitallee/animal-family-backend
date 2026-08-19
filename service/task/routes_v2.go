@@ -241,7 +241,7 @@ func (h *Handler) handleCreateTaskV2(w http.ResponseWriter, r *http.Request) {
 //
 //	@Id				updateTask
 //	@Summary		Update one of the caller's tasks
-//	@Description	Also used to mark a task complete or incomplete, and to move it to a different subject. Leaving both subject fields null keeps the current subject.
+//	@Description	A full replace, also used to mark a task complete or incomplete. Supply the subject (animalId or enclosureId) on every update, not only when moving the task.
 //	@Tags			tasks
 //	@Accept			json
 //	@Produce		json
@@ -269,16 +269,18 @@ func (h *Handler) handleUpdateTaskV2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	changingSubject := payload.AnimalId != nil || payload.EnclosureId != nil
-	if changingSubject {
-		if err := exactlyOneSubject(payload.AnimalId, payload.EnclosureId); err != nil {
-			utils.WriteError(w, http.StatusBadRequest, err)
-			return
-		}
+	// The subject is required on every update, not only when it is changing.
+	// A task always has exactly one, so treating an omitted subject as "leave
+	// it alone" would be the same implicit-preserve behaviour PUT is meant to
+	// avoid. Omitting it fails loudly here rather than quietly doing something
+	// different from what the request said.
+	if err := exactlyOneSubject(payload.AnimalId, payload.EnclosureId); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
 
-		if !h.assertOwnsSubject(w, payload.AnimalId, payload.EnclosureId, userID) {
-			return
-		}
+	if !h.assertOwnsSubject(w, payload.AnimalId, payload.EnclosureId, userID) {
+		return
 	}
 
 	err := h.store.UpdateTask(types.Task{
@@ -294,11 +296,9 @@ func (h *Handler) handleUpdateTaskV2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if changingSubject {
-		if err := h.store.SetTaskSubject(id, payload.AnimalId, payload.EnclosureId); err != nil {
-			utils.WriteError(w, http.StatusInternalServerError, err)
-			return
-		}
+	if err := h.store.SetTaskSubject(id, payload.AnimalId, payload.EnclosureId); err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
 	}
 
 	utils.WriteStatus(w, http.StatusNoContent)

@@ -444,6 +444,27 @@
         ],
         "type": "object"
       },
+      "SetAnimalMemorialPayload": {
+        "properties": {
+          "lastMessage": {
+            "type": "string"
+          },
+          "memorialDate": {
+            "type": "string"
+          },
+          "memorialPhotos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "lastMessage",
+          "memorialDate"
+        ],
+        "type": "object"
+      },
       "Species": {
         "properties": {
           "baskTemp": {
@@ -701,24 +722,6 @@
           },
           "image": {
             "type": "string"
-          },
-          "isMemorialized": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "lastMessage": {
-            "nullable": true,
-            "type": "string"
-          },
-          "memorialDate": {
-            "type": "string"
-          },
-          "memorialPhotos": {
-            "items": {
-              "type": "string"
-            },
-            "nullable": true,
-            "type": "array"
           },
           "personalityDesc": {
             "type": "string"
@@ -1214,7 +1217,7 @@
         ]
       },
       "put": {
-        "description": "Memorial fields left out of the request keep their stored values. This is also how an animal is memorialised.",
+        "description": "A full replace: every field is set to the value sent, and an omitted field is reset rather than left alone. Memorial state is not affected — use /animals/{id}/memorial for that.",
         "operationId": "updateAnimal",
         "parameters": [
           {
@@ -1280,6 +1283,138 @@
           }
         ],
         "summary": "Update one of the caller's animals",
+        "tags": [
+          "animals"
+        ]
+      }
+    },
+    "/animals/{id}/memorial": {
+      "delete": {
+        "description": "Returns a memorialised animal to the living roster, discarding its message and photos.",
+        "operationId": "clearAnimalMemorial",
+        "parameters": [
+          {
+            "description": "Animal ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Remove an animal's memorial",
+        "tags": [
+          "animals"
+        ]
+      },
+      "put": {
+        "description": "Records that an animal has died, along with a message, any photos, and the date. Memorialised animals are filtered out of the main views. Sending this again replaces the stored memorial.",
+        "operationId": "setAnimalMemorial",
+        "parameters": [
+          {
+            "description": "Animal ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAnimalMemorialPayload"
+              }
+            }
+          },
+          "description": "Memorial details",
+          "required": true,
+          "x-originalParamName": "memorial"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Memorialise one of the caller's animals",
         "tags": [
           "animals"
         ]
@@ -2715,7 +2850,7 @@
         ]
       },
       "put": {
-        "description": "Also used to mark a task complete or incomplete, and to move it to a different subject. Leaving both subject fields null keeps the current subject.",
+        "description": "A full replace, also used to mark a task complete or incomplete. Supply the subject (animalId or enclosureId) on every update, not only when moving the task.",
         "operationId": "updateTask",
         "parameters": [
           {
