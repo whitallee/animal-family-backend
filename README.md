@@ -82,6 +82,19 @@ Runs `gofmt` + `go vet` before each commit.
 - `make seed` - Seed the database with initial data
 - `make migration <name>` - Create a new migration file
 - `make install-hooks` - Install git hooks (gofmt + go vet before each commit)
+- `make spec` - Regenerate the v2 OpenAPI contract (`docs/openapi.json`)
+- `make spec-check` - Verify the committed contract matches the code
+
+## API Versions
+
+`/api/v1` is the original API. `/api/v2` is a smaller, REST-conventional
+replacement being built alongside it — plural collections, IDs in the path, and
+no separate `/admin/*` route tree. Both are served; v1 will be retired once the
+frontend has fully migrated.
+
+The v2 contract is generated from annotations on the handlers into
+[`docs/openapi.json`](docs/openapi.json), which is also served at
+`GET /openapi.json`. The frontend generates its API client from it.
 
 ## Project Structure
 

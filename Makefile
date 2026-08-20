@@ -20,6 +20,8 @@ run: build
 migration:
 	@migrate create -ext sql -dir cmd/migrate/migrations $(filter-out $@,$(MAKECMDGOALS))
 
+.PHONY: build test run migration seed migrate-up migrate-down vapid-keys spec spec-check install-hooks
+
 seed:
 	@set -a; . ./.env; set +a; PGPASSWORD=$$DB_PASSWORD psql -h $$DB_HOST -p $$DB_PORT -U $$DB_USER -d $$DB_NAME -f cmd/migrate/seed/seed.sql
 
@@ -31,6 +33,25 @@ migrate-down:
 
 vapid-keys:
 	@go run cmd/vapidgen/main.go
+
+# Regenerates the v2 API contract. swag scans the @-annotations on v2 handlers
+# to emit Swagger 2.0; specgen strips Go package prefixes from schema names and
+# converts to the OpenAPI 3.0 that the frontend's generator consumes. Commit
+# docs/openapi.json — it is the contract the generated client is built from.
+spec:
+	@go tool swag init -g cmd/main.go -o docs --ot json --parseInternal --quiet
+	@go run ./cmd/specgen
+
+# Fails if docs/openapi.json is out of date with the annotations in the code.
+# Uses status --porcelain rather than diff so an uncommitted (untracked) spec
+# fails too; `git diff` only reports on tracked files and would pass silently.
+spec-check: spec
+	@if [ -n "$$(git status --porcelain docs/openapi.json)" ]; then \
+		echo "docs/openapi.json is not committed or is out of date."; \
+		echo "Run 'make spec' and commit the result."; \
+		git --no-pager diff -- docs/openapi.json | head -40; \
+		exit 1; \
+	fi
 
 install-hooks:
 	@git config core.hooksPath .githooks

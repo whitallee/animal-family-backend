@@ -53,7 +53,7 @@ func (s *Store) CheckAndResetTasks() ([]*types.TaskResetNotification, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	// Collect tasks to reset
 	var tasks []*types.TaskResetNotification
@@ -263,7 +263,6 @@ func (s *Store) GetTasksBySubjectIds(animalId int, enclosureId int) ([]*types.Ta
 
 	tasks := make([]*types.Task, 0)
 	for rows.Next() {
-		task := new(types.Task)
 		task, err := utils.ScanRowsIntoTask(rows)
 		if err != nil {
 			return nil, err
@@ -302,4 +301,68 @@ func (s *Store) DeleteTaskById(taskId int) error {
 	}
 
 	return nil
+}
+
+// UserOwnsTask reports whether the user owns the task. See the note on
+// animal.Store.UserOwnsAnimal for why this exists alongside GetTaskUserByIds.
+func (s *Store) UserOwnsTask(taskId int, userID int) (bool, error) {
+	var owned bool
+	err := s.db.QueryRow(
+		`SELECT EXISTS(SELECT 1 FROM "taskUser" WHERE "taskId" = $1 AND "userId" = $2)`,
+		taskId, userID,
+	).Scan(&owned)
+	if err != nil {
+		return false, err
+	}
+
+	return owned, nil
+}
+
+// SetTaskSubject points a task at exactly one subject, writing the other side
+// as SQL NULL.
+//
+// UpdateTaskSubject takes plain ints and writes 0 for whichever subject is
+// unset. "taskSubject"."animalId" and "enclosureId" are nullable foreign keys,
+// and no animal or enclosure has id 0, so that write always violates the
+// constraint. Passing pointers lets the nil side become a real NULL.
+func (s *Store) SetTaskSubject(taskId int, animalId *int, enclosureId *int) error {
+	_, err := s.db.Exec(
+		`UPDATE "taskSubject" SET "animalId" = $1, "enclosureId" = $2 WHERE "taskId" = $3`,
+		animalId, enclosureId, taskId,
+	)
+
+	return err
+}
+
+// GetTaskWithSubjectById returns a task together with the subject it belongs
+// to, mirroring what the collection route returns for each entry.
+//
+// GetTaskById selects from "tasks" alone and so cannot report the subject. That
+// left GET and PUT on the same path disagreeing about what a task is: the read
+// omitted the subject the write demanded, so a caller could not fetch a task,
+// change one field and send it back.
+func (s *Store) GetTaskWithSubjectById(taskId int) (*types.TaskWithSubject, error) {
+	rows, err := s.db.Query(
+		`SELECT t."taskId", t."taskName", t."taskDesc", t."complete", t."lastCompleted", t."repeatIntervHours", ts."animalId", ts."enclosureId"
+		 FROM "tasks" t INNER JOIN "taskSubject" ts ON ts."taskId" = t."taskId"
+		 WHERE t."taskId" = $1`, taskId)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	if !rows.Next() {
+		if err := rows.Err(); err != nil {
+			return nil, err
+		}
+
+		return nil, fmt.Errorf("task with id %d not found", taskId)
+	}
+
+	task, err := utils.ScanRowsIntoTaskWithSubject(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
 }

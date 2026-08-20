@@ -59,6 +59,7 @@ type SpeciesStore interface {
 	UpdateSpeciesImage(speciesId int, imageURL string) error
 }
 
+// Species is a global reference record describing an animal type.
 type Species struct {
 	SpeciesID          int    `json:"speciesId"`
 	ComName            string `json:"comName"`
@@ -127,6 +128,7 @@ type HabitatStore interface {
 	DeleteHabitatById(int) error
 }
 
+// Habitat is a global reference record describing an environment type.
 type Habitat struct {
 	HabitatId      int    `json:"habitatId"`
 	HabitatName    string `json:"habitatName"`
@@ -170,6 +172,9 @@ type EnclosureStore interface {
 	GetEnclosureByNameAndHabitatWithUserId(enclosureName string, habitatId int, userID int) (*Enclosure, error)
 	GetEnclosureUserByIds(enclosureId int, userID int) (*EnclosureUser, error)
 	GetEnclosureUserByEnclosureId(enclosureId int) (*EnclosureUser, error)
+	// UserOwnsEnclosure separates "not owned" from "lookup failed" — see the
+	// note on AnimalStore.UserOwnsAnimal.
+	UserOwnsEnclosure(enclosureId int, userID int) (bool, error)
 	GetEnclosuresByUserId(int) ([]*Enclosure, error)
 	GetEnclosureById(int) (*Enclosure, error)
 	DeleteEnclosureById(enclosureId int) error
@@ -244,11 +249,25 @@ type EnclosureIdPayload struct {
 type AnimalStore interface {
 	CreateAnimal(Animal, int) error
 	UpdateAnimal(Animal) error
+	// UpdateAnimalDetails writes only the editable detail columns, leaving
+	// memorial state untouched. UpdateAnimal writes all fourteen columns, so
+	// using it for an edit whose payload carries no memorial data would erase
+	// that data.
+	UpdateAnimalDetails(Animal) error
+	// SetAnimalMemorial marks an animal memorialised. photosJSON must be a JSON
+	// array, matching how the column is read back.
+	SetAnimalMemorial(animalId int, lastMessage string, photosJSON string, memorialDate time.Time) error
+	// ClearAnimalMemorial reverses SetAnimalMemorial.
+	ClearAnimalMemorial(animalId int) error
 	UpdateAnimalOwner(oldAnimalUser AnimalUser, newUserId int) error
 	GetAnimals() ([]*Animal, error)
 	GetAnimalByNameAndSpeciesWithUserId(animalName string, speciesId int, userID int) (*Animal, error)
 	GetAnimalUserByIds(animalId int, userID int) (*AnimalUser, error)
 	GetAnimalUserByAnimalId(animalId int) (*AnimalUser, error)
+	// UserOwnsAnimal separates "not owned" from "lookup failed", which
+	// GetAnimalUserByIds cannot: it returns a plain error for both, so callers
+	// cannot tell a permission problem from a database outage.
+	UserOwnsAnimal(animalId int, userID int) (bool, error)
 	GetAnimalById(int) (*Animal, error)
 	GetAnimalsByUserId(int) ([]*Animal, error)
 	GetAnimalsByEnclosureId(int) ([]*Animal, error)
@@ -385,20 +404,20 @@ func (u *UpdateAnimalPayload) UnmarshalJSON(data []byte) error {
 	}
 
 	// Copy all fields from Alias to u
-	u.AnimalId = aux.Alias.AnimalId
-	u.AnimalName = aux.Alias.AnimalName
-	u.SpeciesId = aux.Alias.SpeciesId
-	u.EnclosureId = aux.Alias.EnclosureId
-	u.Image = aux.Alias.Image
-	u.Gender = aux.Alias.Gender
-	u.Dob = aux.Alias.Dob
-	u.PersonalityDesc = aux.Alias.PersonalityDesc
-	u.DietDesc = aux.Alias.DietDesc
-	u.RoutineDesc = aux.Alias.RoutineDesc
-	u.ExtraNotes = aux.Alias.ExtraNotes
-	u.IsMemorialized = aux.Alias.IsMemorialized
-	u.LastMessage = aux.Alias.LastMessage
-	u.MemorialPhotos = aux.Alias.MemorialPhotos
+	u.AnimalId = aux.AnimalId
+	u.AnimalName = aux.AnimalName
+	u.SpeciesId = aux.SpeciesId
+	u.EnclosureId = aux.EnclosureId
+	u.Image = aux.Image
+	u.Gender = aux.Gender
+	u.Dob = aux.Dob
+	u.PersonalityDesc = aux.PersonalityDesc
+	u.DietDesc = aux.DietDesc
+	u.RoutineDesc = aux.RoutineDesc
+	u.ExtraNotes = aux.ExtraNotes
+	u.IsMemorialized = aux.IsMemorialized
+	u.LastMessage = aux.LastMessage
+	u.MemorialPhotos = aux.MemorialPhotos
 
 	// Parse MemorialDate - handle both date-only (YYYY-MM-DD) and full datetime formats
 	if aux.MemorialDate != "" {
@@ -437,9 +456,20 @@ type TaskStore interface {
 	UpdateTask(Task) error
 	UpdateTaskOwner(oldTaskUser TaskUser, newUserId int) error
 	UpdateTaskSubject(TaskSubject) error
+	// SetTaskSubject writes the unset side as SQL NULL. UpdateTaskSubject
+	// writes the zero int instead, which can never satisfy the nullable
+	// foreign keys on "taskSubject" and so always fails.
+	SetTaskSubject(taskId int, animalId *int, enclosureId *int) error
 	GetTaskByNameAndSubjectIdWithUserId(taskName string, animalId int, enclosureId int, userId int) (*Task, error)
 	GetTaskUserByIds(taskId int, userID int) (*TaskUser, error)
+	// UserOwnsTask separates "not owned" from "lookup failed" — see the note on
+	// AnimalStore.UserOwnsAnimal.
+	UserOwnsTask(taskId int, userID int) (bool, error)
 	GetTaskById(int) (*Task, error)
+	// GetTaskWithSubjectById is what the single-task route returns. A bare Task
+	// omits the subject, which PUT /tasks/{id} requires, so reading a task,
+	// changing a field and writing it back would be impossible without it.
+	GetTaskWithSubjectById(int) (*TaskWithSubject, error)
 	GetTasksWithSubjectByUserId(int) ([]*TaskWithSubject, error)
 	GetTasksBySubjectIds(animalId int, enclosureId int) ([]*Task, error)
 	DeleteTaskById(int) error
@@ -454,6 +484,9 @@ type Task struct {
 	RepeatIntervHours int       `json:"repeatIntervHours"`
 }
 
+// TaskWithSubject is a task together with whichever subject it belongs to.
+// Exactly one of AnimalId and EnclosureId is set; the x-nullable extensions are
+// read only by the spec generator and do not affect encoding.
 type TaskWithSubject struct {
 	TaskId            int       `json:"taskId"`
 	TaskName          string    `json:"taskName"`
@@ -461,8 +494,8 @@ type TaskWithSubject struct {
 	Complete          bool      `json:"complete"`
 	LastCompleted     time.Time `json:"lastCompleted"`
 	RepeatIntervHours int       `json:"repeatIntervHours"`
-	AnimalId          *int      `json:"animalId"`
-	EnclosureId       *int      `json:"enclosureId"`
+	AnimalId          *int      `json:"animalId" extensions:"x-nullable"`
+	EnclosureId       *int      `json:"enclosureId" extensions:"x-nullable"`
 }
 
 type TaskUser struct {

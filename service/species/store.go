@@ -158,7 +158,7 @@ func (s *Store) GetSpeciesByNameCaseInsensitive(name string) (*types.Species, er
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	species := new(types.Species)
 	for rows.Next() {
@@ -186,12 +186,12 @@ func (s *Store) GenerateSpeciesFromName(name string) (*types.Species, error) {
 		var id int
 		var habitatName string
 		if scanErr := rows.Scan(&id, &habitatName); scanErr != nil {
-			rows.Close()
+			_ = rows.Close()
 			return nil, scanErr
 		}
 		habitatLines = append(habitatLines, fmt.Sprintf("ID %d: %s", id, habitatName))
 	}
-	rows.Close()
+	_ = rows.Close()
 	habitatList := strings.Join(habitatLines, "\n")
 
 	// Two-call LLM flow: natural language → structured JSON

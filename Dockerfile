@@ -1,5 +1,9 @@
 # Stage 1: compile both binaries
-FROM golang:1.25-alpine AS builder
+# Keep this major.minor >= the `go` directive in go.mod. These images set
+# GOTOOLCHAIN=local, so a lower version fails the build outright rather than
+# downloading a newer toolchain — and CI will not catch it, because CI reads the
+# version from go.mod instead of this file.
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 

@@ -9,6 +9,19 @@ import (
 	"github.com/whitallee/animal-family-backend/db"
 )
 
+//	@title			Animal Family API
+//	@version		2.0
+//	@description	REST API for managing animals, enclosures and care tasks.
+//	@description
+//	@description	Only v2 routes are documented here. v1 remains served at /api/v1 for
+//	@description	backwards compatibility but is not part of this contract.
+
+//	@BasePath	/api/v2
+
+// @securityDefinitions.apikey	BearerAuth
+// @in							header
+// @name						Authorization
+// @description				Raw JWT token from POST /users/login. Sent verbatim with no "Bearer " prefix.
 func main() {
 	cfg := db.PostgresConfig{
 		Host:     config.Envs.DBHost,

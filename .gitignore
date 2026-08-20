@@ -4,6 +4,9 @@ CLAUDE.md
 *.dump
 tmp/*
 
+# Intermediate swag output. docs/openapi.json is the committed contract.
+docs/swagger.json
+
 .harlequin.toml
 postman
 .postman

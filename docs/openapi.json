@@ -1,0 +1,3128 @@
+{
+  "components": {
+    "schemas": {
+      "AnimalResponse": {
+        "properties": {
+          "animalId": {
+            "type": "integer"
+          },
+          "animalName": {
+            "type": "string"
+          },
+          "dietDesc": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "enclosureId": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "extraNotes": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "isMemorialized": {
+            "type": "boolean"
+          },
+          "lastMessage": {
+            "nullable": true,
+            "type": "string"
+          },
+          "memorialDate": {
+            "type": "string"
+          },
+          "memorialPhotos": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "personalityDesc": {
+            "type": "string"
+          },
+          "routineDesc": {
+            "type": "string"
+          },
+          "speciesId": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "animalId",
+          "animalName",
+          "dietDesc",
+          "dob",
+          "enclosureId",
+          "extraNotes",
+          "gender",
+          "image",
+          "isMemorialized",
+          "lastMessage",
+          "memorialDate",
+          "memorialPhotos",
+          "personalityDesc",
+          "routineDesc",
+          "speciesId"
+        ],
+        "type": "object"
+      },
+      "AuthResponse": {
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "required": [
+          "token",
+          "user"
+        ],
+        "type": "object"
+      },
+      "CreateAnimalV2Payload": {
+        "properties": {
+          "animalName": {
+            "type": "string"
+          },
+          "dietDesc": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "enclosureId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "extraNotes": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "personalityDesc": {
+            "type": "string"
+          },
+          "routineDesc": {
+            "type": "string"
+          },
+          "speciesId": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "animalName",
+          "speciesId"
+        ],
+        "type": "object"
+      },
+      "CreateEnclosureV2Payload": {
+        "properties": {
+          "animalIds": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "enclosureName": {
+            "type": "string"
+          },
+          "habitatId": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enclosureName",
+          "habitatId"
+        ],
+        "type": "object"
+      },
+      "CreateHabitatPayload": {
+        "properties": {
+          "dayTempRange": {
+            "type": "string"
+          },
+          "habitatDesc": {
+            "type": "string"
+          },
+          "habitatName": {
+            "type": "string"
+          },
+          "humidity": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "nightTempRange": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dayTempRange",
+          "habitatDesc",
+          "habitatName",
+          "humidity",
+          "image",
+          "nightTempRange"
+        ],
+        "type": "object"
+      },
+      "CreateSpeciesPayload": {
+        "properties": {
+          "baskTemp": {
+            "type": "string"
+          },
+          "comName": {
+            "type": "string"
+          },
+          "conservationStatus": {
+            "type": "string"
+          },
+          "diet": {
+            "type": "string"
+          },
+          "extraCare": {
+            "type": "string"
+          },
+          "habitatId": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "lifespan": {
+            "type": "string"
+          },
+          "sciName": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "sociality": {
+            "type": "string"
+          },
+          "speciesDesc": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "baskTemp",
+          "comName",
+          "conservationStatus",
+          "diet",
+          "extraCare",
+          "habitatId",
+          "image",
+          "lifespan",
+          "sciName",
+          "size",
+          "sociality",
+          "speciesDesc",
+          "weight"
+        ],
+        "type": "object"
+      },
+      "CreateTaskV2Payload": {
+        "properties": {
+          "animalId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "enclosureId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "repeatIntervHours": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "taskDesc": {
+            "type": "string"
+          },
+          "taskName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "repeatIntervHours",
+          "taskDesc",
+          "taskName"
+        ],
+        "type": "object"
+      },
+      "Enclosure": {
+        "properties": {
+          "enclosureId": {
+            "type": "integer"
+          },
+          "enclosureName": {
+            "type": "string"
+          },
+          "habitatId": {
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enclosureId",
+          "enclosureName",
+          "habitatId",
+          "image",
+          "notes"
+        ],
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "example": "admin access required",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "type": "object"
+      },
+      "GenerateSpeciesPayload": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "Habitat": {
+        "properties": {
+          "dayTempRange": {
+            "type": "string"
+          },
+          "habitatDesc": {
+            "type": "string"
+          },
+          "habitatId": {
+            "type": "integer"
+          },
+          "habitatName": {
+            "type": "string"
+          },
+          "humidity": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "nightTempRange": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dayTempRange",
+          "habitatDesc",
+          "habitatId",
+          "habitatName",
+          "humidity",
+          "image",
+          "nightTempRange"
+        ],
+        "type": "object"
+      },
+      "LoginUserPayload": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object"
+      },
+      "MessageResponse": {
+        "properties": {
+          "message": {
+            "example": "subscription created successfully",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "type": "object"
+      },
+      "PushSubscriptionResponse": {
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "endpoint": {
+            "type": "string"
+          },
+          "lastUsed": {
+            "type": "string"
+          },
+          "subscriptionId": {
+            "type": "integer"
+          },
+          "userAgent": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "endpoint",
+          "lastUsed",
+          "subscriptionId",
+          "userAgent"
+        ],
+        "type": "object"
+      },
+      "RegisterUserPayload": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 130,
+            "minLength": 3,
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "password"
+        ],
+        "type": "object"
+      },
+      "SetAnimalMemorialPayload": {
+        "properties": {
+          "lastMessage": {
+            "type": "string"
+          },
+          "memorialDate": {
+            "type": "string"
+          },
+          "memorialPhotos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "lastMessage",
+          "memorialDate"
+        ],
+        "type": "object"
+      },
+      "Species": {
+        "properties": {
+          "baskTemp": {
+            "type": "string"
+          },
+          "comName": {
+            "type": "string"
+          },
+          "conservationStatus": {
+            "type": "string"
+          },
+          "diet": {
+            "type": "string"
+          },
+          "extraCare": {
+            "type": "string"
+          },
+          "habitatId": {
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "lifespan": {
+            "type": "string"
+          },
+          "sciName": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "sociality": {
+            "type": "string"
+          },
+          "speciesDesc": {
+            "type": "string"
+          },
+          "speciesId": {
+            "type": "integer"
+          },
+          "weight": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "baskTemp",
+          "comName",
+          "conservationStatus",
+          "diet",
+          "extraCare",
+          "habitatId",
+          "image",
+          "lifespan",
+          "sciName",
+          "size",
+          "sociality",
+          "speciesDesc",
+          "speciesId",
+          "weight"
+        ],
+        "type": "object"
+      },
+      "SubscribePayload": {
+        "properties": {
+          "endpoint": {
+            "type": "string"
+          },
+          "keys": {
+            "properties": {
+              "auth": {
+                "type": "string"
+              },
+              "p256dh": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth",
+              "p256dh"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "endpoint",
+          "keys"
+        ],
+        "type": "object"
+      },
+      "TaskCompletionResponse": {
+        "properties": {
+          "tasksReset": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tasksReset"
+        ],
+        "type": "object"
+      },
+      "TaskWithSubject": {
+        "properties": {
+          "animalId": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "enclosureId": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "lastCompleted": {
+            "type": "string"
+          },
+          "repeatIntervHours": {
+            "type": "integer"
+          },
+          "taskDesc": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "integer"
+          },
+          "taskName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "animalId",
+          "complete",
+          "enclosureId",
+          "lastCompleted",
+          "repeatIntervHours",
+          "taskDesc",
+          "taskId",
+          "taskName"
+        ],
+        "type": "object"
+      },
+      "TestNotificationResponse": {
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/TestNotificationResult"
+            },
+            "type": "array"
+          },
+          "subscriptionCount": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "message",
+          "results",
+          "subscriptionCount"
+        ],
+        "type": "object"
+      },
+      "TestNotificationResult": {
+        "properties": {
+          "endpoint": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "httpStatus": {
+            "type": "integer"
+          },
+          "subscriptionId": {
+            "type": "integer"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "endpoint",
+          "error",
+          "httpStatus",
+          "subscriptionId",
+          "success"
+        ],
+        "type": "object"
+      },
+      "UnsubscribePayload": {
+        "properties": {
+          "endpoint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "endpoint"
+        ],
+        "type": "object"
+      },
+      "UpdateAnimalV2Payload": {
+        "properties": {
+          "animalName": {
+            "type": "string"
+          },
+          "dietDesc": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "enclosureId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "extraNotes": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "personalityDesc": {
+            "type": "string"
+          },
+          "routineDesc": {
+            "type": "string"
+          },
+          "speciesId": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "animalName",
+          "speciesId"
+        ],
+        "type": "object"
+      },
+      "UpdateEnclosureV2Payload": {
+        "properties": {
+          "enclosureName": {
+            "type": "string"
+          },
+          "habitatId": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enclosureName",
+          "habitatId"
+        ],
+        "type": "object"
+      },
+      "UpdateHabitatV2Payload": {
+        "properties": {
+          "dayTempRange": {
+            "type": "string"
+          },
+          "habitatDesc": {
+            "type": "string"
+          },
+          "habitatName": {
+            "type": "string"
+          },
+          "humidity": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "nightTempRange": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dayTempRange",
+          "habitatDesc",
+          "habitatName",
+          "humidity",
+          "image",
+          "nightTempRange"
+        ],
+        "type": "object"
+      },
+      "UpdateSpeciesV2Payload": {
+        "properties": {
+          "baskTemp": {
+            "type": "string"
+          },
+          "comName": {
+            "type": "string"
+          },
+          "conservationStatus": {
+            "type": "string"
+          },
+          "diet": {
+            "type": "string"
+          },
+          "extraCare": {
+            "type": "string"
+          },
+          "habitatId": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "image": {
+            "type": "string"
+          },
+          "lifespan": {
+            "type": "string"
+          },
+          "sciName": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "sociality": {
+            "type": "string"
+          },
+          "speciesDesc": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "baskTemp",
+          "comName",
+          "conservationStatus",
+          "diet",
+          "extraCare",
+          "habitatId",
+          "image",
+          "lifespan",
+          "sciName",
+          "size",
+          "sociality",
+          "speciesDesc",
+          "weight"
+        ],
+        "type": "object"
+      },
+      "UpdateTaskV2Payload": {
+        "properties": {
+          "animalId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "enclosureId": {
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "lastCompleted": {
+            "type": "string"
+          },
+          "repeatIntervHours": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "taskDesc": {
+            "type": "string"
+          },
+          "taskName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "lastCompleted",
+          "repeatIntervHours",
+          "taskDesc",
+          "taskName"
+        ],
+        "type": "object"
+      },
+      "UserResponse": {
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "email",
+          "firstName",
+          "id",
+          "lastName",
+          "phone"
+        ],
+        "type": "object"
+      },
+      "VAPIDKeyResponse": {
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "publicKey"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "description": "Raw JWT token from POST /users/login. Sent verbatim with no \"Bearer \" prefix.",
+        "in": "header",
+        "name": "Authorization",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "contact": {},
+    "description": "REST API for managing animals, enclosures and care tasks.\n\nOnly v2 routes are documented here. v1 remains served at /api/v1 for\nbackwards compatibility but is not part of this contract.",
+    "title": "Animal Family API",
+    "version": "2.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/animals": {
+      "get": {
+        "description": "Pass enclosureId to return only the animals in that enclosure. The enclosure must belong to the caller.",
+        "operationId": "listAnimals",
+        "parameters": [
+          {
+            "description": "Only return animals in this enclosure",
+            "in": "query",
+            "name": "enclosureId",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AnimalResponse"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "List the caller's animals",
+        "tags": [
+          "animals"
+        ]
+      },
+      "post": {
+        "operationId": "createAnimal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAnimalV2Payload"
+              }
+            }
+          },
+          "description": "Animal to create",
+          "required": true,
+          "x-originalParamName": "animal"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create an animal",
+        "tags": [
+          "animals"
+        ]
+      }
+    },
+    "/animals/{id}": {
+      "delete": {
+        "description": "Pass cascade=tasks to also delete the animal's tasks, replacing v1's separate /animal/withtasks route.",
+        "operationId": "deleteAnimal",
+        "parameters": [
+          {
+            "description": "Animal ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "What else to delete",
+            "in": "query",
+            "name": "cascade",
+            "schema": {
+              "enum": [
+                "tasks"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete one of the caller's animals",
+        "tags": [
+          "animals"
+        ]
+      },
+      "get": {
+        "operationId": "getAnimal",
+        "parameters": [
+          {
+            "description": "Animal ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnimalResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Get one of the caller's animals",
+        "tags": [
+          "animals"
+        ]
+      },
+      "put": {
+        "description": "A full replace: every field is set to the value sent, and an omitted field is reset rather than left alone. Memorial state is not affected — use /animals/{id}/memorial for that.",
+        "operationId": "updateAnimal",
+        "parameters": [
+          {
+            "description": "Animal ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAnimalV2Payload"
+              }
+            }
+          },
+          "description": "Updated animal fields",
+          "required": true,
+          "x-originalParamName": "animal"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Update one of the caller's animals",
+        "tags": [
+          "animals"
+        ]
+      }
+    },
+    "/animals/{id}/memorial": {
+      "delete": {
+        "description": "Returns a memorialised animal to the living roster, discarding its message and photos.",
+        "operationId": "clearAnimalMemorial",
+        "parameters": [
+          {
+            "description": "Animal ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Remove an animal's memorial",
+        "tags": [
+          "animals"
+        ]
+      },
+      "put": {
+        "description": "Records that an animal has died, along with a message, any photos, and the date. Memorialised animals are filtered out of the main views. Sending this again replaces the stored memorial.",
+        "operationId": "setAnimalMemorial",
+        "parameters": [
+          {
+            "description": "Animal ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAnimalMemorialPayload"
+              }
+            }
+          },
+          "description": "Memorial details",
+          "required": true,
+          "x-originalParamName": "memorial"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Memorialise one of the caller's animals",
+        "tags": [
+          "animals"
+        ]
+      }
+    },
+    "/enclosures": {
+      "get": {
+        "operationId": "listEnclosures",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Enclosure"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "List the caller's enclosures",
+        "tags": [
+          "enclosures"
+        ]
+      },
+      "post": {
+        "description": "Supply animalIds to move existing animals into the new enclosure as it is created. Every animal listed must belong to the caller.",
+        "operationId": "createEnclosure",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEnclosureV2Payload"
+              }
+            }
+          },
+          "description": "Enclosure to create",
+          "required": true,
+          "x-originalParamName": "enclosure"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create an enclosure",
+        "tags": [
+          "enclosures"
+        ]
+      }
+    },
+    "/enclosures/{id}": {
+      "delete": {
+        "description": "By default only the enclosure is removed and its animals are left without one. Pass cascade=tasks to also delete the enclosure's tasks, or cascade=animals to delete its animals and their tasks as well.",
+        "operationId": "deleteEnclosure",
+        "parameters": [
+          {
+            "description": "Enclosure ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "What else to delete",
+            "in": "query",
+            "name": "cascade",
+            "schema": {
+              "enum": [
+                "tasks",
+                "animals"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete one of the caller's enclosures",
+        "tags": [
+          "enclosures"
+        ]
+      },
+      "get": {
+        "operationId": "getEnclosure",
+        "parameters": [
+          {
+            "description": "Enclosure ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Enclosure"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Get one of the caller's enclosures",
+        "tags": [
+          "enclosures"
+        ]
+      },
+      "put": {
+        "operationId": "updateEnclosure",
+        "parameters": [
+          {
+            "description": "Enclosure ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEnclosureV2Payload"
+              }
+            }
+          },
+          "description": "Updated enclosure fields",
+          "required": true,
+          "x-originalParamName": "enclosure"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Update one of the caller's enclosures",
+        "tags": [
+          "enclosures"
+        ]
+      }
+    },
+    "/habitats": {
+      "get": {
+        "description": "Returns every habitat. Habitats are global reference data, not user-owned, so this endpoint is public.",
+        "operationId": "listHabitats",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Habitat"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "List all habitats",
+        "tags": [
+          "habitats"
+        ]
+      },
+      "post": {
+        "description": "Admin only. Fails if a habitat with the same name already exists.",
+        "operationId": "createHabitat",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHabitatPayload"
+              }
+            }
+          },
+          "description": "Habitat to create",
+          "required": true,
+          "x-originalParamName": "habitat"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create a habitat",
+        "tags": [
+          "habitats"
+        ]
+      }
+    },
+    "/habitats/{id}": {
+      "delete": {
+        "description": "Admin only.",
+        "operationId": "deleteHabitat",
+        "parameters": [
+          {
+            "description": "Habitat ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete a habitat",
+        "tags": [
+          "habitats"
+        ]
+      },
+      "put": {
+        "description": "Admin only. Replaces all fields of the habitat identified by the path parameter.",
+        "operationId": "updateHabitat",
+        "parameters": [
+          {
+            "description": "Habitat ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateHabitatV2Payload"
+              }
+            }
+          },
+          "description": "Updated habitat fields",
+          "required": true,
+          "x-originalParamName": "habitat"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Update a habitat",
+        "tags": [
+          "habitats"
+        ]
+      }
+    },
+    "/notifications/subscribe": {
+      "post": {
+        "operationId": "subscribeToPush",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscribePayload"
+              }
+            }
+          },
+          "description": "Browser push subscription",
+          "required": true,
+          "x-originalParamName": "subscription"
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Register a push subscription",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/subscriptions": {
+      "get": {
+        "operationId": "listPushSubscriptions",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PushSubscriptionResponse"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "List the caller's push subscriptions",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/test": {
+      "post": {
+        "description": "Delivers a test message to every subscription the caller has registered, reporting the outcome for each.",
+        "operationId": "sendTestNotification",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestNotificationResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Send a test push notification",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/unsubscribe": {
+      "post": {
+        "operationId": "unsubscribeFromPush",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnsubscribePayload"
+              }
+            }
+          },
+          "description": "Endpoint to remove",
+          "required": true,
+          "x-originalParamName": "subscription"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Remove a push subscription",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/vapid-public-key": {
+      "get": {
+        "description": "Browsers need this key to create a push subscription. It is public by design.",
+        "operationId": "getVapidPublicKey",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VAPIDKeyResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Get the VAPID public key",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/species": {
+      "get": {
+        "description": "Returns every species. Species are global reference data, not user-owned, so this endpoint is public.",
+        "operationId": "listSpecies",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Species"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "List all species",
+        "tags": [
+          "species"
+        ]
+      },
+      "post": {
+        "description": "Admin only. Fails if a species with the same common or scientific name already exists.",
+        "operationId": "createSpecies",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSpeciesPayload"
+              }
+            }
+          },
+          "description": "Species to create",
+          "required": true,
+          "x-originalParamName": "species"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create a species",
+        "tags": [
+          "species"
+        ]
+      }
+    },
+    "/species/generate": {
+      "post": {
+        "description": "Admin only. Uses an LLM to populate species details and generates an image, uploading it to S3. Fails if a species with that name already exists (case insensitive).",
+        "operationId": "generateSpecies",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateSpeciesPayload"
+              }
+            }
+          },
+          "description": "Common name of the species to generate",
+          "required": true,
+          "x-originalParamName": "species"
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Species"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Generate a species from a name",
+        "tags": [
+          "species"
+        ]
+      }
+    },
+    "/species/{id}": {
+      "delete": {
+        "description": "Admin only.",
+        "operationId": "deleteSpecies",
+        "parameters": [
+          {
+            "description": "Species ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete a species",
+        "tags": [
+          "species"
+        ]
+      },
+      "put": {
+        "description": "Admin only. Replaces all fields of the species identified by the path parameter.",
+        "operationId": "updateSpecies",
+        "parameters": [
+          {
+            "description": "Species ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSpeciesV2Payload"
+              }
+            }
+          },
+          "description": "Updated species fields",
+          "required": true,
+          "x-originalParamName": "species"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Update a species",
+        "tags": [
+          "species"
+        ]
+      }
+    },
+    "/tasks": {
+      "get": {
+        "description": "Pass animalId or enclosureId to return only the tasks attached to that subject. Supplying both is rejected.",
+        "operationId": "listTasks",
+        "parameters": [
+          {
+            "description": "Only tasks attached to this animal",
+            "in": "query",
+            "name": "animalId",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Only tasks attached to this enclosure",
+            "in": "query",
+            "name": "enclosureId",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaskWithSubject"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "List the caller's tasks",
+        "tags": [
+          "tasks"
+        ]
+      },
+      "post": {
+        "description": "A task belongs to exactly one subject, so supply either animalId or enclosureId. The subject must belong to the caller.",
+        "operationId": "createTask",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskV2Payload"
+              }
+            }
+          },
+          "description": "Task to create",
+          "required": true,
+          "x-originalParamName": "task"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create a task",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/tasks/check-completion": {
+      "get": {
+        "description": "Intended for a scheduler. Resets tasks whose repeat interval has elapsed and sends their notifications in the background.",
+        "operationId": "checkTaskCompletion",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskCompletionResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Reset repeating tasks that are due",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/tasks/{id}": {
+      "delete": {
+        "operationId": "deleteTask",
+        "parameters": [
+          {
+            "description": "Task ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete one of the caller's tasks",
+        "tags": [
+          "tasks"
+        ]
+      },
+      "get": {
+        "operationId": "getTask",
+        "parameters": [
+          {
+            "description": "Task ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskWithSubject"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Get one of the caller's tasks",
+        "tags": [
+          "tasks"
+        ]
+      },
+      "put": {
+        "description": "A full replace, also used to mark a task complete or incomplete. Supply the subject (animalId or enclosureId) on every update, not only when moving the task.",
+        "operationId": "updateTask",
+        "parameters": [
+          {
+            "description": "Task ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskV2Payload"
+              }
+            }
+          },
+          "description": "Updated task fields",
+          "required": true,
+          "x-originalParamName": "task"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Update one of the caller's tasks",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/users/login": {
+      "post": {
+        "description": "The returned token is sent verbatim in the Authorization header, with no \"Bearer \" prefix.",
+        "operationId": "loginUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginUserPayload"
+              }
+            }
+          },
+          "description": "Email and password",
+          "required": true,
+          "x-originalParamName": "credentials"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Exchange credentials for a token",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/me": {
+      "delete": {
+        "operationId": "deleteCurrentUser",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete the authenticated user's account",
+        "tags": [
+          "users"
+        ]
+      },
+      "get": {
+        "operationId": "getCurrentUser",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Get the authenticated user",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/refresh-token": {
+      "post": {
+        "operationId": "refreshToken",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Issue a fresh token for the current session",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/register": {
+      "post": {
+        "operationId": "registerUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserPayload"
+              }
+            }
+          },
+          "description": "Account details",
+          "required": true,
+          "x-originalParamName": "user"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Create an account",
+        "tags": [
+          "users"
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Relative to the API host, configured per environment.",
+      "url": "/api/v2"
+    }
+  ]
+}

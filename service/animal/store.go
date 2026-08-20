@@ -3,6 +3,7 @@ package animal
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/whitallee/animal-family-backend/types"
 	"github.com/whitallee/animal-family-backend/utils"
@@ -267,7 +268,7 @@ func (s *Store) DeleteAnimalAndTasksById(animalId int) error {
 		}
 		taskIds = append(taskIds, taskId)
 	}
-	rows.Close()
+	_ = rows.Close()
 
 	// start deletion transaction
 	tx, err := s.db.Begin()
@@ -279,17 +280,17 @@ func (s *Store) DeleteAnimalAndTasksById(animalId int) error {
 	for _, taskId := range taskIds {
 		_, err = tx.Exec(`DELETE FROM "taskUser" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "taskSubject" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 		_, err = tx.Exec(`DELETE FROM "tasks" WHERE "taskId" = $1`, taskId)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 	}
@@ -297,12 +298,12 @@ func (s *Store) DeleteAnimalAndTasksById(animalId int) error {
 	// delete from animalUser and animals
 	_, err = tx.Exec(`DELETE FROM "animalUser" WHERE "animalId" = $1`, animalId)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 	_, err = tx.Exec(`DELETE FROM "animals" WHERE "animalId" = $1`, animalId)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 
@@ -312,4 +313,64 @@ func (s *Store) DeleteAnimalAndTasksById(animalId int) error {
 	}
 
 	return nil
+}
+
+// UserOwnsAnimal reports whether the user owns the animal.
+//
+// Unlike GetAnimalUserByIds it distinguishes "not owned" (false, nil) from a
+// failed lookup (false, err), so callers can answer 403 and 500 correctly
+// instead of collapsing both into one status. It also uses EXISTS rather than
+// selecting and scanning the row, since only the answer is needed.
+func (s *Store) UserOwnsAnimal(animalId int, userID int) (bool, error) {
+	var owned bool
+	err := s.db.QueryRow(
+		`SELECT EXISTS(SELECT 1 FROM "animalUser" WHERE "animalId" = $1 AND "userId" = $2)`,
+		animalId, userID,
+	).Scan(&owned)
+	if err != nil {
+		return false, err
+	}
+
+	return owned, nil
+}
+
+// UpdateAnimalDetails writes the editable detail columns and nothing else.
+//
+// UpdateAnimal sets all fourteen columns, including the four memorial ones. The
+// v2 edit payload deliberately carries no memorial data, so routing an edit
+// through UpdateAnimal would write zero values over a memorial message, its
+// photos and its date. Leaving those columns out of this statement makes that
+// impossible rather than merely unlikely.
+func (s *Store) UpdateAnimalDetails(animal types.Animal) error {
+	_, err := s.db.Exec(`UPDATE "animals"
+						SET "animalName" = $1, "image" = $2, "extraNotes" = $3, "speciesId" = $4,
+						"enclosureId" = $5, "gender" = $6, "dob" = $7, "personalityDesc" = $8,
+						"dietDesc" = $9, "routineDesc" = $10
+						WHERE "animalId" = $11`,
+		animal.AnimalName, animal.Image, animal.ExtraNotes, animal.SpeciesId,
+		animal.EnclosureId, animal.Gender, animal.Dob, animal.PersonalityDesc,
+		animal.DietDesc, animal.RoutineDesc, animal.AnimalId)
+
+	return err
+}
+
+// SetAnimalMemorial marks an animal memorialised.
+func (s *Store) SetAnimalMemorial(animalId int, lastMessage string, photosJSON string, memorialDate time.Time) error {
+	_, err := s.db.Exec(`UPDATE "animals"
+						SET "isMemorialized" = true, "lastMessage" = $1, "memorialPhotos" = $2, "memorialDate" = $3
+						WHERE "animalId" = $4`,
+		lastMessage, photosJSON, memorialDate, animalId)
+
+	return err
+}
+
+// ClearAnimalMemorial reverses SetAnimalMemorial, returning the animal to the
+// living roster. "memorialDate" is NOT NULL, so it keeps its stored value and is
+// simply ignored while isMemorialized is false.
+func (s *Store) ClearAnimalMemorial(animalId int) error {
+	_, err := s.db.Exec(`UPDATE "animals"
+						SET "isMemorialized" = false, "lastMessage" = NULL, "memorialPhotos" = NULL
+						WHERE "animalId" = $1`, animalId)
+
+	return err
 }

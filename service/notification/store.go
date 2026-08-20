@@ -39,7 +39,7 @@ func (s *Store) GetSubscriptionsByUserId(userId int) ([]*types.PushSubscription,
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	subscriptions := make([]*types.PushSubscription, 0)
 	for rows.Next() {
