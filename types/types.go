@@ -466,6 +466,10 @@ type TaskStore interface {
 	// AnimalStore.UserOwnsAnimal.
 	UserOwnsTask(taskId int, userID int) (bool, error)
 	GetTaskById(int) (*Task, error)
+	// GetTaskWithSubjectById is what the single-task route returns. A bare Task
+	// omits the subject, which PUT /tasks/{id} requires, so reading a task,
+	// changing a field and writing it back would be impossible without it.
+	GetTaskWithSubjectById(int) (*TaskWithSubject, error)
 	GetTasksWithSubjectByUserId(int) ([]*TaskWithSubject, error)
 	GetTasksBySubjectIds(animalId int, enclosureId int) ([]*Task, error)
 	DeleteTaskById(int) error

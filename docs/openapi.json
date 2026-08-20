@@ -555,37 +555,6 @@
         ],
         "type": "object"
       },
-      "Task": {
-        "properties": {
-          "complete": {
-            "type": "boolean"
-          },
-          "lastCompleted": {
-            "type": "string"
-          },
-          "repeatIntervHours": {
-            "type": "integer"
-          },
-          "taskDesc": {
-            "type": "string"
-          },
-          "taskId": {
-            "type": "integer"
-          },
-          "taskName": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "complete",
-          "lastCompleted",
-          "repeatIntervHours",
-          "taskDesc",
-          "taskId",
-          "taskName"
-        ],
-        "type": "object"
-      },
       "TaskCompletionResponse": {
         "properties": {
           "tasksReset": {
@@ -1531,7 +1500,7 @@
     },
     "/enclosures/{id}": {
       "delete": {
-        "description": "By default only the enclosure is removed and its animals are left without one. Pass cascade=tasks to also delete the enclosure's tasks, or cascade=animals,tasks to delete its animals and their tasks as well.",
+        "description": "By default only the enclosure is removed and its animals are left without one. Pass cascade=tasks to also delete the enclosure's tasks, or cascade=animals to delete its animals and their tasks as well.",
         "operationId": "deleteEnclosure",
         "parameters": [
           {
@@ -1550,8 +1519,7 @@
             "schema": {
               "enum": [
                 "tasks",
-                "animals",
-                "tasks"
+                "animals"
               ],
               "type": "string"
             }
@@ -2802,7 +2770,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Task"
+                  "$ref": "#/components/schemas/TaskWithSubject"
                 }
               }
             },

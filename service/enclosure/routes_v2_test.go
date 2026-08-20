@@ -38,6 +38,7 @@ func TestParseCascadeAcceptedValues(t *testing.T) {
 	cases := map[string]cascadeMode{
 		"":                    cascadeNone,
 		"tasks":               cascadeTasks,
+		"animals":             cascadeAnimalsAndTasks,
 		"animals,tasks":       cascadeAnimalsAndTasks,
 		"tasks,animals":       cascadeAnimalsAndTasks,
 		" tasks , animals ":   cascadeAnimalsAndTasks,
@@ -68,10 +69,21 @@ func TestParseCascadeRejectsUnknownValues(t *testing.T) {
 	}
 }
 
-// Deleting an enclosure's animals while keeping their tasks would leave those
-// tasks pointing at animals that no longer exist, and no store method does it.
-func TestParseCascadeRejectsAnimalsWithoutTasks(t *testing.T) {
-	if _, err := parseCascade("animals"); err == nil {
-		t.Error("expected cascade=animals alone to be rejected")
+// "animals" means animals and their tasks. Keeping the tasks would leave them
+// pointing at animals that no longer exist, so there is no other reading, and
+// spelling it "animals,tasks" must mean the same thing.
+func TestParseCascadeAnimalsImpliesTasks(t *testing.T) {
+	withoutTasks, err := parseCascade("animals")
+	if err != nil {
+		t.Fatalf("cascade=animals should be accepted: %v", err)
+	}
+
+	spelledOut, err := parseCascade("animals,tasks")
+	if err != nil {
+		t.Fatalf("cascade=animals,tasks should be accepted: %v", err)
+	}
+
+	if withoutTasks != spelledOut || withoutTasks != cascadeAnimalsAndTasks {
+		t.Errorf("both spellings should delete animals and tasks, got %v and %v", withoutTasks, spelledOut)
 	}
 }

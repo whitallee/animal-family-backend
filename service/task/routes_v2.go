@@ -158,7 +158,7 @@ func filterTasksBySubject(tasks []*types.TaskWithSubject, animalId *int, enclosu
 //	@Tags			tasks
 //	@Produce		json
 //	@Param			id	path		int	true	"Task ID"
-//	@Success		200	{object}	types.Task
+//	@Success		200	{object}	types.TaskWithSubject
 //	@Failure		400	{object}	types.ErrorResponse
 //	@Failure		403	{object}	types.ErrorResponse
 //	@Failure		500	{object}	types.ErrorResponse
@@ -168,7 +168,8 @@ func (h *Handler) handleGetTask(w http.ResponseWriter, r *http.Request) {
 	// Already parsed and ownership-checked by RequireOwnership.
 	id := auth.ResourceIDFromContext(r.Context())
 
-	task, err := h.store.GetTaskById(id)
+	// Includes the subject, which PUT requires back on every update.
+	task, err := h.store.GetTaskWithSubjectById(id)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return

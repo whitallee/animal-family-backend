@@ -196,11 +196,11 @@ func (h *Handler) handleUpdateEnclosure(w http.ResponseWriter, r *http.Request) 
 //
 //	@Id				deleteEnclosure
 //	@Summary		Delete one of the caller's enclosures
-//	@Description	By default only the enclosure is removed and its animals are left without one. Pass cascade=tasks to also delete the enclosure's tasks, or cascade=animals,tasks to delete its animals and their tasks as well.
+//	@Description	By default only the enclosure is removed and its animals are left without one. Pass cascade=tasks to also delete the enclosure's tasks, or cascade=animals to delete its animals and their tasks as well.
 //	@Tags			enclosures
 //	@Produce		json
 //	@Param			id		path	int		true	"Enclosure ID"
-//	@Param			cascade	query	string	false	"What else to delete"	Enums(tasks, animals,tasks)
+//	@Param			cascade	query	string	false	"What else to delete"	Enums(tasks, animals)
 //	@Success		204
 //	@Failure		400	{object}	types.ErrorResponse
 //	@Failure		403	{object}	types.ErrorResponse
@@ -264,14 +264,20 @@ func parseCascade(raw string) (cascadeMode, error) {
 		}
 	}
 
+	// "animals" implies their tasks. Deleting an animal while keeping its tasks
+	// would orphan them, and no store method supports it, so there is no
+	// meaning left for "animals" on its own to carry.
+	//
+	// This also keeps every accepted value comma-free, which matters because
+	// the spec's enum is comma-separated: a value of "animals,tasks" could not
+	// be expressed there, and the generated client would have had no way to ask
+	// for it. "animals,tasks" is still accepted for callers that spell it out.
 	switch {
-	case wantAnimals && wantTasks:
+	case wantAnimals:
 		return cascadeAnimalsAndTasks, nil
 	case wantTasks:
 		return cascadeTasks, nil
 	default:
-		// Deleting animals while keeping their tasks would orphan those tasks,
-		// and no store method supports it.
-		return cascadeNone, fmt.Errorf("invalid cascade value %q: animals cannot be deleted without tasks", raw)
+		return cascadeNone, fmt.Errorf("invalid cascade value %q: expected tasks or animals", raw)
 	}
 }

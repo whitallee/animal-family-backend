@@ -333,3 +333,36 @@ func (s *Store) SetTaskSubject(taskId int, animalId *int, enclosureId *int) erro
 
 	return err
 }
+
+// GetTaskWithSubjectById returns a task together with the subject it belongs
+// to, mirroring what the collection route returns for each entry.
+//
+// GetTaskById selects from "tasks" alone and so cannot report the subject. That
+// left GET and PUT on the same path disagreeing about what a task is: the read
+// omitted the subject the write demanded, so a caller could not fetch a task,
+// change one field and send it back.
+func (s *Store) GetTaskWithSubjectById(taskId int) (*types.TaskWithSubject, error) {
+	rows, err := s.db.Query(
+		`SELECT t."taskId", t."taskName", t."taskDesc", t."complete", t."lastCompleted", t."repeatIntervHours", ts."animalId", ts."enclosureId"
+		 FROM "tasks" t INNER JOIN "taskSubject" ts ON ts."taskId" = t."taskId"
+		 WHERE t."taskId" = $1`, taskId)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	if !rows.Next() {
+		if err := rows.Err(); err != nil {
+			return nil, err
+		}
+
+		return nil, fmt.Errorf("task with id %d not found", taskId)
+	}
+
+	task, err := utils.ScanRowsIntoTaskWithSubject(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
