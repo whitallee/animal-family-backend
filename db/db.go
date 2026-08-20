@@ -27,8 +27,9 @@ func NewPostgresStorage(cfg PostgresConfig) (*sql.DB, error) {
 		log.Fatal(err)
 	}
 
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(25)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(2)
+	db.SetConnMaxIdleTime(2 * time.Minute)
 	db.SetConnMaxLifetime(5 * time.Minute)
 
 	return db, nil
